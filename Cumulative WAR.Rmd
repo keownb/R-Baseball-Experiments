@@ -82,16 +82,12 @@ HOF_with_names_and_war_summed
 
 
 ```{r}
-HOF_with_names_and_war
+
 
 HOF_with_names_and_war_cumsummed <- HOF_with_names_and_war %>% 
   group_by(name_common.x, year_ID) %>% summarise(WAR = sum(WAR), age=age) %>% 
   group_by(name_common.x) %>% summarise(cumWAR = cumsum(WAR), year_ID, age, sumWAR = sum(WAR)) %>% filter(sumWAR >25) 
 HOF_with_names_and_war_cumsummed
-
-
-#HOF_with_names_and_war_cumsummed_unfuck <- HOF_with_names_and_war_cumsummed %>% group_by(name_common, year_ID) %>% summarise(cumWAR= sum(cumWAR),sumWAR)
-#HOF_with_names_and_war_cumsummed_unfuck
 
 
 p <- ggplot(HOF_with_names_and_war_cumsummed, mapping=aes(x=year_ID,y=cumWAR))
