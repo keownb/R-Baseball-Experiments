@@ -1,6 +1,6 @@
 ---
 title: "Cumulative WAR"
-author: "Martin Monkman"
+author: "Brice Keown"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
