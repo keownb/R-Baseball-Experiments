@@ -1,0 +1,335 @@
+---
+title: "Cumulative WAR"
+author: "Martin Monkman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cumulative WAR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Run scoring trends: Sub-titles and captions with ggplot2
+
+
+This vignette demonstrates how to create a plot (using `ggplot2`) showing Major League Baseball runscoring trends since the 1901 season.
+
+First, we load the necessary packages: `Lahman` (containing the baseball data), `ggplot2` to create the plots, and the data carpentry package `dplyr` (note that `ggplot2` and `dplyr` are included in the `tidyverse` package):
+
+
+```{r Setup, message=FALSE}
+
+# package load 
+library(Lahman)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(ggrepel)
+library(gghighlight)
+library(here)
+library(lattice)
+library(directlabels)
+
+```
+
+#### Read and summarize the data
+
+For this example, we'll use the data table `Teams` in the Lahman database.
+
+Once it's loaded, the data are filtered and summarized using dplyr.
+
+ - filters from 1901 (the establishment of the American League) to the most recent year,
+
+ - filters out (using `!=`) the Federal League
+
+ - after grouping by the year, summarizes the total number of runs scored, runs allowed, and games played
+
+ - finally, calculates the league runs (`leagueRPG`) and runs allowed (`leagueRAPG`) per game 
+
+
+
+
+```{r, message=FALSE}
+data(Teams)
+data("People")
+data("HallOfFame")
+people_tb <- as_tibble(People)
+people_tb
+#Get WAR
+WAR_data <- read_csv(file = "https://www.baseball-reference.com/data/war_daily_pitch.txt")  #%>% filter(name_common=="Ted Williams")
+WAR_tb <- as_tibble(WAR_data)
+WAR_tb
+#hofinfo
+```
+
+
+
+```{r, message=FALSE}
+```
+
+Adds player names to HOF, only gets folks who're inducted, join to get name_common
+```{r, message=FALSE}
+HOF <- HallOfFame %>%
+  filter(inducted == "Y", category =="Player")
+
+HOF_with_names <- HOF %>% inner_join(People, by = "playerID") %>% unite("name_common","nameFirst":"nameLast",sep=" ", remove=TRUE)
+HOF_with_names_tb <- as_tibble(HOF_with_names)
+#HOF_with_names_tb
+
+#WAR_tb <- as_tibble(WAR_data)
+#WAR_tb
+colnames(WAR_data)[colnames(WAR_data) == 'player_ID'] <- 'bbrefID'
+
+HOF_with_names_and_war <- HOF_with_names %>% inner_join(WAR_data, by="bbrefID") 
+HOF_with_names_and_war$WAR <- as.numeric(HOF_with_names_and_war$WAR)
+
+
+HOF_with_names_and_war_summed <- HOF_with_names_and_war %>% 
+  group_by(name_common.x, yearID) %>% 
+  summarise(WAR = sum(WAR)) %>% filter(WAR>5 )
+
+p <- ggplot(HOF_with_names_and_war_summed, mapping=aes(x=yearID,y=WAR,label=name_common.x))
+p + geom_point() + geom_text_repel(aes(label=name_common.x),hjust=0, vjust=0)
+
+HOF_with_names_and_war_summed <- as_tibble(HOF_with_names_and_war_summed)
+HOF_with_names_and_war_summed
+```
+
+
+
+
+```{r}
+HOF_with_names_and_war
+
+HOF_with_names_and_war_cumsummed <- HOF_with_names_and_war %>% 
+  group_by(name_common.x, year_ID) %>% summarise(WAR = sum(WAR), age=age) %>% 
+  group_by(name_common.x) %>% summarise(cumWAR = cumsum(WAR), year_ID, age, sumWAR = sum(WAR)) %>% filter(sumWAR >25) 
+HOF_with_names_and_war_cumsummed
+
+
+#HOF_with_names_and_war_cumsummed_unfuck <- HOF_with_names_and_war_cumsummed %>% group_by(name_common, year_ID) %>% summarise(cumWAR= sum(cumWAR),sumWAR)
+#HOF_with_names_and_war_cumsummed_unfuck
+
+
+p <- ggplot(HOF_with_names_and_war_cumsummed, mapping=aes(x=year_ID,y=cumWAR))
+p + geom_line(aes(group=name_common.x, colour=name_common.x), alpha = .7) + gghighlight(max(cumWAR)>100)+
+    labs(x="Year", y = "Cumulative WAR", 
+       title = "Cumulative WAR for Hall of Fame Pitchers",
+       subtitle = "Career WAR > 100 highlighted",
+       caption="Source: Baseball Reference")
+p + geom_line(aes(group=name_common.x, colour=name_common.x), alpha = .7) + gghighlight(max(cumWAR)<40)+
+    labs(x="Year", y = "Cumulative WAR", 
+       title = "Cumulative WAR for Hall of Fame Pitchers",
+       subtitle = "Career WAR < 40 highlighted",
+       caption="Source: Baseball Reference")
+
+p <- ggplot(HOF_with_names_and_war_cumsummed, mapping=aes(x=age,y=cumWAR))
+p + geom_line(aes(group=name_common.x), alpha=.1)
+
+#HOF_with_names_and_war_cumsummed <- as_tibble(HOF_with_names_and_war_cumsummed)
+#HOF_with_names_and_war_cumsummed
+```
+OK so moving on to trying to do small multiples of teams.  Feeling good about all that though
+
+```{r}
+WAR_data
+WAR_data$WAR <- as.numeric(WAR_data$WAR)
+#Fix Team Names, need to figure out how to get unique
+#Team_Map <- Teams %>% group_by(teamID) %>% summarise(franchID, yearID) %>% distinct()
+#Team_Map
+
+#WAR_teamfix <- merge(x=WAR, y=Team_Map, by.x = c("team_ID","year_ID"), by.y= c("teamID","yearID") )
+##WAR_teamfix
+
+WAR_teamfix <- WAR_data %>% mutate(team_ID=recode(team_ID,
+                                                  "ANA" = "LAA",
+                                                  "CAL" = "LAA",
+                                                  "TBA" = "TBD",
+                                                  "TBR" = "TBD"))
+
+WAR_cum <- WAR_teamfix %>% group_by(bbrefID)  %>% summarise(cumWAR =cumsum(WAR), maxWAR=sum(WAR),name_common, WAR, year_ID, lg_ID, age, team_ID) %>% group_by(bbrefID, team_ID) %>% summarise(cumWAR_by_team = cumsum(WAR), maxWAR_by_team = sum(WAR),maxYear_by_team = max(year_ID),   name_common, WAR, year_ID, lg_ID, age, team_ID)
+
+#need to fix team names!
+
+
+```
+making sure just the mariners works
+```{r}
+WAR_cum_justms <- WAR_cum %>% filter(team_ID == "SEA", year_ID > 1900)
+WAR_cum_justms_top5 <- WAR_cum_justms %>%slice_max(order_by=cumWAR_by_team,n=1) %>% ungroup() %>% slice_max(order_by=cumWAR_by_team,n=5) %>% summarise(bbrefID, top5=TRUE, maxYear_by_team)
+WAR_cum_justms_top5
+
+war_cum_justmswithtop5 <- left_join(WAR_cum_justms,WAR_cum_justms_top5)
+war_cum_justmswithtop5
+
+WAR_cum_justms_top5
+p <- ggplot(war_cum_justmswithtop5, mapping=aes(x = year_ID, y=cumWAR_by_team))
+p + geom_line(aes(group=bbrefID), alpha = .3) + geom_line(subset(war_cum_justmswithtop5, top5==TRUE), mapping=aes(group=bbrefID, colour = name_common)) + geom_label_repel(subset(war_cum_justmswithtop5, top5==TRUE & maxYear_by_team==year_ID), mapping=aes(group=bbrefID, colour = name_common, label = name_common),point.padding = NA, nudge_y = .5 )
+# p + geom_line(subset(war_cum_justmswithtop5, top5==TRUE), mapping=aes(group=bbrefID, label))
+```
+now lets do 2 teams
+```{r}
+WAR_cum_just2 <- WAR_cum %>% filter(team_ID == "NYY" | team_ID =="CHC") %>% filter(year_ID > 1960)
+TopN <- 5
+WAR_cum_just2_topn <- WAR_cum_just2 %>%slice_max(order_by=cumWAR_by_team,n=1) %>% ungroup() %>% group_by(team_ID) %>% slice_max(order_by=cumWAR_by_team,n=TopN) %>% summarise(bbrefID, team_ID, isTopN=TRUE)
+WAR_cum_just2_topn
+
+
+war_cum_just2withtopn <- left_join(WAR_cum_just2,WAR_cum_just2_topn)
+war_cum_just2withtopn[is.na(war_cum_just2withtopn)] <- 0
+war_cum_just2withtopn
+
+
+p <- ggplot(war_cum_just2withtopn, mapping=aes(x = year_ID, y=cumWAR_by_team))
+p + geom_line(aes(group=bbrefID), alpha = .2) + geom_line(subset(war_cum_just2withtopn, isTopN==TRUE), mapping=aes(group=bbrefID, colour = name_common)) +
+    geom_label_repel(subset(war_cum_just2withtopn, isTopN==TRUE & cumWAR_by_team==maxWAR_by_team), mapping=aes(group=bbrefID, colour = name_common, label = name_common),point.padding = NA, nudge_y = 0, force = 3, max.iter=10000,fill = alpha(c("white"),0.4)) + facet_wrap(~team_ID)
+```
+
+try all teams!
+```{r fig.width=1, fig.height=8}
+
+MLB <- data.frame("League" = c("AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","AL","NL","NL","NL","NL","NL","NL","NL","NL","NL","NL","NL","NL","NL","NL","NL"),"Division"=c("West","West","West","West","West","Central","Central","Central","Central","Central","East","East","East","East","East","West","West","West","West","West","Central","Central","Central","Central","Central","East","East","East","East","East"), "Team"=c("SEA","OAK","LAA", "TEX", "HOU","CLE","CHW","MIN","DET","KCR","NYY","BOS","TOR","BAL","TBD","SDP","LAD","COL","ARI","SFG","CIN","CHC","STL","MIL","PIT","NYM","PHI","WSN","FLA", "ATL"))
+
+WAR_cum_all <- left_join(WAR_cum, MLB, by = c("team_ID" = "Team")) %>% unite("Division","League":"Division",sep=" ", remove=TRUE)
+WAR_cum_all
+ThisLeague <- "AL Central"
+#WAR_cum_all <- WAR_cum %>% filter(team_ID == "SEA" | team_ID =="OAK" | team_ID == "LAA"| team_ID=="TEX" | team_ID == "HOU", year_ID > 1900)
+WAR_cum_all <- WAR_cum_all %>% filter( year_ID > 1960 & Division != "NA NA")
+WAR_cum_all
+TopN <- 5
+WAR_cum_all_topn <- WAR_cum_all %>%slice_max(order_by=cumWAR_by_team,n=1) %>% ungroup() %>% group_by(team_ID) %>% slice_max(order_by=cumWAR_by_team,n=TopN) %>% summarise(bbrefID, team_ID, Division, isTopN=TRUE)
+
+WAR_cum_all_topn <- left_join(WAR_cum_all,WAR_cum_all_topn)
+#WAR_cum_all_topn[is.na(WAR_cum_all_topn)] <- 0
+WAR_cum_all_topn
+
+p <- ggplot(WAR_cum_all_topn, mapping=aes(x = year_ID, y=cumWAR_by_team))
+p_out <- p + geom_line(aes(group=bbrefID), alpha = .1) + 
+  geom_line(subset(WAR_cum_all_topn, isTopN==TRUE), mapping=aes(group=bbrefID, colour = name_common)) +
+  geom_label_repel(subset(WAR_cum_all_topn, isTopN==TRUE & cumWAR_by_team==maxWAR_by_team),
+                   mapping=aes(group=bbrefID, colour = name_common, label = name_common),point.padding = NA, nudge_y = .9, force = 3, max.iter=50000,fill = alpha(c("white"),0.4) ) + 
+  facet_wrap(~team_ID, ncol=5) + theme(legend.position = "none",panel.spacing = unit(1, "lines")) +
+  labs(x="Year", y = "Cumulative WAR", 
+       title = paste("Cumulative WAR for Pitchers by Team, 1960-2019"),
+       subtitle = "Top 5 player-team-WAR highlighted",
+       caption="Source: Baseball Reference")
+ggsave(here(paste("All30since1960_labels.png")),plot=p_out, height =18, width = 15, units ="in")
+                                                     
+
+```
+WAR_cum_all_topn <- left_join(WAR_cum_all,WAR_cum_all_topn)
+#WAR_cum_all_topn[is.na(WAR_cum_all_topn)] <- 0
+WAR_cum_all_topn
+
+p <- ggplot(WAR_cum_all_topn, mapping=aes(x = year_ID, y=cumWAR_by_team))
+p_out <- p + geom_line(aes(group=bbrefID), alpha = .3) + 
+  geom_line(subset(WAR_cum_all_topn, isTopN==TRUE), mapping=aes(group=bbrefID, colour = name_common)) +
+  geom_text_repel(subset(WAR_cum_all_topn, isTopN==TRUE & cumWAR_by_team==maxWAR_by_team),
+                   mapping=aes(group=bbrefID, colour = name_common, label = name_common)) + 
+  facet_wrap(~team_ID, ncol=5,scales = "free_x") + theme(legend.position = "none",panel.spacing = unit(1, "lines")) +
+  labs(x="Year", y = "Cumulative WAR", 
+       title = paste("Cumulative WAR for Pitchers by Team, " , ThisLeague),
+       subtitle = "Top 5 player-team-WAR highlighted",
+       caption="Source: Baseball Reference")
+ggsave(here(paste(ThisLeague, ".png")),plot=p_out, height =4, width = 16, units ="in")
+
+
+p <- ggplot(WAR_cum_all_topn, mapping=aes(x = year_ID, y=cumWAR_by_team))
+p_out <- p + geom_line(aes(group=bbrefID), alpha = .3) + 
+  geom_line(subset(WAR_cum_all_topn, isTopN==TRUE), mapping=aes(group=bbrefID, colour = name_common)) +
+  geom_text_repel(subset(WAR_cum_all_topn, isTopN==TRUE & cumWAR_by_team==maxWAR_by_team),
+                   mapping=aes(group=bbrefID, colour = name_common, label = name_common)) + 
+  facet_grid(rows = vars(Division), col = vars(team_ID), drop = TRUE) + theme(legend.position = "none",panel.spacing = unit(1, "lines")) +
+  labs(x="Year", y = "Cumulative WAR", 
+       title = paste("Cumulative WAR for Pitchers by Team, " , ThisLeague),
+       subtitle = "Top 5 player-team-WAR highlighted",
+       caption="Source: Baseball Reference")
+ggsave(here(paste(ThisLeague, "lol.png")),plot=p_out, height =20, width = 16, units ="in")
+```
+
+
+
+```{r }
+WAR_cum_2teams <- WAR_cum %>% filter (team_ID=="SEA" || team_ID=="LAA")
+                                        #team_ID=="TEX"||team_ID=="LAA"||team_ID=="HOU")
+WAR_cum_2teams
+WAR_cum_2teams[is.na(WAR_cum_2teams)] <- 0
+p <- ggplot(WAR_cum_2teams, mapping=aes(x = year_ID, y=cumWAR_by_team)) + geom_line(aes(group=name_common), alpha = .7)+ facet_wrap(~ factor(team_ID))
+p + gghighlight(  max(cumWAR_by_team),calculate_per_facet=TRUE, max_highlight = 5)
+#+ gghighlight(max(cumWAR_by_team)) + facet_wrap(~ factor(team_ID), ncol=5)
+```
+
+
+
+
+'#### A basic plot
+
+You may have heard that run scoring in Major League Baseball has been down in recent years--or is it going back up? This is a perfect opportunity to visualize the date; what can we see in a plot?
+
+For the first version of the plot, we'll make a basic X-Y plot, where the X axis has the years and the Y axis has the average number of runs scored.  With `ggplot2`, it's easy to add a trend line (using the `geom_smooth` option).
+
+The `scale_x_continuous` options set the limits and breaks of the axes.
+
+
+```{r, message=FALSE}
+
+MLBRPGplot <- ggplot(MLB_RPG, aes(x=yearID, y=leagueRPG)) +
+  geom_point() +
+  geom_smooth(span = 0.25) +
+  scale_x_continuous(breaks = seq(1900, 2015, by = 20)) +
+  scale_y_continuous(limits = c(3, 6), breaks = seq(3, 6, by = 1))
+
+MLBRPGplot
+
+```
+
+
+The way we would set the title, along with X and Y axis labels, would be something like this.
+
+
+```{r message=FALSE}
+  
+MLBRPGplot +
+  ggtitle("MLB run scoring, 1901-2016") +
+  theme(plot.title = element_text(hjust=0, size=16)) +
+  xlab("year") +
+  ylab("team runs per game")
+
+```
+
+
+
+### Adding a subtitle: the function
+
+So now we have a nice looking dot plot showing the average number of runs scored per game for the years 1901-2016. (The 2016 data is the most recent that has been added to the database.)
+
+But a popular feature of charts--particularly in magazines--is a subtitle that has a summary of what the chart shows and/or what the author wants to emphasize.
+
+In this case, we could legitimately say something like any of the following:
+
+- The peak of run scoring in the 2000 season has been followed by a steady drop
+
+- Teams scored 20% fewer runs in 2016 than in 2000
+
+- Team run scoring has fallen to just over 4 runs per game from the 2000 peak of 5 runs
+
+- Run scoring has been falling for 15 years, reversing a 30 year upward trend
+
+I like this last one, drawing attention not only to the recent decline but also the longer trend that started with the low-scoring environment of 1968.
+
+How can we add a subtitle to our chart that does that, as well as a caption that acknowledges the source of the data?  The new `labs` function, available starting with `ggplot2` version 2.2.0, lets us do that.
+
+Note that `labs` contains the title, subtitle, caption, as well as the X and Y axis labels.
+
+```{r, message=FALSE}
+
+MLBRPGplot +
+  labs(title = "MLB run scoring, 1901-2016",
+       subtitle = "Run scoring in 2016 was the highest in seven years",
+       caption = "Source: the Lahman baseball database", 
+       x = "year", y = "team runs per game") 
+
+
+```
+
+
