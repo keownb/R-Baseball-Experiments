@@ -9,7 +9,8 @@ knit: (function(input_file, encoding) {
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 ---
 
-
+##Cumulative WAR
+I was playing around with the Lahman data, and got curious about cumulative player WAR by team.  What are the top N players by position for each team?
 
 
 
