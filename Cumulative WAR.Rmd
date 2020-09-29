@@ -2,6 +2,7 @@
 title: "Cumulative WAR"
 author: "Brice Keown"
 date: "`r Sys.Date()`"
+output: html_document
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
@@ -9,10 +10,15 @@ knit: (function(input_file, encoding) {
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 ---
 
-##Cumulative WAR
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+## intro
 I was playing around with the Lahman data, and got curious about cumulative player WAR by team.  What are the top N players by position for each team?
 
-
+Load some packages!
 
 ```{r Setup, message=FALSE}
 

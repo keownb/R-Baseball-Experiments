@@ -1,0 +1,108 @@
+---
+title: "Hall of Fame WAR"
+author: "Brice Keown"
+date: "`r Sys.Date()`"
+output: html_document
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'indexHoF.html'))})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+## Getting started with WAR
+I wanted to recreate the cumulative WAR graphs popular on [FanGraphs](https://fangraphs.com) and elsewhere. Specifically I wanted to graph the WAR totals of the top hall of fame pitchers.
+```{r Setup, message=FALSE}
+
+# package load 
+library(Lahman)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(ggrepel)
+library(gghighlight)
+library(here)
+library(lattice)
+library(directlabels)
+
+```
+First, we read the necessary tables in from Lahman and download pitcher WAR from our friends at baseball reference.
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+data(Teams)
+data("People")
+data("HallOfFame")
+WAR_data <- read_csv(file = "https://www.baseball-reference.com/data/war_daily_pitch.txt")
+
+```
+
+
+
+### Career WAR
+Next, we do some joins to get one table with pitchers who were in the HoF. and take a quick look at career WARs
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+HOF <- HallOfFame %>%
+  filter(inducted == "Y", category =="Player")
+
+#add common names to the list of players
+HOF_with_names <- HOF %>% inner_join(People, by = "playerID") %>% unite("name_common","nameFirst":"nameLast",sep=" ", remove=TRUE)
+
+#The Lahman data has handy unique identifiers used by b-r and other data sources.  Here we rename our b-r data to match the Lahman name.  Prob a way to handle this in the join but trying to keep steps clear.
+colnames(WAR_data)[colnames(WAR_data) == 'player_ID'] <- 'bbrefID'
+
+#join HoF with the name data by uuid, make sure R knows WAR is numeric
+HOF_with_names_and_war <- HOF_with_names %>% inner_join(WAR_data, by="bbrefID") 
+HOF_with_names_and_war$WAR <- as.numeric(HOF_with_names_and_war$WAR)
+
+#First we just calculate total WAR for each player. n.b. it probably makes more sense to do all this math on all players and then select the hof players at the very end but whatever.
+HOF_with_names_and_war_summed <- HOF_with_names_and_war %>% 
+  group_by(name_common.x, yearID) %>% 
+  summarise(WAR = sum(WAR)) %>% filter(WAR>10 )
+
+#simple plot of hof pitchers with > 10 career WAR. 
+p <- ggplot(HOF_with_names_and_war_summed, mapping=aes(x=yearID,y=WAR,label=name_common.x))
+p + geom_point() + geom_text_repel(aes(label=name_common.x),hjust=0, vjust=0)
+
+```
+Obviously this is a mess, but was useful to make sure the totals look ok.
+
+
+### Cumulative WAR
+Now we start calculating a running total of WAR for each year.
+
+Data is already sorted by age/year, so after we group by name, the cumsum function works as expected. The final filter gets rid of outliers like position players who pitched a few times or pitchers who made the HOF for non pitching reasons. Then we plot a quick look at WAR curves by age, highlighting WARs over 100.
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+
+
+HOF_with_names_and_war_cumsummed <- HOF_with_names_and_war %>% 
+  group_by(name_common.x) %>% summarise(cumWAR = cumsum(WAR), year_ID, age, sumWAR = sum(WAR)) %>% filter(sumWAR >10)
+HOF_with_names_and_war_cumsummed
+
+p <- ggplot(HOF_with_names_and_war_cumsummed, mapping=aes(x=age,y=cumWAR))
+p + geom_line(aes(group=name_common.x, colour=name_common.x), alpha=.5) + gghighlight(sumWAR>100)
+```  
+  
+This all looks plausible. The old outlier is Satchel Paige, who pitched one game at 59 (!), which I would not have learned if I hadn't thought there was a problem with my data.
+
+Next, we'll look at this same cut by year rather than age:
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+p <- ggplot(HOF_with_names_and_war_cumsummed, mapping=aes(x=year_ID,y=cumWAR))
+p + geom_line(aes(group=name_common.x, colour=name_common.x), alpha = .7) + gghighlight(sumWAR>100)+
+    labs(x="Year", y = "Cumulative WAR", 
+       title = "Cumulative WAR for Hall of Fame Pitchers",
+       subtitle = "Career WAR > 100 highlighted",
+       caption="Source: Baseball Reference")
+
+# same, with career war < 40, an interesting group of mostly closers.
+p + geom_line(aes(group=name_common.x, colour=name_common.x), alpha = .7) + gghighlight(max(cumWAR)<40)+
+    labs(x="Year", y = "Cumulative WAR", 
+       title = "Cumulative WAR for Hall of Fame Pitchers",
+       subtitle = "Career WAR < 40 highlighted",
+       caption="Source: Baseball Reference")
+```  
+
+Nothing earth shattering here, but was a good intro to some dplyr stuff, and gave me the idea to break things down by team.
