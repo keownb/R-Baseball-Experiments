@@ -37,7 +37,7 @@ franchise_map <- function(team_id) {
     # AL East
     team_id %in% c("BAL", "SLB", "MLA") ~ "BAL",
     team_id == "BOS" ~ "BOS",
-    team_id == "NYY" ~ "NYY",
+    team_id %in% c("NYY", "NYA") ~ "NYY",
     team_id %in% c("TBR", "TBD") ~ "TBR",
     team_id == "TOR" ~ "TOR",
     
