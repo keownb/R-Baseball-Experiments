@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLB Team WAR Breakdown</title>
+  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .intro {
+      background: white;
+      border-radius: 8px;
+      padding: 20px 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .intro p {
+      margin: 0 0 12px 0;
+      line-height: 1.6;
+      color: #444;
+    }
+    .intro p:last-child { margin-bottom: 0; }
+    .intro strong { color: #222; }
+    .controls {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .control-group label {
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+    select {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      min-width: 200px;
+    }
+    select:hover { border-color: #007bff; }
+    select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+    }
+    .toggle-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    .toggle-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #555;
+    }
+    .toggle-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .reset-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .reset-btn:hover { background: #5a6268; }
+    .plot-container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .plot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .plot-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+    .zoom-hint {
+      font-size: 12px;
+      color: #888;
+    }
+    .image-wrapper {
+      overflow: hidden;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      background: #fafafa;
+      max-height: 80vh;
+    }
+    .image-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .nav-links {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .nav-links a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      color: #888;
+      font-size: 13px;
+    }
+    footer a { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>⚾ MLB Team WAR Breakdown</h1>
+  
+  <div class="intro">
+    <p>
+      <strong>What is this?</strong> A position-by-position breakdown of cumulative WAR for each MLB franchise.
+      Each row shows one position (C, 1B, 2B, SS, 3B, OF, DH, SP, RP) with the top 5 players highlighted
+      in the team's primary color.
+    </p>
+    <p>
+      <strong>Reading the chart:</strong> Solid team-color lines are the top 5 players by WAR at that position.
+      Secondary-color lines show the "best in gap years" — players who led the position when no top-5 player was active.
+      Gray lines show everyone else. Vertical lines mark postseason achievements.
+    </p>
+    <p>
+      <strong>Stint detection:</strong> Lines break when a player leaves and returns to the franchise,
+      so you can see separate tenures (e.g., Ken Griffey Jr.'s two stints with Seattle).
+    </p>
+  </div>
+  
+  <div class="controls">
+    <div class="control-group">
+      <label for="team">Team</label>
+      <select id="team">
+        <optgroup label="AL East">
+          <option value="BAL">Baltimore Orioles</option>
+          <option value="BOS">Boston Red Sox</option>
+          <option value="NYY" selected>New York Yankees</option>
+          <option value="TBR">Tampa Bay Rays</option>
+          <option value="TOR">Toronto Blue Jays</option>
+        </optgroup>
+        <optgroup label="AL Central">
+          <option value="CHW">Chicago White Sox</option>
+          <option value="CLE">Cleveland Guardians</option>
+          <option value="DET">Detroit Tigers</option>
+          <option value="KCR">Kansas City Royals</option>
+          <option value="MIN">Minnesota Twins</option>
+        </optgroup>
+        <optgroup label="AL West">
+          <option value="HOU">Houston Astros</option>
+          <option value="LAA">Los Angeles Angels</option>
+          <option value="OAK">Oakland Athletics</option>
+          <option value="SEA">Seattle Mariners</option>
+          <option value="TEX">Texas Rangers</option>
+        </optgroup>
+        <optgroup label="NL East">
+          <option value="ATL">Atlanta Braves</option>
+          <option value="MIA">Miami Marlins</option>
+          <option value="NYM">New York Mets</option>
+          <option value="PHI">Philadelphia Phillies</option>
+          <option value="WSN">Washington Nationals</option>
+        </optgroup>
+        <optgroup label="NL Central">
+          <option value="CHC">Chicago Cubs</option>
+          <option value="CIN">Cincinnati Reds</option>
+          <option value="MIL">Milwaukee Brewers</option>
+          <option value="PIT">Pittsburgh Pirates</option>
+          <option value="STL">St. Louis Cardinals</option>
+        </optgroup>
+        <optgroup label="NL West">
+          <option value="ARI">Arizona Diamondbacks</option>
+          <option value="COL">Colorado Rockies</option>
+          <option value="LAD">Los Angeles Dodgers</option>
+          <option value="SDP">San Diego Padres</option>
+          <option value="SFG">San Francisco Giants</option>
+        </optgroup>
+      </select>
+    </div>
+    
+    <div class="control-group">
+      <label>Scale</label>
+      <div class="toggle-group">
+        <label>
+          <input type="checkbox" id="log-scale">
+          Log scale (compress high values)
+        </label>
+      </div>
+    </div>
+    
+    <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
+  </div>
+  
+  <div class="plot-container">
+    <div class="plot-header">
+      <div class="plot-title" id="plot-title">New York Yankees — Cumulative WAR by Position</div>
+      <div class="zoom-hint">🔍 Scroll to zoom • Drag to pan</div>
+    </div>
+    <div class="image-wrapper" id="image-wrapper">
+      <img id="plot-image" src="team_breakdowns/NYY_linear.png" alt="Team WAR Breakdown">
+    </div>
+    <div class="nav-links">
+      <a href="war_explorer.html">← Back to 30-Team Explorer</a>
+    </div>
+  </div>
+
+  <footer>
+    Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> |
+    Position data: <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a> |
+    <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source Code</a>
+  </footer>
+
+  <script>
+    const teamNames = {
+      'BAL': 'Baltimore Orioles', 'BOS': 'Boston Red Sox', 'NYY': 'New York Yankees',
+      'TBR': 'Tampa Bay Rays', 'TOR': 'Toronto Blue Jays', 'CHW': 'Chicago White Sox',
+      'CLE': 'Cleveland Guardians', 'DET': 'Detroit Tigers', 'KCR': 'Kansas City Royals',
+      'MIN': 'Minnesota Twins', 'HOU': 'Houston Astros', 'LAA': 'Los Angeles Angels',
+      'OAK': 'Oakland Athletics', 'SEA': 'Seattle Mariners', 'TEX': 'Texas Rangers',
+      'ATL': 'Atlanta Braves', 'MIA': 'Miami Marlins', 'NYM': 'New York Mets',
+      'PHI': 'Philadelphia Phillies', 'WSN': 'Washington Nationals', 'CHC': 'Chicago Cubs',
+      'CIN': 'Cincinnati Reds', 'MIL': 'Milwaukee Brewers', 'PIT': 'Pittsburgh Pirates',
+      'STL': 'St. Louis Cardinals', 'ARI': 'Arizona Diamondbacks', 'COL': 'Colorado Rockies',
+      'LAD': 'Los Angeles Dodgers', 'SDP': 'San Diego Padres', 'SFG': 'San Francisco Giants'
+    };
+
+    const teamSelect = document.getElementById('team');
+    const logScaleCheckbox = document.getElementById('log-scale');
+    const plotImage = document.getElementById('plot-image');
+    const plotTitle = document.getElementById('plot-title');
+    const imageWrapper = document.getElementById('image-wrapper');
+    const resetBtn = document.getElementById('reset-zoom');
+
+    // Initialize Panzoom
+    const panzoom = Panzoom(plotImage, {
+      maxScale: 5,
+      minScale: 0.3,
+      contain: 'outside'
+    });
+    imageWrapper.addEventListener('wheel', panzoom.zoomWithWheel);
+    resetBtn.addEventListener('click', () => panzoom.reset());
+
+    function resetZoom() {
+      panzoom.reset({ animate: false });
+    }
+
+    function updatePlot() {
+      const team = teamSelect.value;
+      const scale = logScaleCheckbox.checked ? 'log' : 'linear';
+      
+      const filename = `team_breakdowns/${team}_${scale}.png`;
+      plotImage.src = filename;
+      
+      plotImage.onload = resetZoom;
+      
+      const teamName = teamNames[team] || team;
+      const scaleLabel = logScaleCheckbox.checked ? ' (Log Scale)' : '';
+      plotTitle.textContent = `${teamName} — Cumulative WAR by Position${scaleLabel}`;
+    }
+
+    teamSelect.addEventListener('change', updatePlot);
+    logScaleCheckbox.addEventListener('change', updatePlot);
+    
+    plotImage.addEventListener('error', function() {
+      this.alt = 'Chart not yet generated. Run generate_team_breakdowns.R first.';
+    });
+
+    // Initialize
+    updatePlot();
+  </script>
+</body>
+</html>
