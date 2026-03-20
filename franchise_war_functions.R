@@ -37,7 +37,7 @@ franchise_map <- function(team_id) {
     # AL East
     team_id %in% c("BAL", "SLB", "MLA") ~ "BAL",
     team_id == "BOS" ~ "BOS",
-    team_id == "NYY" ~ "NYY",
+    team_id %in% c("NYY", "NYA") ~ "NYY",
     team_id %in% c("TBR", "TBD") ~ "TBR",
     team_id == "TOR" ~ "TOR",
     
@@ -201,11 +201,30 @@ generate_franchise_war_plot <- function(
     player_type_label, 
     start_year = 1901, 
     top_n = 5,
-    position_filter = NULL  # NULL = all, or "C", "1B", "2B", "SS", "3B", "OF", "P"
+    position_filter = NULL  # NULL = all, or "C", "1B", "2B", "SS", "3B", "OF", "SP", "RP"
 ) {
   
-  # Filter by position if specified
-  if (!is.null(position_filter)) {
+ # For SP/RP filtering, we need to classify pitchers first
+  if (!is.null(position_filter) && position_filter %in% c("SP", "RP")) {
+    # Get SP vs RP classification from Lahman (career-wide for simplicity)
+    pitcher_type <- Lahman::Pitching %>%
+      group_by(playerID) %>%
+      summarise(
+        total_G = sum(G, na.rm = TRUE),
+        total_GS = sum(GS, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      mutate(pitcher_role = if_else(total_GS > total_G * 0.5, "SP", "RP")) %>%
+      select(playerID, pitcher_role)
+    
+    # Join and filter
+    war_data <- war_data %>%
+      left_join(pitcher_type, by = c("player_ID" = "playerID")) %>%
+      filter(pitcher_role == position_filter)
+    
+    player_type_label <- paste0(player_type_label, " (", position_filter, ")")
+  } else if (!is.null(position_filter)) {
+    # Standard position filter
     war_data <- war_data %>% filter(primary_pos == position_filter)
     player_type_label <- paste0(player_type_label, " (", position_filter, ")")
   }

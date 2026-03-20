@@ -172,24 +172,23 @@
   
   <div class="controls">
     <div class="control-group">
-      <label for="player-type">Player Type</label>
-      <select id="player-type">
-        <option value="batters">Position Players</option>
-        <option value="pitchers">Pitchers</option>
-        <option value="combined">All Players</option>
-      </select>
-    </div>
-    
-    <div class="control-group">
       <label for="position">Position</label>
       <select id="position">
-        <option value="all">All Positions</option>
-        <option value="c">Catcher (C)</option>
-        <option value="1b">First Base (1B)</option>
-        <option value="2b">Second Base (2B)</option>
-        <option value="ss">Shortstop (SS)</option>
-        <option value="3b">Third Base (3B)</option>
-        <option value="of">Outfield (OF)</option>
+        <option value="all">All Players</option>
+        <option value="batters">Position Players</option>
+        <option value="pitchers">All Pitchers</option>
+        <optgroup label="Position Players">
+          <option value="c">Catcher (C)</option>
+          <option value="1b">First Base (1B)</option>
+          <option value="2b">Second Base (2B)</option>
+          <option value="ss">Shortstop (SS)</option>
+          <option value="3b">Third Base (3B)</option>
+          <option value="of">Outfield (OF)</option>
+        </optgroup>
+        <optgroup label="Pitchers">
+          <option value="sp">Starting Pitchers (SP)</option>
+          <option value="rp">Relief Pitchers (RP)</option>
+        </optgroup>
       </select>
     </div>
     
@@ -238,7 +237,20 @@
       '1998': 'Final expansion (1998): Diamondbacks and Devil Rays complete the current 30-team format.'
     };
 
-    const playerTypeSelect = document.getElementById('player-type');
+    const positionLabels = {
+      'all': 'All Players',
+      'batters': 'Position Players',
+      'pitchers': 'All Pitchers',
+      'c': 'Catchers (C)',
+      '1b': 'First Basemen (1B)',
+      '2b': 'Second Basemen (2B)',
+      'ss': 'Shortstops (SS)',
+      '3b': 'Third Basemen (3B)',
+      'of': 'Outfielders (OF)',
+      'sp': 'Starting Pitchers (SP)',
+      'rp': 'Relief Pitchers (RP)'
+    };
+
     const positionSelect = document.getElementById('position');
     const eraSelect = document.getElementById('era');
     const plotImage = document.getElementById('plot-image');
@@ -263,22 +275,11 @@
     }
 
     function updatePlot() {
-      const playerType = playerTypeSelect.value;
       const position = positionSelect.value;
       const era = eraSelect.value;
       
-      // Disable position selector for pitchers and combined
-      positionSelect.disabled = (playerType !== 'batters');
-      
-      // Build filename
-      let baseName;
-      if (playerType === 'batters') {
-        baseName = `batters_${position}_${era}`;
-      } else if (playerType === 'pitchers') {
-        baseName = `pitchers_${era}`;
-      } else {
-        baseName = `combined_${era}`;
-      }
+      // Build filename - now just position_era.png
+      const baseName = `${position}_${era}`;
       
       // Update image and CSV link
       plotImage.src = `plots/${baseName}.png`;
@@ -288,21 +289,13 @@
       plotImage.onload = resetZoom;
       
       // Update title
-      let typeLabel;
-      if (playerType === 'batters') {
-        typeLabel = position === 'all' ? 'Position Players' : `Position Players (${position.toUpperCase()})`;
-      } else if (playerType === 'pitchers') {
-        typeLabel = 'Pitchers';
-      } else {
-        typeLabel = 'All Players';
-      }
+      const typeLabel = positionLabels[position] || position.toUpperCase();
       plotTitle.textContent = `Cumulative WAR by Franchise — ${typeLabel} (${era}-Present)`;
       
       // Update era info
       eraInfoDiv.textContent = eraInfo[era];
     }
 
-    playerTypeSelect.addEventListener('change', updatePlot);
     positionSelect.addEventListener('change', updatePlot);
     eraSelect.addEventListener('change', updatePlot);
     
