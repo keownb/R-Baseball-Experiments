@@ -14,15 +14,22 @@ dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 # Eras to generate
 ERAS <- c(1901, 1961, 1969, 1977, 1993, 1998)
 
-# Positions for batters (NULL = all positions)
-BATTER_POSITIONS <- list(
-  "All" = NULL,
-  "C" = "C",
-  "1B" = "1B",
-  "2B" = "2B",
-  "SS" = "SS",
-  "3B" = "3B",
-  "OF" = "OF"
+# Single unified position list (replaces separate type + position dropdowns)
+# Format: display_name = list(data_source, position_filter)
+#   data_source: "batting", "pitching", or "combined"
+#   position_filter: NULL for all, or specific position code
+POSITIONS <- list(
+  "all" = list(source = "combined", filter = NULL),
+  "batters" = list(source = "batting", filter = NULL),
+  "pitchers" = list(source = "pitching", filter = NULL),
+  "C" = list(source = "batting", filter = "C"),
+  "1B" = list(source = "batting", filter = "1B"),
+  "2B" = list(source = "batting", filter = "2B"),
+  "SS" = list(source = "batting", filter = "SS"),
+  "3B" = list(source = "batting", filter = "3B"),
+  "OF" = list(source = "batting", filter = "OF"),
+  "SP" = list(source = "pitching", filter = "SP"),
+  "RP" = list(source = "pitching", filter = "RP")
 )
 
 # =============================================================================
@@ -48,54 +55,46 @@ dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
 # GENERATE ALL PLOTS
 # =============================================================================
 
-total_plots <- length(ERAS) * (length(BATTER_POSITIONS) + 2)  # batters + pitchers + combined
+total_plots <- length(ERAS) * length(POSITIONS)
 current_plot <- 0
 
 message(sprintf("\n=== Generating %d plots ===\n", total_plots))
 
 for (era in ERAS) {
-  
-  # --- Position Players (with position filtering) ---
-  for (pos_name in names(BATTER_POSITIONS)) {
+  for (pos_name in names(POSITIONS)) {
     current_plot <- current_plot + 1
-    pos_filter <- BATTER_POSITIONS[[pos_name]]
     
-    base_name <- sprintf("batters_%s_%d", tolower(pos_name), era)
+    pos_config <- POSITIONS[[pos_name]]
+    pos_filter <- pos_config$filter
+    
+    # Select appropriate data source
+    war_source <- switch(pos_config$source,
+      "batting" = WAR_bat,
+      "pitching" = WAR_pitch,
+      "combined" = WAR_combined
+    )
+    
+    # Label for plot title
+    type_label <- switch(pos_config$source,
+      "batting" = "Position Players",
+      "pitching" = "Pitchers",
+      "combined" = "All Players"
+    )
+    
+    base_name <- sprintf("%s_%d", tolower(pos_name), era)
     png_file <- sprintf("%s/%s.png", OUTPUT_DIR, base_name)
     csv_file <- sprintf("%s/%s.csv", DATA_DIR, base_name)
     message(sprintf("[%d/%d] %s", current_plot, total_plots, png_file))
     
     p <- generate_franchise_war_plot(
-      WAR_bat, 
-      "Position Players", 
+      war_source, 
+      type_label, 
       start_year = era, 
       position_filter = pos_filter
     )
     ggsave(png_file, plot = p, width = 20, height = 24, units = "in", dpi = 150)
     export_plot_data(p, csv_file)
   }
-  
-  # --- Pitchers ---
-  current_plot <- current_plot + 1
-  base_name <- sprintf("pitchers_%d", era)
-  png_file <- sprintf("%s/%s.png", OUTPUT_DIR, base_name)
-  csv_file <- sprintf("%s/%s.csv", DATA_DIR, base_name)
-  message(sprintf("[%d/%d] %s", current_plot, total_plots, png_file))
-  
-  p <- generate_franchise_war_plot(WAR_pitch, "Pitchers", start_year = era)
-  ggsave(png_file, plot = p, width = 20, height = 24, units = "in", dpi = 150)
-  export_plot_data(p, csv_file)
-  
-  # --- Combined ---
-  current_plot <- current_plot + 1
-  base_name <- sprintf("combined_%d", era)
-  png_file <- sprintf("%s/%s.png", OUTPUT_DIR, base_name)
-  csv_file <- sprintf("%s/%s.csv", DATA_DIR, base_name)
-  message(sprintf("[%d/%d] %s", current_plot, total_plots, png_file))
-  
-  p <- generate_franchise_war_plot(WAR_combined, "All Players", start_year = era)
-  ggsave(png_file, plot = p, width = 20, height = 24, units = "in", dpi = 150)
-  export_plot_data(p, csv_file)
 }
 
 message(sprintf("\n=== Done! Generated %d plots in %s ===", total_plots, OUTPUT_DIR))
