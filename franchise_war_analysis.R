@@ -20,10 +20,10 @@ WAR_combined <- bind_rows(
 )
 
 # =============================================================================
-# TEST PLOTS - Uncomment what you want to preview
+# TEST PLOTS - Default shows position players; uncomment others to preview
 # =============================================================================
 
-# Position Players - Full history
+# Position Players - Full history (runs by default)
 p <- generate_franchise_war_plot(WAR_bat, "Position Players", start_year = 1901)
 print(p)
 

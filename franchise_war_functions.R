@@ -318,8 +318,9 @@ generate_franchise_war_plot <- function(
     )
   
   # Attach the top players data as an attribute for export
+  # Filter to start_year so CSV matches the era shown in plot
   top_summary <- WAR_cum %>%
-    filter(is_top) %>%
+    filter(is_top, year_ID >= start_year) %>%
     group_by(franchise, player_ID, name_common, primary_pos) %>%
     summarise(
       total_WAR = round(sum(WAR, na.rm = TRUE), 1),
@@ -330,6 +331,7 @@ generate_franchise_war_plot <- function(
     arrange(franchise, desc(total_WAR))
   
   attr(p, "top_players") <- top_summary
+  attr(p, "start_year") <- start_year
   
   return(p)
 }
