@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLB Franchise WAR Explorer</title>
+  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .intro {
+      background: white;
+      border-radius: 8px;
+      padding: 20px 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .intro p {
+      margin: 0 0 12px 0;
+      line-height: 1.6;
+      color: #444;
+    }
+    .intro p:last-child { margin-bottom: 0; }
+    .intro strong { color: #222; }
+    .controls {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .control-group label {
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+    select {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      min-width: 180px;
+    }
+    select:hover { border-color: #007bff; }
+    select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+    }
+    select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .reset-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .reset-btn:hover { background: #5a6268; }
+    .plot-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 15px;
+      overflow: hidden;
+    }
+    .plot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 5px;
+    }
+    .plot-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    .zoom-hint {
+      font-size: 12px;
+      color: #888;
+    }
+    .image-wrapper {
+      width: 100%;
+      height: 70vh;
+      overflow: hidden;
+      cursor: grab;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    .image-wrapper:active { cursor: grabbing; }
+    .image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .era-info {
+      font-size: 13px;
+      color: #666;
+      margin-top: 12px;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .data-link {
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .data-link a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .data-link a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      color: #888;
+      font-size: 13px;
+    }
+    footer a { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>⚾ MLB Franchise WAR Explorer</h1>
+  
+  <div class="intro">
+    <p>
+      <strong>What is this?</strong> An interactive visualization of cumulative 
+      <a href="https://www.baseball-reference.com/about/war_explained.shtml" target="_blank">WAR (Wins Above Replacement)</a> 
+      for each of MLB's 30 franchises. Each chart shows the top 5 players by total WAR accumulated 
+      <em>with that specific franchise</em>. While this visualization has minimal pure "analytical" value, I find that it provides an interesting slice of the "story" of which teams have collected powerhouse careers, and there are some interesting tidbits in looking at the outliers.    </p>
+    <p>
+      <strong>How to read it:</strong> Steeper lines = faster WAR accumulation (peak years). 
+      Flat lines = missed time or league-average play. The higher a line ends, the more value 
+      that player provided to that franchise over their tenure. The teams you'd expect have lots of steep tall lines. Obviously the newer franchises have a certain disadvantage, so you can filter by starting year for fairer comparisons.
+    </p>
+    <p>
+      <strong>Historical mapping:</strong> All historical team names are mapped to current franchises 
+      (e.g., Montreal Expos → Washington Nationals, Brooklyn Dodgers → LA Dodgers). 
+      Filter by expansion era to compare franchises on equal footing.
+    </p>
+  </div>
+  
+  <div class="controls">
+    <div class="control-group">
+      <label for="player-type">Player Type</label>
+      <select id="player-type">
+        <option value="batters">Position Players</option>
+        <option value="pitchers">Pitchers</option>
+        <option value="combined">All Players</option>
+      </select>
+    </div>
+    
+    <div class="control-group">
+      <label for="position">Position</label>
+      <select id="position">
+        <option value="all">All Positions</option>
+        <option value="c">Catcher (C)</option>
+        <option value="1b">First Base (1B)</option>
+        <option value="2b">Second Base (2B)</option>
+        <option value="ss">Shortstop (SS)</option>
+        <option value="3b">Third Base (3B)</option>
+        <option value="of">Outfield (OF)</option>
+      </select>
+    </div>
+    
+    <div class="control-group">
+      <label for="era">Era</label>
+      <select id="era">
+        <option value="1901">1901 — Full History</option>
+        <option value="1961">1961 — First Expansion</option>
+        <option value="1969">1969 — Divisional Era</option>
+        <option value="1977">1977 — SEA/TOR Join</option>
+        <option value="1993">1993 — COL/MIA Join</option>
+        <option value="1998">1998 — ARI/TBR (30 Teams)</option>
+      </select>
+    </div>
+    
+    <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
+  </div>
+  
+  <div class="plot-container">
+    <div class="plot-header">
+      <div class="plot-title" id="plot-title">Cumulative WAR by Franchise — Position Players (1901-Present)</div>
+      <div class="zoom-hint">🔍 Scroll to zoom • Drag to pan</div>
+    </div>
+    <div class="image-wrapper" id="image-wrapper">
+      <img id="plot-image" src="plots/batters_all_1901.png" alt="WAR Plot">
+    </div>
+    <div class="era-info" id="era-info"></div>
+    <div class="data-link">
+      📊 <a href="#" id="csv-link" target="_blank">Download data (CSV)</a>
+    </div>
+  </div>
+
+  <footer>
+    Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> |
+    Position data: <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a> |
+    <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source Code</a>
+  </footer>
+
+  <script>
+    const eraInfo = {
+      '1901': 'Modern era begins (1901). Includes all historical franchises mapped to their current names.',
+      '1961': 'First expansion (1961): Angels and new Senators (→ Rangers) join. Astros & Mets follow in 1962.',
+      '1969': 'Divisional play begins (1969): Padres, Expos (→ Nationals), Pilots (→ Brewers), Royals join.',
+      '1977': 'AL expansion (1977): Mariners and Blue Jays join, completing the 14-team AL.',
+      '1993': 'NL expansion (1993): Rockies and Marlins join, bringing MLB to 28 teams.',
+      '1998': 'Final expansion (1998): Diamondbacks and Devil Rays complete the current 30-team format.'
+    };
+
+    const playerTypeSelect = document.getElementById('player-type');
+    const positionSelect = document.getElementById('position');
+    const eraSelect = document.getElementById('era');
+    const plotImage = document.getElementById('plot-image');
+    const plotTitle = document.getElementById('plot-title');
+    const eraInfoDiv = document.getElementById('era-info');
+    const csvLink = document.getElementById('csv-link');
+    const imageWrapper = document.getElementById('image-wrapper');
+    const resetBtn = document.getElementById('reset-zoom');
+
+    // Initialize Panzoom
+    const panzoom = Panzoom(plotImage, {
+      maxScale: 5,
+      minScale: 0.5,
+      contain: 'outside'
+    });
+    imageWrapper.addEventListener('wheel', panzoom.zoomWithWheel);
+    resetBtn.addEventListener('click', () => panzoom.reset());
+
+    // Reset zoom when image changes
+    function resetZoom() {
+      panzoom.reset({ animate: false });
+    }
+
+    function updatePlot() {
+      const playerType = playerTypeSelect.value;
+      const position = positionSelect.value;
+      const era = eraSelect.value;
+      
+      // Disable position selector for pitchers and combined
+      positionSelect.disabled = (playerType !== 'batters');
+      
+      // Build filename
+      let baseName;
+      if (playerType === 'batters') {
+        baseName = `batters_${position}_${era}`;
+      } else if (playerType === 'pitchers') {
+        baseName = `pitchers_${era}`;
+      } else {
+        baseName = `combined_${era}`;
+      }
+      
+      // Update image and CSV link
+      plotImage.src = `plots/${baseName}.png`;
+      csvLink.href = `data/${baseName}.csv`;
+      
+      // Reset zoom on new image
+      plotImage.onload = resetZoom;
+      
+      // Update title
+      let typeLabel;
+      if (playerType === 'batters') {
+        typeLabel = position === 'all' ? 'Position Players' : `Position Players (${position.toUpperCase()})`;
+      } else if (playerType === 'pitchers') {
+        typeLabel = 'Pitchers';
+      } else {
+        typeLabel = 'All Players';
+      }
+      plotTitle.textContent = `Cumulative WAR by Franchise — ${typeLabel} (${era}-Present)`;
+      
+      // Update era info
+      eraInfoDiv.textContent = eraInfo[era];
+    }
+
+    playerTypeSelect.addEventListener('change', updatePlot);
+    positionSelect.addEventListener('change', updatePlot);
+    eraSelect.addEventListener('change', updatePlot);
+    
+    // Handle image load errors
+    plotImage.addEventListener('error', function() {
+      this.alt = 'Plot not yet generated. Run generate_all_plots.R first.';
+    });
+
+    // Initialize
+    updatePlot();
+  </script>
+</body>
+</html>
