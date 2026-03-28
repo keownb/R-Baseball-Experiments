@@ -426,7 +426,7 @@ generate_franchise_war_plot <- function(
     scale_color_manual(values = primary_colors, guide = "none") +
     scale_x_continuous(breaks = x_breaks) +
     ggh4x::facet_wrap2(~ reorder(franchise, div_order), ncol = 5, axes = "x") +
-    coord_cartesian(xlim = c(start_year, 2026), ylim = c(0, 175)) +
+    coord_cartesian(xlim = c(start_year, 2026), ylim = c(0, ceiling(max(top_plot_data$cumWAR_franchise, na.rm = TRUE) * 1.1 / 5) * 5)) +
     theme_minimal() +
     theme(
       legend.position = "top",
@@ -623,38 +623,4 @@ get_postseason_data <- function(team_code) {
 # Save a transparent overlay PNG that is pixel-aligned with the base plot.
 # Builds an overlay plot using the same scales/facets/coords/dimensions,
 # but with transparent backgrounds and invisible text (preserving spacing).
-save_overlay_png <- function(overlay_layers, base_plot, filename,
-                             width, height, dpi = 150) {
-  # Extract the base plot's scales, facet, coord, and theme
-  p_overlay <- base_plot
-  
-  # Remove all existing layers from the base
-  p_overlay$layers <- list()
-  
-  # Add only the overlay layers
-  for (layer in overlay_layers) {
-    p_overlay <- p_overlay + layer
-  }
-  
-  # Make everything transparent except the overlay marks
-  p_overlay <- p_overlay +
-    theme(
-      panel.background = element_rect(fill = "transparent", color = NA),
-      plot.background = element_rect(fill = "transparent", color = NA),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      axis.text = element_text(color = "transparent"),
-      axis.title = element_text(color = "transparent"),
-      axis.ticks = element_line(color = "transparent"),
-      strip.text = element_text(color = "transparent"),
-      strip.background = element_rect(fill = "transparent", color = NA),
-      plot.title = element_text(color = "transparent"),
-      plot.subtitle = element_text(color = "transparent"),
-      plot.caption = element_text(color = "transparent"),
-      legend.position = "none"
-    )
-  
-  ggsave(filename, plot = p_overlay, width = width, height = height,
-         dpi = dpi, bg = "transparent")
-  message(sprintf("  Overlay saved: %s", filename))
-}
+
