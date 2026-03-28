@@ -295,18 +295,6 @@
     <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
   </div>
 
-  <div class="overlay-legend" id="overlay-legend" style="display:none;">
-    <span class="legend-title">Legend:</span>
-    <span class="legend-item"><span class="legend-symbol" style="color:#FFD700;">◆</span> MVP</span>
-    <span class="legend-item"><span class="legend-symbol" style="color:#FFD700;">▲</span> Cy Young</span>
-    <span class="legend-item"><span class="legend-symbol" style="color:#CCCCCC;">●</span> All-Star</span>
-    <span class="legend-sep">|</span>
-    <span class="legend-item"><span style="border-bottom:2px solid #FFD700;">——</span> World Series</span>
-    <span class="legend-item"><span style="border-bottom:2px dashed #87CEEB;">– –</span> LCS</span>
-    <span class="legend-item"><span style="border-bottom:2px dotted #90EE90;">···</span> Div Series</span>
-    <span class="legend-item"><span style="border-bottom:2px dashed #DDA0DD;">-·-</span> Wild Card</span>
-  </div>
-
   <div class="plot-container">
     <div class="plot-header">
       <div class="plot-title" id="plot-title">Seattle Mariners — Position Breakdown (Linear, Constant Width)</div>
@@ -386,10 +374,6 @@
       const scaleLabel = scale === 'linear' ? 'Linear' : 'Log';
       const widthLabel = width === 'const' ? 'Constant Width' : 'Z-Score Width';
       plotTitle.textContent = `${name} — Position Breakdown (${scaleLabel}, ${widthLabel})`;
-
-      // Show legend when any overlay feature is active
-      document.getElementById('overlay-legend').style.display =
-        (showAwards || showPostseason) ? 'flex' : 'none';
     }
 
     teamSelect.addEventListener('change', updatePlot);

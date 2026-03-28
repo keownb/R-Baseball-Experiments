@@ -279,14 +279,6 @@
     </div>
 
     <div class="control-group">
-      <label for="line-width">Line Width</label>
-      <select id="line-width">
-        <option value="constant">Constant</option>
-        <option value="zscore">Z-Score</option>
-      </select>
-    </div>
-
-    <div class="control-group">
       <label>&nbsp;</label>
       <div class="checkbox-group">
         <input type="checkbox" id="awards">
@@ -305,18 +297,6 @@
     <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
   </div>
 
-  <div class="overlay-legend" id="overlay-legend" style="display:none;">
-    <span class="legend-title">Legend:</span>
-    <span class="legend-item"><span class="legend-symbol" style="color:#FFD700;">◆</span> MVP</span>
-    <span class="legend-item"><span class="legend-symbol" style="color:#FFD700;">▲</span> Cy Young</span>
-    <span class="legend-item"><span class="legend-symbol" style="color:#CCCCCC;">●</span> All-Star</span>
-    <span class="legend-sep">|</span>
-    <span class="legend-item"><span style="border-bottom:2px solid #FFD700;">——</span> World Series</span>
-    <span class="legend-item"><span style="border-bottom:2px dashed #87CEEB;">– –</span> LCS</span>
-    <span class="legend-item"><span style="border-bottom:2px dotted #90EE90;">···</span> Div Series</span>
-    <span class="legend-item"><span style="border-bottom:2px dashed #DDA0DD;">-·-</span> Wild Card</span>
-  </div>
-  
   <div class="plot-container">
     <div class="plot-header">
       <div class="plot-title" id="plot-title">Cumulative WAR by Franchise — All Players (1901-Present)</div>
@@ -363,12 +343,8 @@
       'rp': 'Relief Pitchers (RP)'
     };
 
-    // Positions that support z-score width
-    const singlePositions = new Set(['c', '1b', '2b', 'ss', '3b', 'of', 'sp', 'rp']);
-
     const positionSelect = document.getElementById('position');
     const eraSelect = document.getElementById('era');
-    const widthSelect = document.getElementById('line-width');
     const awardsCheck = document.getElementById('awards');
     const postseasonCheck = document.getElementById('postseason');
     const plotImage = document.getElementById('plot-image');
@@ -392,31 +368,14 @@
       panzoom.reset({ animate: false });
     }
 
-    // Enforce z-score availability based on position selection
-    function updateWidthAvailability() {
-      const pos = positionSelect.value;
-      if (!singlePositions.has(pos)) {
-        widthSelect.value = 'constant';
-        widthSelect.disabled = true;
-      } else {
-        widthSelect.disabled = false;
-      }
-    }
-
     function updatePlot() {
       const position = positionSelect.value;
       const era = eraSelect.value;
       const showAwards = awardsCheck.checked;
       const showPostseason = postseasonCheck.checked;
-      
-      updateWidthAvailability();
-      const effectiveWidth = widthSelect.value;
 
-      // Build filename: {pos}_{era}[_zscore][_awards|_postseason|_all].png
+      // Build filename: {pos}_{era}[_awards|_postseason|_all].png
       let fname = `${position}_${era}`;
-      if (effectiveWidth === 'zscore' && singlePositions.has(position)) {
-        fname += '_zscore';
-      }
       if (showAwards && showPostseason) {
         fname += '_all';
       } else if (showAwards) {
@@ -438,15 +397,10 @@
       
       // Update era info
       eraInfoDiv.textContent = eraInfo[era];
-
-      // Show legend when any overlay feature is active
-      document.getElementById('overlay-legend').style.display =
-        (showAwards || showPostseason) ? 'flex' : 'none';
     }
 
     positionSelect.addEventListener('change', updatePlot);
     eraSelect.addEventListener('change', updatePlot);
-    widthSelect.addEventListener('change', updatePlot);
     awardsCheck.addEventListener('change', updatePlot);
     postseasonCheck.addEventListener('change', updatePlot);
     
