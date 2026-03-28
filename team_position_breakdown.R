@@ -23,8 +23,12 @@ generate_team_position_plot <- function(
     team_name = NULL,
     top_n = 5,
     include_dh = TRUE,
-    log_scale = FALSE,  # Use pseudo-log scale for y-axis (helps see RPs vs Ruth)
-    show_postseason = FALSE  # Show vertical lines for postseason achievements
+    log_scale = FALSE,
+    show_postseason = FALSE,
+    variable_width = FALSE,
+    pos_year_stats = NULL,
+    show_awards = FALSE,
+    award_data = NULL
 ) {
   
   # Get team name if not provided
@@ -149,76 +153,18 @@ generate_team_position_plot <- function(
     left_join(best_ghosts, by = c("position", "year_ID", "player_ID")) %>%
     mutate(is_best_ghost = replace_na(is_best_ghost, FALSE))
   
-  # Order positions logically - only include positions that have data
+  # Order positions — filter first, set factor AFTER z-score join
   position_order <- c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP")
   positions_with_data <- intersect(position_order, unique(team_cum$position))
   team_cum <- team_cum %>%
-    filter(position %in% positions_with_data) %>%
-    mutate(position = factor(position, levels = positions_with_data))
+    filter(position %in% positions_with_data)
   
-  # Get team color and secondary color for "best ghost" (runner-up) players
   team_color <- primary_colors[[team_code]]
   if (is.null(team_color)) team_color <- "#333333"
   ghost_highlight_color <- secondary_colors[[team_code]]
   if (is.null(ghost_highlight_color)) ghost_highlight_color <- "#C4CED4"
   
-  # Get postseason achievements if requested
-  # Map our franchise codes to Lahman team codes (reverse mapping)
-  lahman_codes_map <- list(
-    "NYY" = c("NYA"),
-    "LAD" = c("LAN", "BRO"),
-    "SFG" = c("SFN", "NYG"),
-    "ATL" = c("ATL", "MLN", "BSN"),
-    "BAL" = c("BAL", "SLA", "MLA"),
-    "MIN" = c("MIN", "WS1", "WS2"),
-    "OAK" = c("OAK", "PHA", "KCA"),
-    "TEX" = c("TEX", "WS2"),
-    "MIL" = c("MIL", "SEA"),
-    "WSN" = c("WAS", "MON"),
-    "CHC" = c("CHN"),
-    "CIN" = c("CIN"),
-    "STL" = c("SLN"),
-    "PIT" = c("PIT"),
-    "PHI" = c("PHI"),
-    "BOS" = c("BOS"),
-    "CLE" = c("CLE"),
-    "DET" = c("DET"),
-    "CHW" = c("CHA"),
-    "SEA" = c("SEA"),
-    "TBR" = c("TBA"),
-    "TOR" = c("TOR"),
-    "HOU" = c("HOU"),
-    "LAA" = c("ANA", "CAL", "LAA"),
-    "KCR" = c("KCA"),
-    "ARI" = c("ARI"),
-    "COL" = c("COL"),
-    "SDP" = c("SDN"),
-    "MIA" = c("FLO", "MIA")
-  )
-  lahman_codes <- lahman_codes_map[[team_code]]
-  if (is.null(lahman_codes)) lahman_codes <- team_code
-  
-  postseason_data <- NULL
-  if (show_postseason) {
-    postseason_data <- Lahman::SeriesPost %>%
-      filter(teamIDwinner %in% lahman_codes) %>%
-      mutate(achievement = case_when(
-        round == "WS" ~ "World Series",
-        round %in% c("CS", "ALCS", "NLCS") ~ "Pennant/LCS",
-        grepl("DS|DIV", round) ~ "Division Series",
-        grepl("WC", round) ~ "Wild Card",
-        TRUE ~ "Pennant/LCS"  # Historical pennants
-      )) %>%
-      distinct(yearID, achievement) %>%
-      # Keep only highest achievement per year
-      mutate(achievement = factor(achievement, 
-        levels = c("World Series", "Pennant/LCS", "Division Series", "Wild Card"))) %>%
-      group_by(yearID) %>%
-      slice_min(achievement, n = 1) %>%
-      ungroup()
-  }
-  
-  # Create player category for legend
+  # Player category
   team_cum <- team_cum %>%
     mutate(player_category = case_when(
       is_top ~ "Top 5 (Team WAR)",
@@ -226,136 +172,201 @@ generate_team_position_plot <- function(
       TRUE ~ "Other Players"
     ))
   
+  # --- Z-score width for top players ---
+  top_segments <- NULL
+  if (variable_width && !is.null(pos_year_stats)) {
+    team_cum <- team_cum %>%
+      left_join(pos_year_stats, by = c("position", "year_ID")) %>%
+      mutate(
+        war_zscore = (WAR - mean_WAR) / sd_WAR,
+        war_zscore_clamped = pmin(pmax(war_zscore, 0), 4)
+      )
+    
+    top_segments <- team_cum %>%
+      filter(is_top) %>%
+      group_by(stint_id) %>%
+      arrange(year_ID) %>%
+      mutate(
+        next_year = lead(year_ID),
+        next_cumWAR = lead(cumWAR),
+        width_z = lead(war_zscore_clamped)
+      ) %>%
+      filter(!is.na(next_year), !is.na(width_z)) %>%
+      ungroup() %>%
+      mutate(position = factor(position, levels = positions_with_data))
+  }
+  
+  # Set position factor levels AFTER z-score join
+  team_cum <- team_cum %>%
+    mutate(position = factor(position, levels = positions_with_data))
+  
+  # --- Award markers ---
+  award_markers <- NULL
+  if (show_awards && !is.null(award_data)) {
+    award_markers <- team_cum %>%
+      filter(is_top) %>%
+      inner_join(award_data, by = c("player_ID" = "playerID", "year_ID" = "yearID"),
+                 relationship = "many-to-many") %>%
+      filter(award %in% c("MVP", "CYA", "AS")) %>%
+      mutate(
+        award = factor(award, levels = c("MVP", "CYA", "AS")),
+        position = factor(position, levels = positions_with_data)
+      )
+  }
+  
+  # --- Postseason data (using shared helper) ---
+  postseason_data <- NULL
+  if (show_postseason) {
+    postseason_data <- get_postseason_data(team_code)
+  }
+  
   # Create the plot
   p <- ggplot(team_cum, aes(x = year_ID, y = cumWAR)) +
-    # Ghost lines for ALL players (group by stint to break at gaps)
     geom_line(
       data = filter(team_cum, player_category == "Other Players"),
       aes(group = stint_id),
-      color = "gray60",
-      linewidth = 0.4,
-      alpha = 0.6
+      color = "gray75", linewidth = 0.3, alpha = 0.5
     )
   
-  # Add postseason vertical lines if requested
+  # Postseason vertical lines
   if (show_postseason && !is.null(postseason_data) && nrow(postseason_data) > 0) {
     p <- p + geom_vline(
       data = postseason_data,
       aes(xintercept = yearID, linetype = achievement),
-      alpha = 0.4,
-      linewidth = 0.5
+      alpha = 0.35, linewidth = 0.4
     ) +
-    scale_linetype_manual(
-      name = "Postseason",
-      values = c(
-        "World Series" = "solid",
-        "Pennant/LCS" = "dashed",
-        "Division Series" = "dotted",
-        "Wild Card" = "dotdash"
-      )
+    scale_linetype_manual(name = "Postseason",
+      values = c("World Series" = "solid", "Pennant/LCS" = "dashed",
+                 "Division Series" = "dotted", "Wild Card" = "dotdash"))
+  }
+  
+  # Best ghost lines
+  p <- p + geom_line(
+    data = filter(team_cum, player_category == "Best in Gap Years (2+ yr)"),
+    aes(group = stint_id, color = player_category),
+    linewidth = 0.7, show.legend = TRUE
+  )
+  
+  # Top players: z-score segments or constant lines
+  if (!is.null(top_segments) && nrow(top_segments) > 0) {
+    p <- p + geom_segment(
+      data = top_segments,
+      aes(x = year_ID, xend = next_year, y = cumWAR, yend = next_cumWAR,
+          linewidth = width_z, color = player_category),
+      lineend = "round", linejoin = "round", show.legend = TRUE
+    ) +
+    scale_linewidth_continuous(
+      name = "Positional Dominance (σ above mean)",
+      range = c(0.3, 5),
+      breaks = c(0, 1, 2, 3, 4),
+      labels = c("Avg", "+1σ", "+2σ", "+3σ", "+4σ")
+    )
+  } else {
+    p <- p + geom_line(
+      data = filter(team_cum, player_category == "Top 5 (Team WAR)"),
+      aes(group = stint_id, color = player_category),
+      linewidth = 1.2, show.legend = TRUE
     )
   }
   
+  # Award markers
+  if (!is.null(award_markers) && nrow(award_markers) > 0) {
+    p <- p + geom_point(
+      data = award_markers,
+      aes(shape = award, size = award, fill = award),
+      color = "black", stroke = 0.5
+    ) +
+    scale_shape_manual(name = "Awards",
+      values = c("MVP" = 23, "CYA" = 24, "AS" = 21)) +
+    scale_size_manual(name = "Awards",
+      values = c("MVP" = 4, "CYA" = 4, "AS" = 1.5)) +
+    scale_fill_manual(name = "Awards",
+      values = c("MVP" = "gold", "CYA" = "gold", "AS" = "gray80"))
+  }
+  
+  # Color scale + labels
   p <- p +
-    # Best ghost lines (years with no top player)
-    geom_line(
-      data = filter(team_cum, player_category == "Best in Gap Years (2+ yr)"),
-      aes(group = stint_id, color = player_category),
-      linewidth = 0.8,
-      show.legend = TRUE
-    ) +
-    # Highlighted lines for top players
-    geom_line(
-      data = filter(team_cum, player_category == "Top 5 (Team WAR)"),
-      aes(group = stint_id, color = player_category),
-      linewidth = 1.2,
-      show.legend = TRUE
-    ) +
-    # Color scale for legend
-    scale_color_manual(
-      name = NULL,
-      values = c(
-        "Top 5 (Team WAR)" = team_color,
-        "Best in Gap Years (2+ yr)" = ghost_highlight_color
-      ),
+    scale_color_manual(name = NULL,
+      values = c("Top 5 (Team WAR)" = team_color,
+                 "Best in Gap Years (2+ yr)" = ghost_highlight_color),
       guide = guide_legend(override.aes = list(linewidth = 2))
     ) +
-    # Labels for top players (only stints with 2+ years)
     geom_label_repel(
       data = team_cum %>%
         filter(is_top) %>%
         group_by(position, player_ID, stint_id) %>%
-        filter(n() >= 2) %>%  # Only label stints with 2+ years
+        filter(n() >= 2) %>%
         filter(year_ID == max(year_ID)) %>%
         ungroup(),
       aes(label = name_common),
       color = team_color,
-      size = 2.5,
-      fill = alpha("white", 0.9),
-      label.size = 0,
-      segment.size = 0.3,
-      segment.alpha = 0.5,
-      max.overlaps = 10,
-      nudge_y = 2,
-      box.padding = 0.2
+      size = 2.5, fill = alpha("white", 0.9), label.size = 0,
+      segment.size = 0.3, segment.alpha = 0.5,
+      max.overlaps = 10, nudge_y = 2, box.padding = 0.2
     ) +
-    # Labels for best ghosts (only if 2+ years as best ghost, per stint)
     geom_label_repel(
       data = team_cum %>%
         filter(is_best_ghost) %>%
         group_by(position, player_ID, stint_id) %>%
-        filter(n() >= 2) %>%  # Only label if 2+ years as best ghost in this stint
+        filter(n() >= 2) %>%
         filter(year_ID == max(year_ID)) %>%
         ungroup(),
       aes(label = name_common),
       color = ghost_highlight_color,
-      size = 2,
-      fill = alpha("white", 0.85),
-      label.size = 0,
-      segment.size = 0.2,
-      segment.alpha = 0.4,
-      max.overlaps = 5,
-      nudge_y = -1,
-      box.padding = 0.15
+      size = 2, fill = alpha("white", 0.85), label.size = 0,
+      segment.size = 0.2, segment.alpha = 0.4,
+      max.overlaps = 5, nudge_y = -1, box.padding = 0.15
     ) +
-    # Facet by position - one row per position, same y-axis, x-axis on all
     ggh4x::facet_wrap2(~ position, ncol = 1, axes = "x") +
-    # Axis settings - dynamic breaks based on team start year
     coord_cartesian(xlim = c(start_year, 2026)) +
     scale_x_continuous(
-      breaks = seq(ceiling(start_year / 10) * 10, 2020, 10)  # Start at first decade
+      breaks = seq(ceiling(start_year / 10) * 10, 2020, 10)
     )
   
-  # Conditional y-scale: log or linear
   if (log_scale) {
     p <- p + scale_y_continuous(
-      trans = "pseudo_log",  # Handles 0 and negative values
+      trans = "pseudo_log",
       breaks = c(0, 5, 10, 20, 50, 100, 150)
     )
   }
   
+  # Build subtitle
+  subtitle_parts <- paste0("Top ", top_n, " players per position highlighted")
+  if (!is.null(top_segments) && nrow(top_segments) > 0) {
+    subtitle_parts <- paste0(subtitle_parts, " | Line width = positional dominance (σ)")
+  }
+  
   p <- p +
-    # Theme - light grid for ghost line contrast
     theme_minimal() +
     theme(
       legend.position = "top",
       legend.justification = "left",
-      legend.margin = margin(0, 0, 10, 0),
-      panel.spacing = unit(1, "lines"),
+      legend.box = "horizontal",
+      legend.box.just = "left",
+      legend.margin = margin(0, 0, 5, 0),
+      legend.spacing.x = unit(0.8, "cm"),
+      panel.spacing = unit(0.8, "lines"),
       strip.text = element_text(face = "bold", size = 11),
       axis.text = element_text(size = 8),
-      panel.grid.major = element_line(color = "gray90", linewidth = 0.3),
+      panel.grid.major = element_line(color = "gray92", linewidth = 0.3),
       panel.grid.minor = element_blank(),
       panel.background = element_rect(fill = "white", color = NA),
       plot.title = element_text(size = 16, face = "bold"),
       plot.subtitle = element_text(size = 11, color = "#666")
     ) +
+    guides(
+      color = guide_legend(order = 1),
+      linetype = guide_legend(order = 2),
+      shape = guide_legend(order = 3),
+      size = guide_legend(order = 3),
+      fill = guide_legend(order = 3),
+      linewidth = guide_legend(order = 4)
+    ) +
     labs(
       title = paste0(team_name, " — Cumulative WAR by Position"),
-      subtitle = paste0("Top ", top_n, " players per position highlighted (", start_year, "-Present)"),
-      x = "Year",
-      y = "Cumulative WAR",
-      caption = "Source: Baseball Reference | Gray lines show all other players"
+      subtitle = paste0(subtitle_parts, " (", start_year, "-Present)"),
+      x = "Year", y = "Cumulative WAR",
+      caption = "Source: Baseball Reference + Lahman"
     )
   
   # Attach position count for dynamic sizing
