@@ -201,12 +201,16 @@ generate_franchise_war_plot <- function(
     player_type_label, 
     start_year = 1901, 
     top_n = 5,
-    position_filter = NULL  # NULL = all, or "C", "1B", "2B", "SS", "3B", "OF", "SP", "RP"
+    position_filter = NULL,  # NULL = all, or "C", "1B", "2B", "SS", "3B", "OF", "SP", "RP"
+    variable_width = FALSE,  # Z-score line width
+    pos_year_stats = NULL,   # Required if variable_width = TRUE
+    show_awards = FALSE,
+    award_data = NULL,       # Required if show_awards = TRUE
+    show_postseason = FALSE
 ) {
   
  # For SP/RP filtering, we need to classify pitchers first
   if (!is.null(position_filter) && position_filter %in% c("SP", "RP")) {
-    # Get SP vs RP classification from Lahman (career-wide for simplicity)
     pitcher_type <- Lahman::Pitching %>%
       group_by(playerID) %>%
       summarise(
@@ -217,19 +221,17 @@ generate_franchise_war_plot <- function(
       mutate(pitcher_role = if_else(total_GS > total_G * 0.5, "SP", "RP")) %>%
       select(playerID, pitcher_role)
     
-    # Join and filter
     war_data <- war_data %>%
       left_join(pitcher_type, by = c("player_ID" = "playerID")) %>%
       filter(pitcher_role == position_filter)
     
     player_type_label <- paste0(player_type_label, " (", position_filter, ")")
   } else if (!is.null(position_filter)) {
-    # Standard position filter
     war_data <- war_data %>% filter(primary_pos == position_filter)
     player_type_label <- paste0(player_type_label, " (", position_filter, ")")
   }
   
-  # Determine primary position per player (the one with most WAR)
+  # Determine primary position per player
   player_positions <- war_data %>%
     filter(!is.na(WAR)) %>%
     group_by(player_ID, primary_pos) %>%
@@ -238,7 +240,6 @@ generate_franchise_war_plot <- function(
     slice_max(pos_WAR, n = 1, with_ties = FALSE) %>%
     select(player_ID, primary_pos)
   
-  # Apply franchise mapping and aggregate by player-franchise-year
   WAR_clean <- war_data %>%
     mutate(franchise = franchise_map(team_ID)) %>%
     filter(!is.na(franchise), !is.na(WAR)) %>%
@@ -248,7 +249,6 @@ generate_franchise_war_plot <- function(
     left_join(divisions, by = "franchise") %>%
     mutate(division_full = paste(league, division))
   
-  # Calculate cumulative WAR by player-franchise
   WAR_cum <- WAR_clean %>%
     group_by(player_ID, franchise) %>%
     arrange(year_ID) %>%
@@ -259,7 +259,6 @@ generate_franchise_war_plot <- function(
     ) %>%
     ungroup()
   
-  # Identify top N players per franchise (within period, 2+ years)
   top_players <- WAR_cum %>%
     filter(year_ID >= start_year) %>%
     group_by(franchise, player_ID) %>%
@@ -279,7 +278,6 @@ generate_franchise_war_plot <- function(
     left_join(top_players, by = c("franchise", "player_ID")) %>%
     mutate(is_top = replace_na(is_top, FALSE))
   
-  # Prepare plot data - only add position to label if showing multiple positions
   plot_data <- WAR_cum %>%
     filter(year_ID >= start_year) %>%
     mutate(name_label = if (is.null(position_filter)) {
@@ -288,7 +286,7 @@ generate_franchise_war_plot <- function(
       name_common
     })
   
-  # Adjust x-axis breaks based on era
+  # x-axis breaks
   if (start_year >= 1990) {
     x_breaks <- seq(2000, 2020, 10)
   } else if (start_year >= 1960) {
@@ -297,30 +295,144 @@ generate_franchise_war_plot <- function(
     x_breaks <- seq(1920, 2020, 40)
   }
   
-  # Create the faceted plot
-  p <- ggplot(filter(plot_data, is_top), aes(x = year_ID, y = cumWAR_franchise)) +
-    geom_line(aes(group = player_ID, color = franchise), linewidth = 1) +
-    geom_label_repel(
-      data = filter(plot_data, is_top & year_ID == max_year),
-      aes(label = name_label, color = franchise),
-      size = 2.2,
-      fill = alpha("white", 0.85),
-      label.size = 0,
-      segment.size = 0.3,
-      segment.alpha = 0.5,
-      max.overlaps = 15,
-      nudge_y = 3,
-      box.padding = 0.15,
-      point.padding = 0.1,
-      min.segment.length = 0.2
+  # --- Z-score segments for variable width ---
+  top_segments <- NULL
+  if (variable_width && !is.null(pos_year_stats)) {
+    zscore_pos <- if (!is.null(position_filter) && position_filter %in% 
+                      c("C", "1B", "2B", "SS", "3B", "OF", "SP", "RP")) {
+      position_filter
+    } else {
+      NULL  # Can't z-score mixed positions
+    }
+    
+    if (!is.null(zscore_pos)) {
+      pos_stats_filtered <- pos_year_stats %>% filter(position == zscore_pos)
+      
+      top_segments <- plot_data %>%
+        filter(is_top) %>%
+        left_join(pos_stats_filtered, by = c("year_ID")) %>%
+        mutate(
+          war_zscore = (WAR - mean_WAR) / sd_WAR,
+          war_zscore_clamped = pmin(pmax(war_zscore, 0), 4)
+        ) %>%
+        group_by(player_ID, franchise) %>%
+        arrange(year_ID) %>%
+        mutate(
+          next_year = lead(year_ID),
+          next_cumWAR = lead(cumWAR_franchise),
+          width_z = lead(war_zscore_clamped)
+        ) %>%
+        filter(!is.na(next_year), !is.na(width_z)) %>%
+        ungroup()
+    }
+  }
+  
+  # --- Build the plot ---
+  top_plot_data <- filter(plot_data, is_top)
+  
+  p <- ggplot(top_plot_data, aes(x = year_ID, y = cumWAR_franchise))
+  
+  if (!is.null(top_segments) && nrow(top_segments) > 0) {
+    p <- p + geom_segment(
+      data = top_segments,
+      aes(x = year_ID, xend = next_year,
+          y = cumWAR_franchise, yend = next_cumWAR,
+          linewidth = width_z, color = franchise),
+      lineend = "round", linejoin = "round"
     ) +
-    scale_color_manual(values = primary_colors) +
+    scale_linewidth_continuous(
+      name = "Positional Dominance",
+      range = c(0.3, 4),
+      breaks = c(0, 1, 2, 3, 4),
+      labels = c("Avg", "+1σ", "+2σ", "+3σ", "+4σ"),
+      guide = guide_legend(override.aes = list(color = "gray30"))
+    )
+  } else {
+    p <- p + geom_line(
+      data = top_plot_data,
+      aes(group = player_ID, color = franchise),
+      linewidth = 1
+    )
+  }
+  
+  # Labels
+  p <- p + geom_label_repel(
+    data = filter(top_plot_data, year_ID == max_year),
+    aes(label = name_label, color = franchise),
+    size = 2.2, fill = alpha("white", 0.85), label.size = 0,
+    segment.size = 0.3, segment.alpha = 0.5,
+    max.overlaps = 15, nudge_y = 3,
+    box.padding = 0.15, point.padding = 0.1,
+    min.segment.length = 0.2
+  )
+  
+  # Award markers
+  if (show_awards && !is.null(award_data)) {
+    award_markers <- top_plot_data %>%
+      filter(is_top) %>%
+      inner_join(award_data, by = c("player_ID" = "playerID", "year_ID" = "yearID"),
+                 relationship = "many-to-many") %>%
+      filter(award %in% c("MVP", "CYA", "AS")) %>%
+      mutate(award = factor(award, levels = c("MVP", "CYA", "AS")))
+    
+    if (nrow(award_markers) > 0) {
+      p <- p + geom_point(
+        data = award_markers,
+        aes(shape = award, size = award, fill = award),
+        color = "black", stroke = 0.5
+      ) +
+      scale_shape_manual(name = "Awards",
+        values = c("MVP" = 23, "CYA" = 24, "AS" = 21)) +
+      scale_size_manual(name = "Awards",
+        values = c("MVP" = 3, "CYA" = 3, "AS" = 1.2)) +
+      scale_fill_manual(name = "Awards",
+        values = c("MVP" = "gold", "CYA" = "gold", "AS" = "gray80"))
+    }
+  }
+  
+  # Postseason vlines per franchise facet
+  if (show_postseason) {
+    all_postseason <- bind_rows(
+      lapply(unique(WAR_clean$franchise), function(fc) {
+        ps <- get_postseason_data(fc)
+        if (nrow(ps) > 0) {
+          ps %>%
+            mutate(franchise = fc) %>%
+            left_join(divisions, by = "franchise") %>%
+            filter(yearID >= start_year)
+        }
+      })
+    )
+    
+    if (nrow(all_postseason) > 0) {
+      p <- p + geom_vline(
+        data = all_postseason,
+        aes(xintercept = yearID, linetype = achievement),
+        alpha = 0.3, linewidth = 0.3
+      ) +
+      scale_linetype_manual(name = "Postseason",
+        values = c("World Series" = "solid", "Pennant/LCS" = "dashed",
+                   "Division Series" = "dotted", "Wild Card" = "dotdash"))
+    }
+  }
+  
+  # Scales, facets, theme
+  subtitle_parts <- paste0("Top ", top_n, " per franchise")
+  if (!is.null(top_segments) && nrow(top_segments) > 0) {
+    subtitle_parts <- paste0(subtitle_parts, " | Line width = positional dominance (σ)")
+  }
+  
+  p <- p +
+    scale_color_manual(values = primary_colors, guide = "none") +
     scale_x_continuous(breaks = x_breaks) +
     ggh4x::facet_wrap2(~ reorder(franchise, div_order), ncol = 5, axes = "x") +
-    coord_cartesian(xlim = c(start_year, 2026), ylim = c(0, 175)) +  # Clip display, don't remove data
+    coord_cartesian(xlim = c(start_year, 2026), ylim = c(0, 175)) +
     theme_minimal() +
     theme(
-      legend.position = "none",
+      legend.position = "top",
+      legend.justification = "left",
+      legend.box = "horizontal",
+      legend.box.just = "left",
       panel.spacing.x = unit(1.2, "lines"),
       panel.spacing.y = unit(0.8, "lines"),
       strip.text = element_text(face = "bold", size = 9),
@@ -328,16 +440,22 @@ generate_franchise_war_plot <- function(
       axis.text.x = element_text(angle = 0),
       panel.grid.minor = element_blank()
     ) +
+    guides(
+      shape = guide_legend(order = 1),
+      size = guide_legend(order = 1),
+      fill = guide_legend(order = 1),
+      linetype = guide_legend(order = 2),
+      linewidth = guide_legend(order = 3)
+    ) +
     labs(
-      title = paste0("Cumulative WAR by Franchise — ", player_type_label, " (", start_year, "-Present)"),
-      subtitle = paste0("Top ", top_n, " per franchise highlighted"),
-      x = "Year",
-      y = "Cumulative WAR",
-      caption = "Source: Baseball Reference"
+      title = paste0("Cumulative WAR by Franchise — ", player_type_label,
+                     " (", start_year, "-Present)"),
+      subtitle = subtitle_parts,
+      x = "Year", y = "Cumulative WAR",
+      caption = "Source: Baseball Reference + Lahman"
     )
   
-  # Attach the top players data as an attribute for export
-  # Filter to start_year so CSV matches the era shown in plot
+  # Attach data for CSV export
   top_summary <- WAR_cum %>%
     filter(is_top, year_ID >= start_year) %>%
     group_by(franchise, player_ID, name_common, primary_pos) %>%
@@ -374,3 +492,169 @@ export_plot_data <- function(plot, filename) {
 ERAS <- c(1901, 1961, 1969, 1977, 1993, 1998)
 POSITIONS <- c("All", "C", "1B", "2B", "SS", "3B", "OF")
 PLAYER_TYPES <- c("batters", "pitchers", "combined")
+
+# =============================================================================
+# AWARD DATA (loaded once, reused by all views)
+# =============================================================================
+
+load_award_data <- function() {
+  awards_raw <- Lahman::AwardsPlayers %>%
+    filter(awardID %in% c("Most Valuable Player", "Cy Young Award")) %>%
+    mutate(award = case_when(
+      awardID == "Most Valuable Player" ~ "MVP",
+      awardID == "Cy Young Award" ~ "CYA"
+    )) %>%
+    select(playerID, yearID, award)
+  
+  allstars <- Lahman::AllstarFull %>%
+    distinct(playerID, yearID) %>%
+    mutate(award = "AS")
+  
+  bind_rows(awards_raw, allstars)
+}
+
+# =============================================================================
+# LEAGUE-WIDE Z-SCORE STATS (loaded once, reused by all views)
+# =============================================================================
+
+compute_position_year_stats <- function(war_batting, war_pitching) {
+  message("Computing league-wide position-year WAR distributions...")
+  
+  # League-wide pitcher classification
+  league_pitcher_type <- Lahman::Pitching %>%
+    group_by(playerID) %>%
+    summarise(
+      total_G = sum(G, na.rm = TRUE),
+      total_GS = sum(GS, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(pitcher_role = if_else(total_GS > total_G * 0.5, "SP", "RP")) %>%
+    select(playerID, pitcher_role)
+  
+  # League-wide DH detection
+  league_dh_players <- Lahman::Appearances %>%
+    group_by(playerID) %>%
+    summarise(
+      dh_games = sum(G_dh, na.rm = TRUE),
+      field_games = sum(G_defense, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    filter(dh_games > field_games * 0.5) %>%
+    mutate(is_primary_dh = TRUE) %>%
+    select(playerID, is_primary_dh)
+  
+  common_cols <- c("year_ID", "player_ID", "name_common", "team_ID", "WAR", "primary_pos")
+  league_war <- bind_rows(
+    war_batting %>% select(all_of(common_cols)),
+    war_pitching %>% select(all_of(common_cols))
+  ) %>%
+    filter(!is.na(WAR), !is.na(primary_pos)) %>%
+    left_join(league_dh_players, by = c("player_ID" = "playerID")) %>%
+    left_join(league_pitcher_type, by = c("player_ID" = "playerID")) %>%
+    mutate(position = case_when(
+      !is.na(is_primary_dh) ~ "DH",
+      primary_pos %in% c("LF", "CF", "RF") ~ "OF",
+      primary_pos == "P" & pitcher_role == "RP" ~ "RP",
+      primary_pos == "P" ~ "SP",
+      TRUE ~ primary_pos
+    )) %>%
+    filter(position %in% c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP")) %>%
+    group_by(player_ID, position, year_ID) %>%
+    summarise(WAR = sum(WAR, na.rm = TRUE), .groups = "drop")
+  
+  pos_year_stats <- league_war %>%
+    group_by(position, year_ID) %>%
+    summarise(
+      mean_WAR = mean(WAR, na.rm = TRUE),
+      sd_WAR = sd(WAR, na.rm = TRUE),
+      n_players = n(),
+      .groups = "drop"
+    ) %>%
+    mutate(sd_WAR = pmax(sd_WAR, 0.5))
+  
+  message(sprintf("  %d position-years computed", nrow(pos_year_stats)))
+  pos_year_stats
+}
+
+# =============================================================================
+# POSTSEASON DATA HELPER
+# =============================================================================
+
+# Lahman team code mapping (reverse of franchise_map)
+LAHMAN_CODES <- list(
+  "NYY" = c("NYA"), "LAD" = c("LAN", "BRO"), "SFG" = c("SFN", "NYG"),
+  "ATL" = c("ATL", "MLN", "BSN"), "BAL" = c("BAL", "SLA", "MLA"),
+  "MIN" = c("MIN", "WS1", "WS2"), "OAK" = c("OAK", "PHA", "KCA"),
+  "TEX" = c("TEX", "WS2"), "MIL" = c("MIL", "SEA"),
+  "WSN" = c("WAS", "MON"), "CHC" = c("CHN"), "CIN" = c("CIN"),
+  "STL" = c("SLN"), "PIT" = c("PIT"), "PHI" = c("PHI"),
+  "BOS" = c("BOS"), "CLE" = c("CLE"), "DET" = c("DET"),
+  "CHW" = c("CHA"), "SEA" = c("SEA"), "TBR" = c("TBA"),
+  "TOR" = c("TOR"), "HOU" = c("HOU"), "LAA" = c("ANA", "CAL", "LAA"),
+  "KCR" = c("KCA"), "ARI" = c("ARI"), "COL" = c("COL"),
+  "SDP" = c("SDN"), "MIA" = c("FLO", "MIA"), "NYM" = c("NYN")
+)
+
+get_postseason_data <- function(team_code) {
+  lahman_codes <- LAHMAN_CODES[[team_code]]
+  if (is.null(lahman_codes)) lahman_codes <- team_code
+  
+  Lahman::SeriesPost %>%
+    filter(teamIDwinner %in% lahman_codes) %>%
+    mutate(achievement = case_when(
+      round == "WS" ~ "World Series",
+      round %in% c("CS", "ALCS", "NLCS") ~ "Pennant/LCS",
+      grepl("DS|DIV", round) ~ "Division Series",
+      grepl("WC", round) ~ "Wild Card",
+      TRUE ~ "Pennant/LCS"
+    )) %>%
+    distinct(yearID, achievement) %>%
+    mutate(achievement = factor(achievement,
+      levels = c("World Series", "Pennant/LCS", "Division Series", "Wild Card"))) %>%
+    group_by(yearID) %>%
+    slice_min(achievement, n = 1) %>%
+    ungroup()
+}
+
+# =============================================================================
+# OVERLAY GENERATION HELPER
+# =============================================================================
+
+# Save a transparent overlay PNG that is pixel-aligned with the base plot.
+# Builds an overlay plot using the same scales/facets/coords/dimensions,
+# but with transparent backgrounds and invisible text (preserving spacing).
+save_overlay_png <- function(overlay_layers, base_plot, filename,
+                             width, height, dpi = 150) {
+  # Extract the base plot's scales, facet, coord, and theme
+  p_overlay <- base_plot
+  
+  # Remove all existing layers from the base
+  p_overlay$layers <- list()
+  
+  # Add only the overlay layers
+  for (layer in overlay_layers) {
+    p_overlay <- p_overlay + layer
+  }
+  
+  # Make everything transparent except the overlay marks
+  p_overlay <- p_overlay +
+    theme(
+      panel.background = element_rect(fill = "transparent", color = NA),
+      plot.background = element_rect(fill = "transparent", color = NA),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.text = element_text(color = "transparent"),
+      axis.title = element_text(color = "transparent"),
+      axis.ticks = element_line(color = "transparent"),
+      strip.text = element_text(color = "transparent"),
+      strip.background = element_rect(fill = "transparent", color = NA),
+      plot.title = element_text(color = "transparent"),
+      plot.subtitle = element_text(color = "transparent"),
+      plot.caption = element_text(color = "transparent"),
+      legend.position = "none"
+    )
+  
+  ggsave(filename, plot = p_overlay, width = width, height = height,
+         dpi = dpi, bg = "transparent")
+  message(sprintf("  Overlay saved: %s", filename))
+}
