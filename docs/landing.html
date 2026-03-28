@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLB Franchise WAR Visualizations</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .display-warning {
+      background: #f5c518;
+      color: #1a1a2e;
+      text-align: center;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.2rem;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8888aa;
+      font-size: 1rem;
+      margin-bottom: 40px;
+    }
+    .section {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      border: 1px solid #1f3460;
+    }
+    .section h2 {
+      color: #7ec8e3;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+    .section p {
+      line-height: 1.7;
+      color: #c0c0d0;
+      margin-bottom: 12px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #16213e;
+      border: 1px solid #1f3460;
+      border-radius: 10px;
+      padding: 32px;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: #7ec8e3;
+      transform: translateY(-3px);
+    }
+    .card h3 {
+      color: #7ec8e3;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+    .card p {
+      color: #a0a0b8;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+    .card .arrow {
+      display: inline-block;
+      margin-top: 16px;
+      color: #7ec8e3;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: #666;
+      font-size: 13px;
+      border-top: 1px solid #1f3460;
+    }
+    footer a {
+      color: #7ec8e3;
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+    a { color: #7ec8e3; }
+  </style>
+</head>
+<body>
+  <div class="display-warning">⚠️ Built for 27″+ displays. Not optimized for mobile.</div>
+
+  <div class="container">
+    <h1>⚾ MLB Franchise WAR Visualizations</h1>
+    <p class="subtitle">Cumulative career WAR trajectories for every MLB franchise</p>
+
+    <div class="section">
+      <h2>What Is This?</h2>
+      <p>
+        These visualizations chart <strong>cumulative WAR (Wins Above Replacement)</strong> over time
+        for the top players at each MLB franchise. Each line traces a player's career value as it
+        accumulates season by season — steeper lines mean peak performance years, flat sections mean
+        missed time or league-average play. The higher a line ends, the more total value that player
+        delivered to that franchise.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Reading the Charts</h2>
+      <p>
+        <strong>Z-Score Line Width:</strong> When enabled, line thickness encodes how exceptional a
+        player's WAR was <em>relative to their position and era</em>. Specifically, the width
+        represents the number of standard deviations above the league mean WAR for that
+        position-year combination. Thicker lines = more dominant seasons compared to peers at the
+        same position.
+      </p>
+      <p>
+        <strong>Overlay Markers:</strong> Award markers can be toggled on top of the WAR lines.
+        <strong>♦ Diamonds</strong> mark MVP awards, <strong>▲ triangles</strong> mark Cy Young
+        Awards, and <strong>● dots</strong> mark All-Star selections. Postseason overlays add
+        vertical lines at each year the franchise appeared in the playoffs, providing context for
+        when teams were contending.
+      </p>
+    </div>
+
+    <div class="cards">
+      <a href="war_explorer.html" class="card">
+        <h3>Franchise WAR Grid Explorer</h3>
+        <p>
+          The 30-team grid view. See all franchises side by side, filter by position
+          (C, 1B, 2B, SS, 3B, OF, SP, RP) and era (1901–present). Toggle z-score
+          line widths, award markers, and postseason indicators.
+        </p>
+        <span class="arrow">Open Explorer →</span>
+      </a>
+
+      <a href="team_breakdown.html" class="card">
+        <h3>Team Position Breakdown</h3>
+        <p>
+          Dive into a single franchise with a 9-facet view — one panel per position.
+          Compare how a team has built value at each position over its history, with
+          linear or log scale options.
+        </p>
+        <span class="arrow">Open Breakdown →</span>
+      </a>
+    </div>
+
+    <div class="section">
+      <h2>Data Sources</h2>
+      <p>
+        WAR data from
+        <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference</a>.
+        Position classification from the
+        <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a>.
+      </p>
+    </div>
+
+    <footer>
+      <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">View Source on GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>
