@@ -116,28 +116,39 @@
     <div class="section">
       <h2>What Is This?</h2>
       <p>
-        I had the idea for this project in 2019 while playing around with FanGraph's [Cumulative WAR by Age](https://www.fangraphs.com/leaders/war-graphs?players=4772&wg=2) charts. I was comparing charts for good Mariners at different positions across the team's history, and thought that being able to graph them "in time" would be an interesting storytelling visualization. There's no particular <i>analytical</i> value to these, but you can see the peaks and troughs in a franchise's history, and there are occasional surprises, and interesting players I'd never heard of, that I learned about while playing around with these.
-
-        I got partway into the project in 2020 before being derailed by life, as well as my own lack of R skills. Luckily Copilot is good at R, and I finished my intial vision in a couple weekends of work in 2026.
-    
+        I had the idea for this project in 2019 while playing around with FanGraph's
+        <a href="https://www.fangraphs.com/leaders/war-graphs?players=4772&wg=2">Cumulative WAR by Age</a>
+        charts. I was comparing charts for good Mariners at different positions across the team's
+        history, and thought that being able to graph them "in time" would be an interesting
+        storytelling visualization. There's no particular <em>analytical</em> value to these, but you
+        can see the peaks and troughs in a franchise's history, and there are occasional surprises,
+        and interesting players I'd never heard of, that I learned about while playing around with these.
+      </p>
+      <p>
+        I got partway into the project in 2020 before being derailed by life, as well as my own lack
+        of R skills. Luckily Copilot is good at R, and I finished my initial vision in a couple
+        weekends of work in 2026.
       </p>
     </div>
 
     <div class="section">
       <h2>Reading the Charts</h2>
-                 <p>
-                   These visualizations chart <strong>cumulative WAR (Wins Above Replacement)</strong> over time
+      <p>
+        These visualizations chart <strong>cumulative WAR (Wins Above Replacement)</strong> over time
         for the top players at each MLB franchise. Each line traces a player's career value as it
         accumulates season by season — steeper lines mean peak performance years, flat sections mean
         missed time or league-average play. The higher a line ends, the more total value that player
-        delivered to that franchise. Of course this necessarily de-emphasizes the contributions of players who moved between teams frequently, or perhaps had one or two standout seasons. That is by design.
-                      </p>
+        delivered to that franchise. Of course this necessarily de-emphasizes the contributions of
+        players who moved between teams frequently, or perhaps had one or two standout seasons.
+        That is by design.
+      </p>
       <p>
         <strong>Z-Score Line Width:</strong> When enabled, line thickness encodes how exceptional a
         player's WAR was <em>relative to their position and era</em>. Specifically, the width
         represents the number of standard deviations above the league mean WAR for that
         position-year combination. Thicker lines = more dominant seasons compared to peers at the
-        same position. Of course this correlates strongly with slope, but truly exceptional seasons like Cal Raleigh's 2025 really pop.
+        same position. Of course this correlates strongly with slope, but truly exceptional seasons
+        like Cal Raleigh's 2025 really pop.
       </p>
       <p>
         <strong>Overlay Markers:</strong> Award markers can be toggled on top of the WAR lines.
@@ -164,7 +175,8 @@
         <p>
           Dive into a single franchise with a 9-facet view — one panel per position.
           Compare how a team has built value at each position over its history, with
-          linear or log scale options for the Y axis. The log scale compresses peaks, but makes the low-WAR positions like relief pitcher easier to read and compare.
+          linear or log scale options for the Y axis. The log scale compresses peaks,
+          but makes the low-WAR positions like relief pitcher easier to read and compare.
         </p>
         <span class="arrow">Open Breakdown →</span>
       </a>
@@ -182,6 +194,8 @@
 
     <footer>
       <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">View Source on GitHub</a>
+      &nbsp;|&nbsp;
+      <a href="mailto:keownb+baseball@gmail.com">Send Feedback</a>
     </footer>
   </div>
 </body>
