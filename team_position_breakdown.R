@@ -52,7 +52,7 @@ generate_team_position_plot <- function(
   # Get SP vs RP classification PER TEAM from Lahman Pitching
   # Map Lahman teamID to our franchise codes
   pitcher_type <- Lahman::Pitching %>%
-    mutate(franchise = franchise_map(teamID)) %>%
+    mutate(franchise = franchise_map(teamID, yearID)) %>%
     filter(franchise == team_code) %>%  # Only this team's data
     group_by(playerID) %>%
     summarise(
@@ -73,7 +73,7 @@ generate_team_position_plot <- function(
   
   # Filter to this franchise and clean
   team_data <- war_all %>%
-    mutate(franchise = franchise_map(team_ID)) %>%
+    mutate(franchise = franchise_map(team_ID, year_ID)) %>%
     filter(franchise == team_code, !is.na(WAR), !is.na(primary_pos)) %>%
     # Join DH info
     left_join(dh_players, by = c("player_ID" = "playerID")) %>%

@@ -18,7 +18,7 @@ library(Lahman)
 # FRANCHISE MAPPING - All historical team IDs to current 30
 # =============================================================================
 
-franchise_map <- function(team_id) {
+franchise_map <- function(team_id, year_id = NA) {
   case_when(
     # AL West
     team_id %in% c("LAA", "ANA", "CAL") ~ "LAA",
@@ -43,7 +43,7 @@ franchise_map <- function(team_id) {
     
     # NL West
     team_id == "ARI" ~ "ARI",
-    team_id == "COL" ~ "COL",
+    team_id == "COL" & year_id >= 1993 ~ "COL",
     team_id %in% c("LAD", "BRO") ~ "LAD",
     team_id == "SDP" ~ "SDP",
     team_id %in% c("SFG", "NYG") ~ "SFG",
@@ -241,7 +241,7 @@ generate_franchise_war_plot <- function(
     select(player_ID, primary_pos)
   
   WAR_clean <- war_data %>%
-    mutate(franchise = franchise_map(team_ID)) %>%
+    mutate(franchise = franchise_map(team_ID, year_ID)) %>%
     filter(!is.na(franchise), !is.na(WAR)) %>%
     group_by(player_ID, name_common, franchise, year_ID) %>%
     summarise(WAR = sum(WAR, na.rm = TRUE), .groups = "drop") %>%
@@ -355,18 +355,7 @@ generate_franchise_war_plot <- function(
     )
   }
   
-  # Labels
-  p <- p + geom_label_repel(
-    data = filter(top_plot_data, year_ID == max_year),
-    aes(label = name_label, color = franchise),
-    size = 2.2, fill = alpha("white", 0.85), label.size = 0,
-    segment.size = 0.3, segment.alpha = 0.5,
-    max.overlaps = 15, nudge_y = 3,
-    box.padding = 0.15, point.padding = 0.1,
-    min.segment.length = 0.2
-  )
-  
-  # Award markers
+  # Award markers (before labels so labels render on top)
   if (show_awards && !is.null(award_data)) {
     award_markers <- top_plot_data %>%
       filter(is_top) %>%
@@ -415,6 +404,17 @@ generate_franchise_war_plot <- function(
                    "Division Series" = "dotted", "Wild Card" = "dotdash"))
     }
   }
+  
+  # Labels (after awards/postseason so labels render on top)
+  p <- p + geom_label_repel(
+    data = filter(top_plot_data, year_ID == max_year),
+    aes(label = name_label, color = franchise),
+    size = 2.2, fill = alpha("white", 0.85), label.size = 0,
+    segment.size = 0.3, segment.alpha = 0.5,
+    max.overlaps = 15, nudge_y = 3,
+    box.padding = 0.15, point.padding = 0.1,
+    min.segment.length = 0.2
+  )
   
   # Scales, facets, theme
   subtitle_parts <- paste0("Top ", top_n, " per franchise")
