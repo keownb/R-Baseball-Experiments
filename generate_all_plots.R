@@ -57,16 +57,21 @@ award_data <- load_award_data()
 # GENERATE ALL PLOTS
 # =============================================================================
 
-# For each position × era, generate:
-#   1. Base constant-width PNG
-#   2. Base z-score-width PNG (single positions only)
-#   3. Awards overlay (transparent)
-#   4. Postseason overlay (transparent)
-#   5. CSV data export
+# For each position × era, generate all overlay combos as full pre-rendered images.
+# Naming: {pos}_{era}[_zscore][_awards|_postseason|_all].png
+# This avoids overlay alignment issues — each image is self-contained.
+
+OVERLAY_COMBOS <- list(
+  list(suffix = "",            awards = FALSE, postseason = FALSE),
+  list(suffix = "_awards",     awards = TRUE,  postseason = FALSE),
+  list(suffix = "_postseason", awards = FALSE, postseason = TRUE),
+  list(suffix = "_all",        awards = TRUE,  postseason = TRUE)
+)
 
 n_positions <- length(POSITIONS)
 n_eras <- length(ERAS)
 current <- 0
+total <- n_positions * n_eras
 
 message(sprintf("\n=== Generating plots for %d positions × %d eras ===\n", n_positions, n_eras))
 
@@ -84,49 +89,30 @@ for (era in ERAS) {
       "batting" = "Position Players", "pitching" = "Pitchers", "combined" = "All Players")
     
     base_name <- sprintf("%s_%d", tolower(pos_name), era)
-    message(sprintf("[%d/%d] %s", current, n_positions * n_eras, base_name))
+    message(sprintf("[%d/%d] %s", current, total, base_name))
     
-    # --- 1. Constant-width base ---
-    p_const <- generate_franchise_war_plot(
-      war_source, type_label, start_year = era, position_filter = pos_filter)
-    ggsave(sprintf("%s/%s.png", OUTPUT_DIR, base_name),
-           plot = p_const, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
-    export_plot_data(p_const, sprintf("%s/%s.csv", DATA_DIR, base_name))
-    
-    # --- 2. Z-score-width base (single positions only) ---
+    width_modes <- list(list(name = "", vw = FALSE, stats = NULL))
     if (can_zscore) {
-      p_zscore <- generate_franchise_war_plot(
-        war_source, type_label, start_year = era, position_filter = pos_filter,
-        variable_width = TRUE, pos_year_stats = pos_year_stats)
-      ggsave(sprintf("%s/%s_zscore.png", OUTPUT_DIR, base_name),
-             plot = p_zscore, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+      width_modes[[2]] <- list(name = "_zscore", vw = TRUE, stats = pos_year_stats)
     }
     
-    # --- 3. Awards overlay ---
-    p_awards <- generate_franchise_war_plot(
-      war_source, type_label, start_year = era, position_filter = pos_filter,
-      show_awards = TRUE, award_data = award_data)
-    award_layer <- p_awards$layers[sapply(p_awards$layers, function(l) {
-      inherits(l$geom, "GeomPoint")
-    })]
-    if (length(award_layer) > 0) {
-      save_overlay_png(award_layer, p_const,
-        sprintf("%s/%s_awards.png", OUTPUT_DIR, base_name),
-        width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+    for (wm in width_modes) {
+      for (oc in OVERLAY_COMBOS) {
+        fname <- sprintf("%s/%s%s%s.png", OUTPUT_DIR, base_name, wm$name, oc$suffix)
+        
+        p <- generate_franchise_war_plot(
+          war_source, type_label, start_year = era, position_filter = pos_filter,
+          variable_width = wm$vw, pos_year_stats = wm$stats,
+          show_awards = oc$awards, award_data = if (oc$awards) award_data else NULL,
+          show_postseason = oc$postseason)
+        ggsave(fname, plot = p, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+      }
     }
     
-    # --- 4. Postseason overlay ---
-    p_post <- generate_franchise_war_plot(
-      war_source, type_label, start_year = era, position_filter = pos_filter,
-      show_postseason = TRUE)
-    post_layer <- p_post$layers[sapply(p_post$layers, function(l) {
-      inherits(l$geom, "GeomVline")
-    })]
-    if (length(post_layer) > 0) {
-      save_overlay_png(post_layer, p_const,
-        sprintf("%s/%s_postseason.png", OUTPUT_DIR, base_name),
-        width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
-    }
+    # CSV export (just the base data, once per position/era)
+    p_csv <- generate_franchise_war_plot(
+      war_source, type_label, start_year = era, position_filter = pos_filter)
+    export_plot_data(p_csv, sprintf("%s/%s.csv", DATA_DIR, base_name))
   }
 }
 
