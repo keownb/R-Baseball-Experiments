@@ -1,6 +1,6 @@
 # generate_all_plots.R
 # Batch generation of all WAR plots for GH Pages
-# Run this after you're happy with the look/feel in franchise_war_analysis.R
+# Generates base images (constant + z-score width) and transparent overlays
 
 source("franchise_war_functions.R")
 
@@ -9,15 +9,13 @@ source("franchise_war_functions.R")
 # =============================================================================
 
 OUTPUT_DIR <- "docs/plots"
+DATA_DIR <- "docs/data"
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
+dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
 
-# Eras to generate
 ERAS <- c(1901, 1961, 1969, 1977, 1993, 1998)
 
-# Single unified position list (replaces separate type + position dropdowns)
-# Format: display_name = list(data_source, position_filter)
-#   data_source: "batting", "pitching", or "combined"
-#   position_filter: NULL for all, or specific position code
+# Position config: data source + filter
 POSITIONS <- list(
   "all" = list(source = "combined", filter = NULL),
   "batters" = list(source = "batting", filter = NULL),
@@ -31,6 +29,10 @@ POSITIONS <- list(
   "SP" = list(source = "pitching", filter = "SP"),
   "RP" = list(source = "pitching", filter = "RP")
 )
+
+PLOT_WIDTH <- 20
+PLOT_HEIGHT <- 24
+PLOT_DPI <- 150
 
 # =============================================================================
 # LOAD DATA
@@ -47,55 +49,85 @@ WAR_combined <- bind_rows(
   WAR_pitch %>% select(all_of(common_cols))
 )
 
-# Create data output directory
-DATA_DIR <- "docs/data"
-dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
+message("=== Loading shared data (z-scores, awards) ===")
+pos_year_stats <- compute_position_year_stats(WAR_bat, WAR_pitch)
+award_data <- load_award_data()
 
 # =============================================================================
 # GENERATE ALL PLOTS
 # =============================================================================
 
-total_plots <- length(ERAS) * length(POSITIONS)
-current_plot <- 0
+# For each position × era, generate:
+#   1. Base constant-width PNG
+#   2. Base z-score-width PNG (single positions only)
+#   3. Awards overlay (transparent)
+#   4. Postseason overlay (transparent)
+#   5. CSV data export
 
-message(sprintf("\n=== Generating %d plots ===\n", total_plots))
+n_positions <- length(POSITIONS)
+n_eras <- length(ERAS)
+current <- 0
+
+message(sprintf("\n=== Generating plots for %d positions × %d eras ===\n", n_positions, n_eras))
 
 for (era in ERAS) {
   for (pos_name in names(POSITIONS)) {
-    current_plot <- current_plot + 1
+    current <- current + 1
     
     pos_config <- POSITIONS[[pos_name]]
     pos_filter <- pos_config$filter
+    can_zscore <- !is.null(pos_filter) && pos_filter %in% c("C","1B","2B","SS","3B","OF","SP","RP")
     
-    # Select appropriate data source
     war_source <- switch(pos_config$source,
-      "batting" = WAR_bat,
-      "pitching" = WAR_pitch,
-      "combined" = WAR_combined
-    )
-    
-    # Label for plot title
+      "batting" = WAR_bat, "pitching" = WAR_pitch, "combined" = WAR_combined)
     type_label <- switch(pos_config$source,
-      "batting" = "Position Players",
-      "pitching" = "Pitchers",
-      "combined" = "All Players"
-    )
+      "batting" = "Position Players", "pitching" = "Pitchers", "combined" = "All Players")
     
     base_name <- sprintf("%s_%d", tolower(pos_name), era)
-    png_file <- sprintf("%s/%s.png", OUTPUT_DIR, base_name)
-    csv_file <- sprintf("%s/%s.csv", DATA_DIR, base_name)
-    message(sprintf("[%d/%d] %s", current_plot, total_plots, png_file))
+    message(sprintf("[%d/%d] %s", current, n_positions * n_eras, base_name))
     
-    p <- generate_franchise_war_plot(
-      war_source, 
-      type_label, 
-      start_year = era, 
-      position_filter = pos_filter
-    )
-    ggsave(png_file, plot = p, width = 20, height = 24, units = "in", dpi = 150)
-    export_plot_data(p, csv_file)
+    # --- 1. Constant-width base ---
+    p_const <- generate_franchise_war_plot(
+      war_source, type_label, start_year = era, position_filter = pos_filter)
+    ggsave(sprintf("%s/%s.png", OUTPUT_DIR, base_name),
+           plot = p_const, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+    export_plot_data(p_const, sprintf("%s/%s.csv", DATA_DIR, base_name))
+    
+    # --- 2. Z-score-width base (single positions only) ---
+    if (can_zscore) {
+      p_zscore <- generate_franchise_war_plot(
+        war_source, type_label, start_year = era, position_filter = pos_filter,
+        variable_width = TRUE, pos_year_stats = pos_year_stats)
+      ggsave(sprintf("%s/%s_zscore.png", OUTPUT_DIR, base_name),
+             plot = p_zscore, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+    }
+    
+    # --- 3. Awards overlay ---
+    p_awards <- generate_franchise_war_plot(
+      war_source, type_label, start_year = era, position_filter = pos_filter,
+      show_awards = TRUE, award_data = award_data)
+    award_layer <- p_awards$layers[sapply(p_awards$layers, function(l) {
+      inherits(l$geom, "GeomPoint")
+    })]
+    if (length(award_layer) > 0) {
+      save_overlay_png(award_layer, p_const,
+        sprintf("%s/%s_awards.png", OUTPUT_DIR, base_name),
+        width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+    }
+    
+    # --- 4. Postseason overlay ---
+    p_post <- generate_franchise_war_plot(
+      war_source, type_label, start_year = era, position_filter = pos_filter,
+      show_postseason = TRUE)
+    post_layer <- p_post$layers[sapply(p_post$layers, function(l) {
+      inherits(l$geom, "GeomVline")
+    })]
+    if (length(post_layer) > 0) {
+      save_overlay_png(post_layer, p_const,
+        sprintf("%s/%s_postseason.png", OUTPUT_DIR, base_name),
+        width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+    }
   }
 }
 
-message(sprintf("\n=== Done! Generated %d plots in %s ===", total_plots, OUTPUT_DIR))
-message(sprintf("Data tables exported to %s", DATA_DIR))
+message(sprintf("\n=== Done! Generated plots in %s ===", OUTPUT_DIR))
