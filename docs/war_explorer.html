@@ -6,44 +6,64 @@
   <title>MLB Franchise WAR Explorer</title>
   <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 1600px;
-      margin: 0 auto;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
       padding: 20px;
-      background: #f5f5f5;
     }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      max-width: 1600px;
+      margin: 0 auto 16px;
+      font-size: 14px;
+    }
+    .nav a {
+      color: #7ec8e3;
+      text-decoration: none;
+    }
+    .nav a:hover { text-decoration: underline; }
     h1 {
       text-align: center;
-      color: #333;
+      color: #fff;
       margin-bottom: 10px;
+      font-size: 1.6rem;
+      max-width: 1600px;
+      margin-left: auto;
+      margin-right: auto;
     }
     .intro {
-      background: white;
+      background: #16213e;
+      border: 1px solid #1f3460;
       border-radius: 8px;
-      padding: 20px 25px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 18px 24px;
+      margin: 0 auto 20px;
+      max-width: 1600px;
     }
     .intro p {
       margin: 0 0 12px 0;
       line-height: 1.6;
-      color: #444;
+      color: #b0b0c8;
+      font-size: 0.92rem;
     }
     .intro p:last-child { margin-bottom: 0; }
-    .intro strong { color: #222; }
+    .intro strong { color: #e0e0e0; }
+    .intro a { color: #7ec8e3; }
     .controls {
       display: flex;
       gap: 20px;
       justify-content: center;
       align-items: flex-end;
       flex-wrap: wrap;
-      margin-bottom: 20px;
-      padding: 20px;
-      background: white;
+      margin: 0 auto 20px;
+      padding: 18px 24px;
+      background: #16213e;
+      border: 1px solid #1f3460;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      max-width: 1600px;
     }
     .control-group {
       display: flex;
@@ -52,44 +72,71 @@
     }
     .control-group label {
       font-weight: 600;
-      color: #555;
-      font-size: 14px;
+      color: #8888aa;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     select {
-      padding: 10px 15px;
-      font-size: 16px;
-      border: 2px solid #ddd;
+      padding: 9px 14px;
+      font-size: 15px;
+      border: 2px solid #1f3460;
       border-radius: 6px;
-      background: white;
+      background: #0f1a36;
+      color: #e0e0e0;
       cursor: pointer;
       min-width: 180px;
     }
-    select:hover { border-color: #007bff; }
+    select:hover { border-color: #7ec8e3; }
     select:focus {
       outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+      border-color: #7ec8e3;
+      box-shadow: 0 0 0 3px rgba(126,200,227,0.2);
     }
     select:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
     }
-    .reset-btn {
-      padding: 10px 20px;
-      font-size: 14px;
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 6px;
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 0;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #7ec8e3;
       cursor: pointer;
     }
-    .reset-btn:hover { background: #5a6268; }
+    .checkbox-group label {
+      font-size: 14px;
+      color: #c0c0d0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .reset-btn {
+      padding: 9px 18px;
+      font-size: 13px;
+      background: #2a2a4a;
+      color: #c0c0d0;
+      border: 2px solid #1f3460;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .reset-btn:hover {
+      background: #3a3a5a;
+      border-color: #7ec8e3;
+    }
     .plot-container {
-      background: white;
+      background: #16213e;
+      border: 1px solid #1f3460;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       padding: 15px;
       overflow: hidden;
+      max-width: 1600px;
+      margin: 0 auto;
     }
     .plot-header {
       display: flex;
@@ -99,35 +146,51 @@
       padding: 0 5px;
     }
     .plot-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      color: #333;
+      color: #e0e0e0;
     }
     .zoom-hint {
       font-size: 12px;
-      color: #888;
+      color: #666;
     }
+    .overlay-legend {
+      background: #16213e;
+      border: 1px solid #1f3460;
+      border-radius: 8px;
+      padding: 8px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: #c0c0d0;
+    }
+    .legend-title { font-weight: 600; color: #7ec8e3; }
+    .legend-item { white-space: nowrap; }
+    .legend-symbol { font-size: 14px; }
+    .legend-sep { color: #444; }
     .image-wrapper {
       width: 100%;
       height: 70vh;
       overflow: hidden;
       cursor: grab;
-      border: 1px solid #eee;
+      border: 1px solid #1f3460;
       border-radius: 4px;
-      background: #fafafa;
+      background: #0d1321;
     }
     .image-wrapper:active { cursor: grabbing; }
-    .image-wrapper img {
+    .panzoom-container img {
       width: 100%;
-      height: auto;
       display: block;
     }
     .era-info {
       font-size: 13px;
-      color: #666;
+      color: #8888aa;
       margin-top: 12px;
       padding: 10px 15px;
-      background: #f8f9fa;
+      background: #0f1a36;
       border-radius: 4px;
     }
     .data-link {
@@ -135,21 +198,32 @@
       font-size: 12px;
     }
     .data-link a {
-      color: #007bff;
+      color: #7ec8e3;
       text-decoration: none;
     }
     .data-link a:hover { text-decoration: underline; }
     footer {
       text-align: center;
-      margin-top: 30px;
+      max-width: 1600px;
+      margin: 30px auto 0;
       padding: 20px;
-      color: #888;
+      color: #555;
       font-size: 13px;
+      border-top: 1px solid #1f3460;
     }
-    footer a { color: #666; }
+    footer a {
+      color: #7ec8e3;
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+  <div class="nav" style="max-width:1600px;">
+    <div><a href="landing.html">← Back to Home</a></div>
+    <div><a href="team_breakdown.html">Team Breakdown →</a></div>
+  </div>
+
   <h1>⚾ MLB Franchise WAR Explorer</h1>
   
   <div class="intro">
@@ -203,28 +277,65 @@
         <option value="1998">1998 — ARI/TBR (30 Teams)</option>
       </select>
     </div>
+
+    <div class="control-group">
+      <label for="line-width">Line Width</label>
+      <select id="line-width">
+        <option value="constant">Constant</option>
+        <option value="zscore">Z-Score</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>&nbsp;</label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="awards">
+        <label for="awards">Awards</label>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>&nbsp;</label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="postseason">
+        <label for="postseason">Postseason</label>
+      </div>
+    </div>
     
     <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
+  </div>
+
+  <div class="overlay-legend" id="overlay-legend" style="display:none;">
+    <span class="legend-title">Legend:</span>
+    <span class="legend-item"><span class="legend-symbol" style="color:#FFD700;">◆</span> MVP</span>
+    <span class="legend-item"><span class="legend-symbol" style="color:#FFD700;">▲</span> Cy Young</span>
+    <span class="legend-item"><span class="legend-symbol" style="color:#CCCCCC;">●</span> All-Star</span>
+    <span class="legend-sep">|</span>
+    <span class="legend-item"><span style="border-bottom:2px solid #FFD700;">——</span> World Series</span>
+    <span class="legend-item"><span style="border-bottom:2px dashed #87CEEB;">– –</span> LCS</span>
+    <span class="legend-item"><span style="border-bottom:2px dotted #90EE90;">···</span> Div Series</span>
+    <span class="legend-item"><span style="border-bottom:2px dashed #DDA0DD;">-·-</span> Wild Card</span>
   </div>
   
   <div class="plot-container">
     <div class="plot-header">
-      <div class="plot-title" id="plot-title">Cumulative WAR by Franchise — Position Players (1901-Present)</div>
-      <div class="zoom-hint">🔍 Scroll to zoom • Drag to pan</div>
+      <div class="plot-title" id="plot-title">Cumulative WAR by Franchise — All Players (1901-Present)</div>
+      <div class="zoom-hint">🔍 Scroll to zoom · Drag to pan</div>
     </div>
     <div class="image-wrapper" id="image-wrapper">
-      <img id="plot-image" src="plots/batters_all_1901.png" alt="WAR Plot">
+      <div class="panzoom-container" id="panzoom-container">
+        <img id="plot-image" src="plots/all_1901.png" alt="WAR Plot" style="width:100%; display:block;">
+      </div>
     </div>
     <div class="era-info" id="era-info"></div>
     <div class="data-link">
-      📊 <a href="#" id="csv-link" target="_blank">Download data (CSV)</a> |
-      🔍 <a href="team_breakdown.html">Team Position Breakdown →</a>
+      📊 <a href="#" id="csv-link" target="_blank">Download data (CSV)</a>
     </div>
   </div>
 
   <footer>
-    Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> |
-    Position data: <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a> |
+    Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> ·
+    Position data: <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a> ·
     <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source Code</a>
   </footer>
 
@@ -252,17 +363,24 @@
       'rp': 'Relief Pitchers (RP)'
     };
 
+    // Positions that support z-score width
+    const singlePositions = new Set(['c', '1b', '2b', 'ss', '3b', 'of', 'sp', 'rp']);
+
     const positionSelect = document.getElementById('position');
     const eraSelect = document.getElementById('era');
+    const widthSelect = document.getElementById('line-width');
+    const awardsCheck = document.getElementById('awards');
+    const postseasonCheck = document.getElementById('postseason');
     const plotImage = document.getElementById('plot-image');
     const plotTitle = document.getElementById('plot-title');
     const eraInfoDiv = document.getElementById('era-info');
     const csvLink = document.getElementById('csv-link');
     const imageWrapper = document.getElementById('image-wrapper');
+    const panzoomContainer = document.getElementById('panzoom-container');
     const resetBtn = document.getElementById('reset-zoom');
 
-    // Initialize Panzoom
-    const panzoom = Panzoom(plotImage, {
+    // Initialize Panzoom on the container so all layers zoom/pan together
+    const panzoom = Panzoom(panzoomContainer, {
       maxScale: 5,
       minScale: 0.5,
       contain: 'outside'
@@ -270,21 +388,46 @@
     imageWrapper.addEventListener('wheel', panzoom.zoomWithWheel);
     resetBtn.addEventListener('click', () => panzoom.reset());
 
-    // Reset zoom when image changes
     function resetZoom() {
       panzoom.reset({ animate: false });
+    }
+
+    // Enforce z-score availability based on position selection
+    function updateWidthAvailability() {
+      const pos = positionSelect.value;
+      if (!singlePositions.has(pos)) {
+        widthSelect.value = 'constant';
+        widthSelect.disabled = true;
+      } else {
+        widthSelect.disabled = false;
+      }
     }
 
     function updatePlot() {
       const position = positionSelect.value;
       const era = eraSelect.value;
+      const showAwards = awardsCheck.checked;
+      const showPostseason = postseasonCheck.checked;
       
-      // Build filename - now just position_era.png
-      const baseName = `${position}_${era}`;
-      
-      // Update image and CSV link
-      plotImage.src = `plots/${baseName}.png`;
-      csvLink.href = `data/${baseName}.csv`;
+      updateWidthAvailability();
+      const effectiveWidth = widthSelect.value;
+
+      // Build filename: {pos}_{era}[_zscore][_awards|_postseason|_all].png
+      let fname = `${position}_${era}`;
+      if (effectiveWidth === 'zscore' && singlePositions.has(position)) {
+        fname += '_zscore';
+      }
+      if (showAwards && showPostseason) {
+        fname += '_all';
+      } else if (showAwards) {
+        fname += '_awards';
+      } else if (showPostseason) {
+        fname += '_postseason';
+      }
+      plotImage.src = `plots/${fname}.png`;
+
+      // CSV link (base name only)
+      csvLink.href = `data/${position}_${era}.csv`;
       
       // Reset zoom on new image
       plotImage.onload = resetZoom;
@@ -295,10 +438,17 @@
       
       // Update era info
       eraInfoDiv.textContent = eraInfo[era];
+
+      // Show legend when any overlay feature is active
+      document.getElementById('overlay-legend').style.display =
+        (showAwards || showPostseason) ? 'flex' : 'none';
     }
 
     positionSelect.addEventListener('change', updatePlot);
     eraSelect.addEventListener('change', updatePlot);
+    widthSelect.addEventListener('change', updatePlot);
+    awardsCheck.addEventListener('change', updatePlot);
+    postseasonCheck.addEventListener('change', updatePlot);
     
     // Handle image load errors
     plotImage.addEventListener('error', function() {
