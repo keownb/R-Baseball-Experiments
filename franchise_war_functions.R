@@ -623,20 +623,22 @@ get_postseason_data <- function(team_code) {
 # Save a transparent overlay PNG that is pixel-aligned with the base plot.
 # Builds an overlay plot using the same scales/facets/coords/dimensions,
 # but with transparent backgrounds and invisible text (preserving spacing).
-save_overlay_png <- function(overlay_layers, base_plot, filename,
+save_overlay_png <- function(full_plot, keep_geoms, filename,
                              width, height, dpi = 150) {
-  # Extract the base plot's scales, facet, coord, and theme
-  p_overlay <- base_plot
+  # Create overlay by keeping only specified layer types from the full plot.
+  # Since we start from the full combined plot, all scales/guides/layout are intact.
+  #
+  # keep_geoms: character vector of geom class names to keep,
+  #   e.g. c("GeomPoint") for awards, c("GeomVline") for postseason
   
-  # Remove all existing layers from the base
-  p_overlay$layers <- list()
+  p_overlay <- full_plot
   
-  # Add only the overlay layers
-  for (layer in overlay_layers) {
-    p_overlay <- p_overlay + layer
-  }
+  # Keep only layers whose geom class matches keep_geoms
+  p_overlay$layers <- p_overlay$layers[sapply(p_overlay$layers, function(l) {
+    class(l$geom)[1] %in% keep_geoms
+  })]
   
-  # Make everything transparent except the overlay marks
+  # Make chrome transparent while preserving spacing
   p_overlay <- p_overlay +
     theme(
       panel.background = element_rect(fill = "transparent", color = NA),
