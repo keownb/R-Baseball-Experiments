@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MLB Franchise WAR Explorer</title>
+  <title>Team Position Breakdown — MLB WAR</title>
   <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,9 +31,6 @@
       color: #fff;
       margin-bottom: 10px;
       font-size: 1.6rem;
-      max-width: 1600px;
-      margin-left: auto;
-      margin-right: auto;
     }
     .intro {
       background: #16213e;
@@ -44,14 +41,10 @@
       max-width: 1600px;
     }
     .intro p {
-      margin: 0 0 12px 0;
       line-height: 1.6;
       color: #b0b0c8;
       font-size: 0.92rem;
     }
-    .intro p:last-child { margin-bottom: 0; }
-    .intro strong { color: #e0e0e0; }
-    .intro a { color: #7ec8e3; }
     .controls {
       display: flex;
       gap: 20px;
@@ -156,7 +149,7 @@
     }
     .image-wrapper {
       width: 100%;
-      height: 70vh;
+      height: 75vh;
       overflow: hidden;
       cursor: grab;
       border: 1px solid #1f3460;
@@ -178,23 +171,6 @@
       display: none;
       pointer-events: none;
     }
-    .era-info {
-      font-size: 13px;
-      color: #8888aa;
-      margin-top: 12px;
-      padding: 10px 15px;
-      background: #0f1a36;
-      border-radius: 4px;
-    }
-    .data-link {
-      margin-top: 10px;
-      font-size: 12px;
-    }
-    .data-link a {
-      color: #7ec8e3;
-      text-decoration: none;
-    }
-    .data-link a:hover { text-decoration: underline; }
     footer {
       text-align: center;
       max-width: 1600px;
@@ -214,67 +190,81 @@
 <body>
   <div class="nav" style="max-width:1600px;">
     <div><a href="landing.html">← Back to Home</a></div>
-    <div><a href="team_breakdown.html">Team Breakdown →</a></div>
+    <div><a href="war_explorer.html">← Grid Explorer</a></div>
   </div>
 
-  <h1>⚾ MLB Franchise WAR Explorer</h1>
-  
+  <h1>⚾ Team Position Breakdown</h1>
+
   <div class="intro">
     <p>
-      <strong>What is this?</strong> An interactive visualization of cumulative 
-      <a href="https://www.baseball-reference.com/about/war_explained.shtml" target="_blank">WAR (Wins Above Replacement)</a> 
-      for each of MLB's 30 franchises. Each chart shows the top 5 players by total WAR accumulated 
-      <em>with that specific franchise</em>. While this visualization has minimal pure "analytical" value, I find that it provides an interesting slice of the "story" of which teams have collected powerhouse careers, and there are some interesting tidbits in looking at the outliers.    </p>
-    <p>
-      <strong>How to read it:</strong> Steeper lines = faster WAR accumulation (peak years). 
-      Flat lines = missed time or league-average play. The higher a line ends, the more value 
-      that player provided to that franchise over their tenure. The teams you'd expect have lots of steep tall lines. Obviously the newer franchises have a certain disadvantage, so you can filter by starting year for fairer comparisons.
-    </p>
-    <p>
-      <strong>Historical mapping:</strong> All historical team names are mapped to current franchises 
-      (e.g., Montreal Expos → Washington Nationals, Brooklyn Dodgers → LA Dodgers). 
-      Filter by expansion era to compare franchises on equal footing.
+      A per-team breakdown of cumulative WAR, split into 9 facets — one for each fielding position
+      (C, 1B, 2B, SS, 3B, OF, SP, RP, DH). See how a single franchise has built value at each
+      position across its history. Toggle between linear and log scales, z-score line widths, and
+      overlay award markers or postseason indicators.
     </p>
   </div>
-  
+
   <div class="controls">
     <div class="control-group">
-      <label for="position">Position</label>
-      <select id="position">
-        <option value="all">All Players</option>
-        <option value="batters">Position Players</option>
-        <option value="pitchers">All Pitchers</option>
-        <optgroup label="Position Players">
-          <option value="c">Catcher (C)</option>
-          <option value="1b">First Base (1B)</option>
-          <option value="2b">Second Base (2B)</option>
-          <option value="ss">Shortstop (SS)</option>
-          <option value="3b">Third Base (3B)</option>
-          <option value="of">Outfield (OF)</option>
+      <label for="team">Team</label>
+      <select id="team">
+        <optgroup label="AL East">
+          <option value="BAL">Baltimore Orioles</option>
+          <option value="BOS">Boston Red Sox</option>
+          <option value="NYY">New York Yankees</option>
+          <option value="TBR">Tampa Bay Rays</option>
+          <option value="TOR">Toronto Blue Jays</option>
         </optgroup>
-        <optgroup label="Pitchers">
-          <option value="sp">Starting Pitchers (SP)</option>
-          <option value="rp">Relief Pitchers (RP)</option>
+        <optgroup label="AL Central">
+          <option value="CHW">Chicago White Sox</option>
+          <option value="CLE">Cleveland Guardians</option>
+          <option value="DET">Detroit Tigers</option>
+          <option value="KCR">Kansas City Royals</option>
+          <option value="MIN">Minnesota Twins</option>
+        </optgroup>
+        <optgroup label="AL West">
+          <option value="HOU">Houston Astros</option>
+          <option value="LAA">Los Angeles Angels</option>
+          <option value="OAK">Oakland Athletics</option>
+          <option value="SEA" selected>Seattle Mariners</option>
+          <option value="TEX">Texas Rangers</option>
+        </optgroup>
+        <optgroup label="NL East">
+          <option value="ATL">Atlanta Braves</option>
+          <option value="MIA">Miami Marlins</option>
+          <option value="NYM">New York Mets</option>
+          <option value="PHI">Philadelphia Phillies</option>
+          <option value="WSN">Washington Nationals</option>
+        </optgroup>
+        <optgroup label="NL Central">
+          <option value="CHC">Chicago Cubs</option>
+          <option value="CIN">Cincinnati Reds</option>
+          <option value="MIL">Milwaukee Brewers</option>
+          <option value="PIT">Pittsburgh Pirates</option>
+          <option value="STL">St. Louis Cardinals</option>
+        </optgroup>
+        <optgroup label="NL West">
+          <option value="ARI">Arizona Diamondbacks</option>
+          <option value="COL">Colorado Rockies</option>
+          <option value="LAD">Los Angeles Dodgers</option>
+          <option value="SDP">San Diego Padres</option>
+          <option value="SFG">San Francisco Giants</option>
         </optgroup>
       </select>
     </div>
-    
+
     <div class="control-group">
-      <label for="era">Era</label>
-      <select id="era">
-        <option value="1901">1901 — Full History</option>
-        <option value="1961">1961 — First Expansion</option>
-        <option value="1969">1969 — Divisional Era</option>
-        <option value="1977">1977 — SEA/TOR Join</option>
-        <option value="1993">1993 — COL/MIA Join</option>
-        <option value="1998">1998 — ARI/TBR (30 Teams)</option>
+      <label for="scale">Scale</label>
+      <select id="scale">
+        <option value="linear">Linear</option>
+        <option value="log">Log</option>
       </select>
     </div>
 
     <div class="control-group">
       <label for="line-width">Line Width</label>
       <select id="line-width">
-        <option value="constant">Constant</option>
+        <option value="const">Constant</option>
         <option value="zscore">Z-Score</option>
       </select>
     </div>
@@ -294,25 +284,21 @@
         <label for="postseason">Postseason</label>
       </div>
     </div>
-    
+
     <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
   </div>
-  
+
   <div class="plot-container">
     <div class="plot-header">
-      <div class="plot-title" id="plot-title">Cumulative WAR by Franchise — All Players (1901-Present)</div>
+      <div class="plot-title" id="plot-title">Seattle Mariners — Position Breakdown (Linear, Constant Width)</div>
       <div class="zoom-hint">🔍 Scroll to zoom · Drag to pan</div>
     </div>
     <div class="image-wrapper" id="image-wrapper">
       <div class="panzoom-container" id="panzoom-container" style="position: relative;">
-        <img id="plot-image" src="plots/all_1901.png" alt="WAR Plot" style="width:100%; display:block;">
+        <img id="plot-image" src="team_breakdowns/SEA_linear_const.png" alt="Team Breakdown Plot" style="width:100%; display:block;">
         <img id="awards-overlay" class="overlay" src="" alt="">
         <img id="postseason-overlay" class="overlay" src="" alt="">
       </div>
-    </div>
-    <div class="era-info" id="era-info"></div>
-    <div class="data-link">
-      📊 <a href="#" id="csv-link" target="_blank">Download data (CSV)</a>
     </div>
   </div>
 
@@ -323,34 +309,21 @@
   </footer>
 
   <script>
-    const eraInfo = {
-      '1901': 'Modern era begins (1901). Includes all historical franchises mapped to their current names.',
-      '1961': 'First expansion (1961): Angels and new Senators (→ Rangers) join. Astros & Mets follow in 1962.',
-      '1969': 'Divisional play begins (1969): Padres, Expos (→ Nationals), Pilots (→ Brewers), Royals join.',
-      '1977': 'AL expansion (1977): Mariners and Blue Jays join, completing the 14-team AL.',
-      '1993': 'NL expansion (1993): Rockies and Marlins join, bringing MLB to 28 teams.',
-      '1998': 'Final expansion (1998): Diamondbacks and Devil Rays complete the current 30-team format.'
+    const teamNames = {
+      BAL: 'Baltimore Orioles', BOS: 'Boston Red Sox', NYY: 'New York Yankees',
+      TBR: 'Tampa Bay Rays', TOR: 'Toronto Blue Jays', CHW: 'Chicago White Sox',
+      CLE: 'Cleveland Guardians', DET: 'Detroit Tigers', KCR: 'Kansas City Royals',
+      MIN: 'Minnesota Twins', HOU: 'Houston Astros', LAA: 'Los Angeles Angels',
+      OAK: 'Oakland Athletics', SEA: 'Seattle Mariners', TEX: 'Texas Rangers',
+      ATL: 'Atlanta Braves', MIA: 'Miami Marlins', NYM: 'New York Mets',
+      PHI: 'Philadelphia Phillies', WSN: 'Washington Nationals', CHC: 'Chicago Cubs',
+      CIN: 'Cincinnati Reds', MIL: 'Milwaukee Brewers', PIT: 'Pittsburgh Pirates',
+      STL: 'St. Louis Cardinals', ARI: 'Arizona Diamondbacks', COL: 'Colorado Rockies',
+      LAD: 'Los Angeles Dodgers', SDP: 'San Diego Padres', SFG: 'San Francisco Giants'
     };
 
-    const positionLabels = {
-      'all': 'All Players',
-      'batters': 'Position Players',
-      'pitchers': 'All Pitchers',
-      'c': 'Catchers (C)',
-      '1b': 'First Basemen (1B)',
-      '2b': 'Second Basemen (2B)',
-      'ss': 'Shortstops (SS)',
-      '3b': 'Third Basemen (3B)',
-      'of': 'Outfielders (OF)',
-      'sp': 'Starting Pitchers (SP)',
-      'rp': 'Relief Pitchers (RP)'
-    };
-
-    // Positions that support z-score width
-    const singlePositions = new Set(['c', '1b', '2b', 'ss', '3b', 'of', 'sp', 'rp']);
-
-    const positionSelect = document.getElementById('position');
-    const eraSelect = document.getElementById('era');
+    const teamSelect = document.getElementById('team');
+    const scaleSelect = document.getElementById('scale');
     const widthSelect = document.getElementById('line-width');
     const awardsCheck = document.getElementById('awards');
     const postseasonCheck = document.getElementById('postseason');
@@ -358,13 +331,10 @@
     const awardsOverlay = document.getElementById('awards-overlay');
     const postseasonOverlay = document.getElementById('postseason-overlay');
     const plotTitle = document.getElementById('plot-title');
-    const eraInfoDiv = document.getElementById('era-info');
-    const csvLink = document.getElementById('csv-link');
-    const imageWrapper = document.getElementById('image-wrapper');
-    const panzoomContainer = document.getElementById('panzoom-container');
     const resetBtn = document.getElementById('reset-zoom');
+    const panzoomContainer = document.getElementById('panzoom-container');
+    const imageWrapper = document.getElementById('image-wrapper');
 
-    // Initialize Panzoom on the container so all layers zoom/pan together
     const panzoom = Panzoom(panzoomContainer, {
       maxScale: 5,
       minScale: 0.5,
@@ -377,40 +347,20 @@
       panzoom.reset({ animate: false });
     }
 
-    // Enforce z-score availability based on position selection
-    function updateWidthAvailability() {
-      const pos = positionSelect.value;
-      if (!singlePositions.has(pos)) {
-        widthSelect.value = 'constant';
-        widthSelect.disabled = true;
-      } else {
-        widthSelect.disabled = false;
-      }
-    }
-
     function updatePlot() {
-      const position = positionSelect.value;
-      const era = eraSelect.value;
+      const team = teamSelect.value;
+      const scale = scaleSelect.value;
       const width = widthSelect.value;
       const showAwards = awardsCheck.checked;
       const showPostseason = postseasonCheck.checked;
-      
-      updateWidthAvailability();
 
-      // Build base filename
-      const baseName = `${position}_${era}`;
-      const effectiveWidth = widthSelect.value; // re-read after availability update
-
-      // Base image: constant or z-score
-      if (effectiveWidth === 'zscore' && singlePositions.has(position)) {
-        plotImage.src = `plots/${baseName}_zscore.png`;
-      } else {
-        plotImage.src = `plots/${baseName}.png`;
-      }
+      // Base image
+      plotImage.src = `team_breakdowns/${team}_${scale}_${width}.png`;
+      plotImage.onload = resetZoom;
 
       // Awards overlay
       if (showAwards) {
-        awardsOverlay.src = `plots/${baseName}_awards.png`;
+        awardsOverlay.src = `team_breakdowns/${team}_${scale}_awards.png`;
         awardsOverlay.style.display = 'block';
       } else {
         awardsOverlay.style.display = 'none';
@@ -419,39 +369,30 @@
 
       // Postseason overlay
       if (showPostseason) {
-        postseasonOverlay.src = `plots/${baseName}_postseason.png`;
+        postseasonOverlay.src = `team_breakdowns/${team}_${scale}_postseason.png`;
         postseasonOverlay.style.display = 'block';
       } else {
         postseasonOverlay.style.display = 'none';
         postseasonOverlay.src = '';
       }
 
-      // CSV link
-      csvLink.href = `data/${baseName}.csv`;
-      
-      // Reset zoom on new image
-      plotImage.onload = resetZoom;
-      
-      // Update title
-      const typeLabel = positionLabels[position] || position.toUpperCase();
-      plotTitle.textContent = `Cumulative WAR by Franchise — ${typeLabel} (${era}-Present)`;
-      
-      // Update era info
-      eraInfoDiv.textContent = eraInfo[era];
+      // Title
+      const name = teamNames[team] || team;
+      const scaleLabel = scale === 'linear' ? 'Linear' : 'Log';
+      const widthLabel = width === 'const' ? 'Constant Width' : 'Z-Score Width';
+      plotTitle.textContent = `${name} — Position Breakdown (${scaleLabel}, ${widthLabel})`;
     }
 
-    positionSelect.addEventListener('change', updatePlot);
-    eraSelect.addEventListener('change', updatePlot);
+    teamSelect.addEventListener('change', updatePlot);
+    scaleSelect.addEventListener('change', updatePlot);
     widthSelect.addEventListener('change', updatePlot);
     awardsCheck.addEventListener('change', updatePlot);
     postseasonCheck.addEventListener('change', updatePlot);
-    
-    // Handle image load errors
+
     plotImage.addEventListener('error', function() {
-      this.alt = 'Plot not yet generated. Run generate_all_plots.R first.';
+      this.alt = 'Plot not yet generated. Run the R scripts first.';
     });
 
-    // Initialize
     updatePlot();
   </script>
 </body>
