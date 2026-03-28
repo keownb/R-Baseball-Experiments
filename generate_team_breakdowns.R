@@ -65,6 +65,7 @@ for (team_code in names(TEAMS)) {
   for (scale_name in scales) {
     is_log <- scale_name == "log"
     
+    # --- Base images (no overlays baked in) ---
     for (width_name in widths) {
       is_zscore <- width_name == "zscore"
       current <- current + 1
@@ -75,7 +76,7 @@ for (team_code in names(TEAMS)) {
       p <- generate_team_position_plot(
         WAR_bat, WAR_pitch,
         team_code = team_code, team_name = team_name,
-        show_postseason = TRUE,
+        show_postseason = FALSE,
         log_scale = is_log,
         variable_width = is_zscore,
         pos_year_stats = if (is_zscore) pos_year_stats else NULL
@@ -86,56 +87,30 @@ for (team_code in names(TEAMS)) {
       ggsave(fname, plot = p, width = PLOT_WIDTH, height = plot_height, dpi = PLOT_DPI)
     }
     
-    # --- Award overlay (one per scale) ---
+    # --- Full combined plot for overlays (same base + awards + postseason) ---
     current <- current + 1
-    message(sprintf("[%d/%d] %s %s awards overlay", current, total, team_code, scale_name))
+    message(sprintf("[%d/%d] %s %s overlays", current, total, team_code, scale_name))
     
-    p_awards <- generate_team_position_plot(
+    p_full <- generate_team_position_plot(
       WAR_bat, WAR_pitch,
       team_code = team_code, team_name = team_name,
-      log_scale = is_log,
+      show_postseason = TRUE, log_scale = is_log,
       show_awards = TRUE, award_data = award_data
     )
     
-    n_pos <- attr(p_awards, "n_positions")
+    n_pos <- attr(p_full, "n_positions")
     plot_height <- 3 * n_pos + 2
     
-    award_layers <- p_awards$layers[sapply(p_awards$layers, function(l) {
-      inherits(l$geom, "GeomPoint")
-    })]
+    # Awards overlay: keep only GeomPoint visible
+    save_overlay_png(p_full, c("GeomPoint"),
+      sprintf("%s/%s_%s_awards.png", OUTPUT_DIR, team_code, scale_name),
+      width = PLOT_WIDTH, height = plot_height, dpi = PLOT_DPI)
     
-    # Use the constant-width base as reference for overlay alignment
-    p_ref <- generate_team_position_plot(
-      WAR_bat, WAR_pitch,
-      team_code = team_code, team_name = team_name,
-      show_postseason = TRUE, log_scale = is_log
-    )
-    
-    if (length(award_layers) > 0) {
-      save_overlay_png(award_layers, p_ref,
-        sprintf("%s/%s_%s_awards.png", OUTPUT_DIR, team_code, scale_name),
-        width = PLOT_WIDTH, height = plot_height, dpi = PLOT_DPI)
-    }
-    
-    # --- Postseason overlay (one per scale) ---
+    # Postseason overlay: keep only GeomVline visible
     current <- current + 1
-    message(sprintf("[%d/%d] %s %s postseason overlay", current, total, team_code, scale_name))
-    
-    p_post <- generate_team_position_plot(
-      WAR_bat, WAR_pitch,
-      team_code = team_code, team_name = team_name,
-      show_postseason = TRUE, log_scale = is_log
-    )
-    
-    post_layers <- p_post$layers[sapply(p_post$layers, function(l) {
-      inherits(l$geom, "GeomVline")
-    })]
-    
-    if (length(post_layers) > 0) {
-      save_overlay_png(post_layers, p_ref,
-        sprintf("%s/%s_%s_postseason.png", OUTPUT_DIR, team_code, scale_name),
-        width = PLOT_WIDTH, height = plot_height, dpi = PLOT_DPI)
-    }
+    save_overlay_png(p_full, c("GeomVline"),
+      sprintf("%s/%s_%s_postseason.png", OUTPUT_DIR, team_code, scale_name),
+      width = PLOT_WIDTH, height = plot_height, dpi = PLOT_DPI)
   }
 }
 

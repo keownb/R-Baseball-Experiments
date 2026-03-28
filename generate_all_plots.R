@@ -86,7 +86,7 @@ for (era in ERAS) {
     base_name <- sprintf("%s_%d", tolower(pos_name), era)
     message(sprintf("[%d/%d] %s", current, n_positions * n_eras, base_name))
     
-    # --- 1. Constant-width base ---
+    # --- 1. Constant-width base (no overlays baked in) ---
     p_const <- generate_franchise_war_plot(
       war_source, type_label, start_year = era, position_filter = pos_filter)
     ggsave(sprintf("%s/%s.png", OUTPUT_DIR, base_name),
@@ -102,31 +102,21 @@ for (era in ERAS) {
              plot = p_zscore, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
     }
     
-    # --- 3. Awards overlay ---
-    p_awards <- generate_franchise_war_plot(
+    # --- 3. Full combined plot for overlays (awards + postseason on same base) ---
+    p_full <- generate_franchise_war_plot(
       war_source, type_label, start_year = era, position_filter = pos_filter,
-      show_awards = TRUE, award_data = award_data)
-    award_layer <- p_awards$layers[sapply(p_awards$layers, function(l) {
-      inherits(l$geom, "GeomPoint")
-    })]
-    if (length(award_layer) > 0) {
-      save_overlay_png(award_layer, p_const,
-        sprintf("%s/%s_awards.png", OUTPUT_DIR, base_name),
-        width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
-    }
-    
-    # --- 4. Postseason overlay ---
-    p_post <- generate_franchise_war_plot(
-      war_source, type_label, start_year = era, position_filter = pos_filter,
+      show_awards = TRUE, award_data = award_data,
       show_postseason = TRUE)
-    post_layer <- p_post$layers[sapply(p_post$layers, function(l) {
-      inherits(l$geom, "GeomVline")
-    })]
-    if (length(post_layer) > 0) {
-      save_overlay_png(post_layer, p_const,
-        sprintf("%s/%s_postseason.png", OUTPUT_DIR, base_name),
-        width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
-    }
+    
+    # Awards overlay: keep only GeomPoint visible
+    save_overlay_png(p_full, c("GeomPoint"),
+      sprintf("%s/%s_awards.png", OUTPUT_DIR, base_name),
+      width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+    
+    # Postseason overlay: keep only GeomVline visible
+    save_overlay_png(p_full, c("GeomVline"),
+      sprintf("%s/%s_postseason.png", OUTPUT_DIR, base_name),
+      width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
   }
 }
 
