@@ -1,6 +1,6 @@
 # generate_all_plots.R
 # Batch generation of all WAR plots for GH Pages
-# Generates base images (constant + z-score width) and transparent overlays
+# Uses parallel::mclapply (fork-based) + ragg for maximum throughput
 
 source("franchise_war_functions.R")
 
@@ -13,9 +13,9 @@ DATA_DIR <- "docs/data"
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
 
+N_CORES <- parallel::detectCores()  # all of them
 ERAS <- c(1901, 1961, 1969, 1977, 1993, 1998)
 
-# Position config: data source + filter
 POSITIONS <- list(
   "all" = list(source = "combined", filter = NULL),
   "batters" = list(source = "batting", filter = NULL),
@@ -34,8 +34,15 @@ PLOT_WIDTH <- 20
 PLOT_HEIGHT <- 24
 PLOT_DPI <- 150
 
+OVERLAY_COMBOS <- list(
+  list(suffix = "",            awards = FALSE, postseason = FALSE),
+  list(suffix = "_awards",     awards = TRUE,  postseason = FALSE),
+  list(suffix = "_postseason", awards = FALSE, postseason = TRUE),
+  list(suffix = "_all",        awards = TRUE,  postseason = TRUE)
+)
+
 # =============================================================================
-# LOAD DATA
+# LOAD DATA (loaded once in parent, shared via fork COW)
 # =============================================================================
 
 message("=== Loading WAR data ===")
@@ -53,67 +60,83 @@ message("=== Loading shared data (z-scores, awards) ===")
 pos_year_stats <- compute_position_year_stats(WAR_bat, WAR_pitch)
 award_data <- load_award_data()
 
+use_ragg <- requireNamespace("ragg", quietly = TRUE)
+
 # =============================================================================
-# GENERATE ALL PLOTS
+# BUILD LIGHTWEIGHT JOB LIST (no data refs, just params)
 # =============================================================================
 
-# For each position × era, generate all overlay combos as full pre-rendered images.
-# Naming: {pos}_{era}[_zscore][_awards|_postseason|_all].png
-# This avoids overlay alignment issues — each image is self-contained.
-
-OVERLAY_COMBOS <- list(
-  list(suffix = "",            awards = FALSE, postseason = FALSE),
-  list(suffix = "_awards",     awards = TRUE,  postseason = FALSE),
-  list(suffix = "_postseason", awards = FALSE, postseason = TRUE),
-  list(suffix = "_all",        awards = TRUE,  postseason = TRUE)
-)
-
-n_positions <- length(POSITIONS)
-n_eras <- length(ERAS)
-current <- 0
-total <- n_positions * n_eras
-
-message(sprintf("\n=== Generating plots for %d positions × %d eras ===\n", n_positions, n_eras))
-
+jobs <- list()
 for (era in ERAS) {
   for (pos_name in names(POSITIONS)) {
-    current <- current + 1
-    
     pos_config <- POSITIONS[[pos_name]]
     pos_filter <- pos_config$filter
     can_zscore <- !is.null(pos_filter) && pos_filter %in% c("C","1B","2B","SS","3B","OF","SP","RP")
-    
-    war_source <- switch(pos_config$source,
-      "batting" = WAR_bat, "pitching" = WAR_pitch, "combined" = WAR_combined)
-    type_label <- switch(pos_config$source,
-      "batting" = "Position Players", "pitching" = "Pitchers", "combined" = "All Players")
-    
     base_name <- sprintf("%s_%d", tolower(pos_name), era)
-    message(sprintf("[%d/%d] %s", current, total, base_name))
-    
-    width_modes <- list(list(name = "", vw = FALSE, stats = NULL))
-    if (can_zscore) {
-      width_modes[[2]] <- list(name = "_zscore", vw = TRUE, stats = pos_year_stats)
-    }
-    
+
+    width_modes <- list(list(name = "", vw = FALSE))
+    if (can_zscore) width_modes[[2]] <- list(name = "_zscore", vw = TRUE)
+
     for (wm in width_modes) {
       for (oc in OVERLAY_COMBOS) {
-        fname <- sprintf("%s/%s%s%s.png", OUTPUT_DIR, base_name, wm$name, oc$suffix)
-        
-        p <- generate_franchise_war_plot(
-          war_source, type_label, start_year = era, position_filter = pos_filter,
-          variable_width = wm$vw, pos_year_stats = wm$stats,
-          show_awards = oc$awards, award_data = if (oc$awards) award_data else NULL,
-          show_postseason = oc$postseason)
-        ggsave(fname, plot = p, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+        jobs[[length(jobs) + 1]] <- list(
+          fname = sprintf("%s/%s%s%s.png", OUTPUT_DIR, base_name, wm$name, oc$suffix),
+          source_name = pos_config$source, type_label = switch(pos_config$source,
+            "batting" = "Position Players", "pitching" = "Pitchers", "combined" = "All Players"),
+          era = era, pos_filter = pos_filter, vw = wm$vw,
+          show_awards = oc$awards, show_postseason = oc$postseason
+        )
       }
     }
-    
-    # CSV export (just the base data, once per position/era)
-    p_csv <- generate_franchise_war_plot(
-      war_source, type_label, start_year = era, position_filter = pos_filter)
-    export_plot_data(p_csv, sprintf("%s/%s.csv", DATA_DIR, base_name))
+
+    # CSV export job
+    jobs[[length(jobs) + 1]] <- list(
+      csv_path = sprintf("%s/%s.csv", DATA_DIR, base_name),
+      source_name = pos_config$source, type_label = switch(pos_config$source,
+        "batting" = "Position Players", "pitching" = "Pitchers", "combined" = "All Players"),
+      era = era, pos_filter = pos_filter
+    )
   }
 }
 
-message(sprintf("\n=== Done! Generated plots in %s ===", OUTPUT_DIR))
+message(sprintf("\n=== %d items | %d cores | %s ===\n",
+                length(jobs), N_CORES, if (use_ragg) "ragg" else "default png"))
+
+# =============================================================================
+# PARALLEL GENERATION (mclapply = raw fork, zero serialization overhead)
+# =============================================================================
+
+render_job <- function(job) {
+  war_src <- switch(job$source_name,
+    "batting" = WAR_bat, "pitching" = WAR_pitch, "combined" = WAR_combined)
+
+  if (!is.null(job$csv_path)) {
+    p <- generate_franchise_war_plot(war_src, job$type_label,
+      start_year = job$era, position_filter = job$pos_filter)
+    export_plot_data(p, job$csv_path)
+    return(job$csv_path)
+  }
+
+  p <- generate_franchise_war_plot(war_src, job$type_label,
+    start_year = job$era, position_filter = job$pos_filter,
+    variable_width = job$vw, pos_year_stats = if (job$vw) pos_year_stats else NULL,
+    show_awards = job$show_awards,
+    award_data = if (job$show_awards) award_data else NULL,
+    show_postseason = job$show_postseason)
+
+  if (use_ragg) {
+    ggsave(job$fname, plot = p, width = PLOT_WIDTH, height = PLOT_HEIGHT,
+           dpi = PLOT_DPI, device = ragg::agg_png)
+  } else {
+    ggsave(job$fname, plot = p, width = PLOT_WIDTH, height = PLOT_HEIGHT, dpi = PLOT_DPI)
+  }
+  return(job$fname)
+}
+
+t0 <- Sys.time()
+results <- parallel::mclapply(jobs, render_job, mc.cores = N_CORES)
+elapsed <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+
+errors <- sapply(results, inherits, "try-error")
+message(sprintf("\n=== Done! %d items in %.0fs (%.1f/s) | %d errors ===",
+                length(results), elapsed, length(results) / elapsed, sum(errors)))

@@ -21,46 +21,48 @@ library(Lahman)
 franchise_map <- function(team_id, year_id = NA) {
   case_when(
     # AL West
+    # AL West (BR + Lahman codes)
     team_id %in% c("LAA", "ANA", "CAL") ~ "LAA",
-    team_id %in% c("OAK", "KCA", "PHA") ~ "OAK",
+    team_id %in% c("OAK", "PHA") ~ "OAK",
+    team_id == "KCA" & year_id < 1969 ~ "OAK",
     team_id == "SEA" ~ "SEA",
     team_id == "HOU" ~ "HOU",
-    team_id %in% c("TEX", "WSA") ~ "TEX",
+    team_id %in% c("TEX", "WSA", "WS2") ~ "TEX",
     
     # AL Central
-    team_id == "CHW" ~ "CHW",
+    team_id %in% c("CHW", "CHA") ~ "CHW",
     team_id == "CLE" ~ "CLE",
     team_id == "DET" ~ "DET",
-    team_id == "KCR" ~ "KCR",
-    team_id %in% c("MIN", "WSH") ~ "MIN",
+    team_id %in% c("KCR", "KCA") ~ "KCR",
+    team_id %in% c("MIN", "WSH", "WS1") ~ "MIN",
     
     # AL East
-    team_id %in% c("BAL", "SLB", "MLA") ~ "BAL",
+    team_id %in% c("BAL", "SLB", "MLA", "SLA") ~ "BAL",
     team_id == "BOS" ~ "BOS",
     team_id %in% c("NYY", "NYA") ~ "NYY",
-    team_id %in% c("TBR", "TBD") ~ "TBR",
+    team_id %in% c("TBR", "TBD", "TBA") ~ "TBR",
     team_id == "TOR" ~ "TOR",
     
     # NL West
     team_id == "ARI" ~ "ARI",
     team_id == "COL" & year_id >= 1993 ~ "COL",
-    team_id %in% c("LAD", "BRO") ~ "LAD",
-    team_id == "SDP" ~ "SDP",
-    team_id %in% c("SFG", "NYG") ~ "SFG",
+    team_id %in% c("LAD", "BRO", "LAN") ~ "LAD",
+    team_id %in% c("SDP", "SDN") ~ "SDP",
+    team_id %in% c("SFG", "NYG", "SFN") ~ "SFG",
     
     # NL Central
-    team_id == "CHC" ~ "CHC",
+    team_id %in% c("CHC", "CHN") ~ "CHC",
     team_id == "CIN" ~ "CIN",
     team_id %in% c("MIL", "SEP") ~ "MIL",
     team_id == "PIT" ~ "PIT",
-    team_id == "STL" ~ "STL",
+    team_id %in% c("STL", "SLN") ~ "STL",
     
     # NL East
     team_id %in% c("ATL", "MLN", "BSN") ~ "ATL",
-    team_id %in% c("MIA", "FLA") ~ "MIA",
-    team_id == "NYM" ~ "NYM",
+    team_id %in% c("MIA", "FLA", "FLO") ~ "MIA",
+    team_id %in% c("NYM", "NYN") ~ "NYM",
     team_id == "PHI" ~ "PHI",
-    team_id %in% c("WSN", "MON") ~ "WSN",
+    team_id %in% c("WSN", "MON", "WAS") ~ "WSN",
     
     TRUE ~ NA_character_
   )
@@ -76,10 +78,10 @@ team_colors <- tribble(
   "LAA", "#BA0021", "#003263",
   "HOU", "#EB6E1F", "#002D62",
   "OAK", "#003831", "#EFB21E",
-  "SEA", "#005C5C", "#0C2C56",
+  "SEA", "#005C5C", "#8FBCBB",
   "TEX", "#003278", "#C0111F",
   # AL Central
-  "CHW", "#27251F", "#C4CED4",
+  "CHW", "#27251F", "#888888",
   "CLE", "#E50022", "#00385D",
   "DET", "#FA4616", "#0C2340",
   "KCR", "#004687", "#BD9B60",
@@ -87,13 +89,13 @@ team_colors <- tribble(
   # AL East
   "BAL", "#DF4601", "#000000",
   "BOS", "#BD3039", "#0D2B56",
-  "NYY", "#003087", "#C4CED4",
+  "NYY", "#003087", "#888888",
   "TBR", "#1A8CFF", "#092C5C",
-  "TOR", "#134A8E", "#1D2D5C",
+  "TOR", "#134A8E", "#629DD1",
   # NL West
-  "ARI", "#A71930", "#E3D4AD",
-  "COL", "#6B5B95", "#333366",
-  "LAD", "#005A9C", "#A5ACAF",
+  "ARI", "#A71930", "#C49B6A",
+  "COL", "#6B5B95", "#C0B3D9",
+  "LAD", "#005A9C", "#7A8B8B",
   "SDP", "#FFC425", "#2F241D",
   "SFG", "#FD5A1E", "#27251F",
   # NL Central
