@@ -183,24 +183,46 @@
     </div>
 
     <div class="section">
-      <h2>Data Sources and Notes</h2>
-
-      
+      <h2>Data Sources</h2>
       <p>
         WAR data from
-        <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference</a>.
-        Position classification from the
+        <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference</a>
+        (daily WAR tables for batters and pitchers).
+        Position classification, awards (MVP, Cy Young, All-Star), and postseason appearance data
+        from the
         <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a>.
       </p>
-<p>
-       I'm grateful to [Kieran Healey](https://kieranhealy.org/)'s excellent writing on [data visualization](https://socviz.co/), and to Dave Cameron and Jeff Sullivan for their seminal baseball writing in the oughts at USS Mariner and Lookout Landing.
+    </div>
 
-       Known issues/possible quibbles:
-  - Position categorization is somewhat fraught, and we use where a player spent the majority of their ABs or IPs.
-  - I have not exhaustively checked every graph for errors. If you see something that looks off, let me know. 
+    <div class="section">
+      <h2>Methodology and Caveats</h2>
+      <p>
+        Each visualization shows the <strong>top 5 players</strong> per franchise (grid view)
+        or per position (team breakdown). Players must have at least 2 seasons with a franchise
+        to qualify. When a player is traded mid-season, their WAR is allocated to each franchise
+        separately, and cumulative WAR is tracked independently per franchise.
       </p>
-
-      
+      <p>
+        Each player is assigned a single primary position based on where they played the
+        most career games. Outfield positions (LF, CF, RF) are consolidated into OF.
+        Pitchers are classified as SP or RP based on whether career games started exceed
+        50% of total games. Two-way players like Ohtani are assigned one position — there
+        is no special handling to capture contributions at multiple positions.
+      </p>
+      <p>
+        I'm grateful to
+        <a href="https://kieranhealy.org/" target="_blank">Kieran Healy</a>'s
+        excellent writing on
+        <a href="https://socviz.co/" target="_blank">data visualization</a>,
+        and to Dave Cameron and Jeff Sullivan for their seminal baseball writing in the
+        oughts at USS Mariner and Lookout Landing.
+      </p>
+      <p>Known issues and possible quibbles:</p>
+      <ul style="margin: 8px 0 0 24px; color: #c0c0d0; line-height: 1.7;">
+        <li>Position categorization is somewhat fraught — we assign each player to the position where they logged the most career games.</li>
+        <li>The z-score line width can look inflated in thin position-year combinations (e.g., early relief pitching) due to low sample variance.</li>
+        <li>I have not exhaustively checked every graph for errors. If you see something that looks off, please let me know.</li>
+      </ul>
     </div>
 
     <footer>
