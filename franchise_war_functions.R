@@ -78,7 +78,7 @@ team_colors <- tribble(
   "LAA", "#BA0021", "#003263",
   "HOU", "#EB6E1F", "#002D62",
   "OAK", "#003831", "#EFB21E",
-  "SEA", "#005C5C", "#8FBCBB",
+  "SEA", "#005C5C", "#8A8D8F",
   "TEX", "#003278", "#C0111F",
   # AL Central
   "CHW", "#27251F", "#888888",
@@ -94,7 +94,7 @@ team_colors <- tribble(
   "TOR", "#134A8E", "#629DD1",
   # NL West
   "ARI", "#A71930", "#C49B6A",
-  "COL", "#6B5B95", "#C0B3D9",
+  "COL", "#6B5B95", "#9B8BB4",
   "LAD", "#005A9C", "#7A8B8B",
   "SDP", "#FFC425", "#2F241D",
   "SFG", "#FD5A1E", "#27251F",
