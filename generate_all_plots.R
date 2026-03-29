@@ -47,8 +47,6 @@ WAR_combined <- bind_rows(WAR_bat %>% select(all_of(common_cols)),
 message("=== Loading shared data ===")
 pos_year_stats <- compute_position_year_stats(WAR_bat, WAR_pitch)
 award_data <- load_award_data()
-use_ragg <- requireNamespace("ragg", quietly = TRUE)
-
 jobs <- list()
 for (era in ERAS) {
   for (pos_name in names(POSITIONS)) {
@@ -71,21 +69,20 @@ for (era in ERAS) {
   }
 }
 
-message(sprintf("\n=== %d items | %d cores | %s ===\n", length(jobs), N_CORES, if(use_ragg)"ragg"else"png"))
+message(sprintf("\n=== %d items | %d cores ===\n", length(jobs), N_CORES))
 
 # Chunk jobs across cores and use parLapply (PSOCK cluster = separate processes)
 cl <- parallel::makeCluster(N_CORES)
 
 # Export everything workers need
 parallel::clusterExport(cl, c("WAR_bat","WAR_pitch","WAR_combined","pos_year_stats",
-  "award_data","use_ragg","PLOT_WIDTH","PLOT_HEIGHT","PLOT_DPI"))
+  "award_data","PLOT_WIDTH","PLOT_HEIGHT","PLOT_DPI"))
 
 # Each worker loads the function library once
 parallel::clusterEvalQ(cl, {
   suppressPackageStartupMessages({
     library(ggplot2); library(dplyr); library(tidyr); library(ggrepel); library(ggh4x)
     source("franchise_war_functions.R")
-    if (requireNamespace("ragg", quietly = TRUE)) library(ragg)
   })
 })
 
@@ -99,11 +96,7 @@ render_job <- function(job) {
   p <- generate_franchise_war_plot(war_src, job$tl, start_year=job$era, position_filter=job$pf,
     variable_width=job$vw, pos_year_stats=if(job$vw) pos_year_stats else NULL,
     show_awards=job$sa, award_data=if(job$sa) award_data else NULL, show_postseason=job$sp)
-  if (use_ragg) {
-    ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=PLOT_HEIGHT, dpi=PLOT_DPI, device=ragg::agg_png)
-  } else {
-    ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=PLOT_HEIGHT, dpi=PLOT_DPI)
-  }
+  ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=PLOT_HEIGHT, dpi=PLOT_DPI, device=grDevices::png)
   return(job$fname)
 }
 
