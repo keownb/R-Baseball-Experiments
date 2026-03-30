@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Team Position Breakdown — MLB WAR</title>
+  <meta property="og:title" content="Team Position Breakdown — MLB WAR">
+  <meta property="og:description" content="Per-team position-by-position WAR breakdown. Compare careers across all 9 positions with z-score analysis.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://keownb.github.io/R-Baseball-Experiments/team_breakdown.html">
+  <meta property="og:image" content="https://keownb.github.io/R-Baseball-Experiments/plots/all_1901.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚾</text></svg>">
   <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
   <style>
@@ -218,12 +224,23 @@
       text-decoration: none;
     }
     footer a:hover { text-decoration: underline; }
+    .mobile-warning {
+      display: none;
+      background: #f5c518;
+      color: #1a1a2e;
+      text-align: center;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    @media (max-width: 720px) {
+      .mobile-warning { display: block; }
+    }
   </style>
 </head>
 <body>
-  <div class="nav" style="max-width:1600px;">
-    <div><a href="index.html">← Home</a> · <a href="about.html">About</a></div>
-    <div><a href="war_explorer.html">← Grid Explorer</a></div>
+  <div class="mobile-warning">⚠️ Built for large displays. Best viewed on desktop.</div>
+  <div class="nav" style="max-width:2400px;">
   </div>
 
   <h1>⚾ Team Position Breakdown</h1>
