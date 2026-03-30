@@ -378,14 +378,13 @@
     imageWrapper.addEventListener('wheel', panzoom.zoomWithWheel);
     resetBtn.addEventListener('click', () => panzoom.reset());
 
-    // Dismiss the "drag to see more" indicator on first interaction
+    // Dismiss the "drag to see more" indicator on first pan or zoom
     const panIndicator = document.getElementById('pan-indicator');
     function dismissIndicator() {
       if (panIndicator) panIndicator.style.opacity = '0';
+      panzoomContainer.removeEventListener('panzoomchange', dismissIndicator);
     }
-    imageWrapper.addEventListener('mousedown', dismissIndicator, { once: true });
-    imageWrapper.addEventListener('wheel', dismissIndicator, { once: true });
-    imageWrapper.addEventListener('touchstart', dismissIndicator, { once: true });
+    panzoomContainer.addEventListener('panzoomchange', dismissIndicator, { once: true });
 
     function resetZoom() {
       panzoom.reset({ animate: false });
