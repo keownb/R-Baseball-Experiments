@@ -324,7 +324,7 @@
   <div class="plot-container">
     <div class="plot-header">
       <div class="plot-title" id="plot-title">Seattle Mariners — Position Breakdown (Linear, Constant Width)</div>
-      <div class="zoom-hint">🔍 Scroll to zoom · Drag to pan</div>
+      <div class="zoom-hint">🔍 Scroll to pan · ⌘/Ctrl+scroll to zoom · Drag to pan</div>
     </div>
     <div class="image-wrapper" id="image-wrapper">
       <div class="panzoom-container" id="panzoom-container">
@@ -370,7 +370,15 @@
       minScale: 0.5,
       contain: 'outside'
     });
-    imageWrapper.addEventListener('wheel', panzoom.zoomWithWheel);
+    imageWrapper.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) {
+        panzoom.zoomWithWheel(e);
+      } else {
+        const currentPan = panzoom.getPan();
+        panzoom.pan(currentPan.x - e.deltaX, currentPan.y - e.deltaY, { animate: false });
+      }
+    });
     resetBtn.addEventListener('click', () => panzoom.reset());
 
     // Dismiss the "drag to see more" indicator on first pan or zoom
