@@ -521,60 +521,104 @@ load_award_data <- function() {
 
 compute_position_year_stats <- function(war_batting, war_pitching) {
   message("Computing league-wide position-year WAR distributions...")
-  
-  # League-wide pitcher classification
-  league_pitcher_type <- Lahman::Pitching %>%
-    group_by(playerID) %>%
-    summarise(
-      total_G = sum(G, na.rm = TRUE),
-      total_GS = sum(GS, na.rm = TRUE),
-      .groups = "drop"
+
+  # --- Step 1: Year-specific position assignment from Appearances ---
+  # Classify each player-year by the position where they played the most games
+  # that season, rather than career-wide primary position. This ensures the
+  # comparison pool reflects the actual positional landscape each year.
+  pos_games <- Lahman::Appearances %>%
+    transmute(
+      playerID, yearID,
+      C  = G_c,
+      `1B` = G_1b,
+      `2B` = G_2b,
+      SS = G_ss,
+      `3B` = G_3b,
+      OF = G_lf + G_cf + G_rf,
+      DH = G_dh,
+      P  = G_p
     ) %>%
-    mutate(pitcher_role = if_else(total_GS > total_G * 0.5, "SP", "RP")) %>%
-    select(playerID, pitcher_role)
-  
-  # League-wide DH detection
-  league_dh_players <- Lahman::Appearances %>%
-    group_by(playerID) %>%
-    summarise(
-      dh_games = sum(G_dh, na.rm = TRUE),
-      field_games = sum(G_defense, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    filter(dh_games > field_games * 0.5) %>%
-    mutate(is_primary_dh = TRUE) %>%
-    select(playerID, is_primary_dh)
-  
-  common_cols <- c("year_ID", "player_ID", "name_common", "team_ID", "WAR", "primary_pos")
-  league_war <- bind_rows(
-    war_batting %>% select(all_of(common_cols)),
-    war_pitching %>% select(all_of(common_cols))
-  ) %>%
-    filter(!is.na(WAR), !is.na(primary_pos)) %>%
-    left_join(league_dh_players, by = c("player_ID" = "playerID")) %>%
-    left_join(league_pitcher_type, by = c("player_ID" = "playerID")) %>%
+    pivot_longer(cols = c(C, `1B`, `2B`, SS, `3B`, OF, DH, P),
+                 names_to = "position", values_to = "games") %>%
+    filter(games > 0) %>%
+    group_by(playerID, yearID) %>%
+    slice_max(order_by = games, n = 1, with_ties = FALSE) %>%
+    ungroup()
+
+  # --- Step 2: SP/RP split for pitchers (year-specific) ---
+  pitcher_yearly <- Lahman::Pitching %>%
+    group_by(playerID, yearID) %>%
+    summarise(G = sum(G, na.rm = TRUE), GS = sum(GS, na.rm = TRUE),
+              .groups = "drop") %>%
+    mutate(pitcher_role = if_else(GS > G * 0.5, "SP", "RP"))
+
+  pos_games <- pos_games %>%
+    left_join(pitcher_yearly %>% select(playerID, yearID, pitcher_role, GS),
+              by = c("playerID", "yearID")) %>%
     mutate(position = case_when(
-      !is.na(is_primary_dh) ~ "DH",
-      primary_pos %in% c("LF", "CF", "RF") ~ "OF",
-      primary_pos == "P" & pitcher_role == "RP" ~ "RP",
-      primary_pos == "P" ~ "SP",
-      TRUE ~ primary_pos
-    )) %>%
-    filter(position %in% c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP")) %>%
-    group_by(player_ID, position, year_ID) %>%
+      position == "P" & pitcher_role == "RP" ~ "RP",
+      position == "P" ~ "SP",
+      TRUE ~ position
+    ))
+
+  # --- Step 3: Apply minimum-games thresholds ---
+  # Field positions: 60 games (~37% of season) — captures regulars
+  # DH: 30 games — lower bar since even full-time DHs get rested/platooned
+  # SP: 15 GS — roughly one start every 10 days
+  # RP: 30 games
+  qualified <- pos_games %>%
+    filter(
+      (position %in% c("C", "1B", "2B", "SS", "3B", "OF") & games >= 60) |
+      (position == "DH" & games >= 30) |
+      (position == "SP" & !is.na(GS) & GS >= 15) |
+      (position == "RP" & games >= 30)
+    )
+
+  # --- Step 4: Join WAR values ---
+  all_war <- bind_rows(
+    war_batting  %>% select(year_ID, player_ID, WAR),
+    war_pitching %>% select(year_ID, player_ID, WAR)
+  ) %>%
+    mutate(WAR = as.numeric(WAR)) %>%
+    filter(!is.na(WAR)) %>%
+    group_by(player_ID, year_ID) %>%
     summarise(WAR = sum(WAR, na.rm = TRUE), .groups = "drop")
-  
-  pos_year_stats <- league_war %>%
-    group_by(position, year_ID) %>%
+
+  league_war <- qualified %>%
+    inner_join(all_war,
+               by = c("playerID" = "player_ID", "yearID" = "year_ID"))
+
+  # --- Step 5: Compute raw position-year stats ---
+  pos_year_raw <- league_war %>%
+    group_by(position, yearID) %>%
     summarise(
       mean_WAR = mean(WAR, na.rm = TRUE),
-      sd_WAR = sd(WAR, na.rm = TRUE),
+      sd_WAR   = sd(WAR, na.rm = TRUE),
       n_players = n(),
       .groups = "drop"
     ) %>%
-    mutate(sd_WAR = pmax(sd_WAR, 0.5))
-  
-  message(sprintf("  %d position-years computed", nrow(pos_year_stats)))
+    mutate(sd_WAR = replace_na(sd_WAR, 0))
+
+  # --- Step 6: 3-year centered rolling average ---
+  # Smooths year-to-year noise, especially valuable for thin pools (DH, early RP).
+  # Edge years use available neighbors via coalesce fallback.
+  pos_year_stats <- pos_year_raw %>%
+    group_by(position) %>%
+    arrange(yearID) %>%
+    mutate(
+      mean_WAR = (lag(mean_WAR, default = first(mean_WAR)) +
+                  mean_WAR +
+                  lead(mean_WAR, default = last(mean_WAR))) / 3,
+      sd_WAR   = (lag(sd_WAR, default = first(sd_WAR)) +
+                  sd_WAR +
+                  lead(sd_WAR, default = last(sd_WAR))) / 3
+    ) %>%
+    ungroup() %>%
+    mutate(sd_WAR = pmax(sd_WAR, 0.5)) %>%
+    rename(year_ID = yearID)
+
+  message(sprintf("  %d position-years computed (3-yr rolling, qualified pools)",
+                  nrow(pos_year_stats)))
   pos_year_stats
 }
 
