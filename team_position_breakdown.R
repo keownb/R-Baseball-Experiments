@@ -155,6 +155,11 @@ generate_team_position_plot <- function(
   
   # Order positions — filter first, set factor AFTER z-score join
   position_order <- c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP")
+  position_labels <- c(
+    "C" = "Catcher", "1B" = "First Base", "2B" = "Second Base",
+    "SS" = "Shortstop", "3B" = "Third Base", "OF" = "Outfield",
+    "DH" = "Designated Hitter", "SP" = "Starting Pitcher", "RP" = "Relief Pitcher"
+  )
   positions_with_data <- intersect(position_order, unique(team_cum$position))
   team_cum <- team_cum %>%
     filter(position %in% positions_with_data)
@@ -317,7 +322,8 @@ generate_team_position_plot <- function(
       segment.size = 0.2, segment.alpha = 0.4,
       max.overlaps = 5, nudge_y = -1, box.padding = 0.15
     ) +
-    ggh4x::facet_wrap2(~ position, ncol = 1, axes = "x") +
+    ggh4x::facet_wrap2(~ position, ncol = 1, axes = "x",
+      labeller = labeller(position = position_labels)) +
     coord_cartesian(xlim = c(start_year, 2026)) +
     scale_x_continuous(
       breaks = seq(ceiling(start_year / 10) * 10, 2020, 10)
@@ -346,7 +352,7 @@ generate_team_position_plot <- function(
       legend.margin = margin(0, 0, 5, 0),
       legend.spacing.x = unit(0.8, "cm"),
       panel.spacing = unit(0.8, "lines"),
-      strip.text = element_text(face = "bold", size = 11),
+      strip.text = element_text(face = "bold", size = 13),
       axis.text = element_text(size = 8),
       panel.grid.major = element_line(color = "gray92", linewidth = 0.3),
       panel.grid.minor = element_blank(),
