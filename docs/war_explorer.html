@@ -196,7 +196,7 @@
       padding-bottom: 10px;
       pointer-events: none;
       z-index: 10;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.3s ease;
     }
     .pan-indicator span {
       color: #7ec8e3;
@@ -219,15 +219,6 @@
       background: #0f1a36;
       border-radius: 4px;
     }
-    .data-link {
-      margin-top: 10px;
-      font-size: 12px;
-    }
-    .data-link a {
-      color: #7ec8e3;
-      text-decoration: none;
-    }
-    .data-link a:hover { text-decoration: underline; }
     footer {
       text-align: center;
       max-width: 1600px;
@@ -335,9 +326,6 @@
       <div class="pan-indicator" id="pan-indicator"><span>↓ Drag to see more teams ↓</span></div>
     </div>
     <div class="era-info" id="era-info"></div>
-    <div class="data-link">
-      📊 <a href="#" id="csv-link" target="_blank">Download data (CSV)</a>
-    </div>
   </div>
 
   <footer>
@@ -377,7 +365,6 @@
     const plotImage = document.getElementById('plot-image');
     const plotTitle = document.getElementById('plot-title');
     const eraInfoDiv = document.getElementById('era-info');
-    const csvLink = document.getElementById('csv-link');
     const imageWrapper = document.getElementById('image-wrapper');
     const panzoomContainer = document.getElementById('panzoom-container');
     const resetBtn = document.getElementById('reset-zoom');
@@ -421,8 +408,6 @@
       }
       plotImage.src = `plots/${fname}.png?v=20260330b`;
 
-      // CSV link (base name only)
-      csvLink.href = `data/${position}_${era}.csv`;
       
       // Reset zoom on new image
       plotImage.onload = resetZoom;
