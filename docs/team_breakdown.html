@@ -319,6 +319,7 @@
     </div>
 
     <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
+    <button class="reset-btn" id="share-link" title="Copy shareable link">📋 Copy Link</button>
   </div>
 
   <div class="plot-container">
@@ -393,6 +394,14 @@
       panzoom.reset({ animate: false });
     }
 
+    // --- URL state: read params on load ---
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('team') && teamNames[urlParams.get('team')]) teamSelect.value = urlParams.get('team');
+    if (urlParams.has('scale')) scaleSelect.value = urlParams.get('scale');
+    if (urlParams.has('width')) widthSelect.value = urlParams.get('width');
+    if (urlParams.has('awards')) awardsCheck.checked = urlParams.get('awards') === '1';
+    if (urlParams.has('postseason')) postseasonCheck.checked = urlParams.get('postseason') === '1';
+
     function updatePlot() {
       const team = teamSelect.value;
       const scale = scaleSelect.value;
@@ -417,6 +426,16 @@
       const scaleLabel = scale === 'linear' ? 'Linear' : 'Log';
       const widthLabel = width === 'const' ? 'Constant Width' : 'Z-Score Width';
       plotTitle.textContent = `${name} — Position Breakdown (${scaleLabel}, ${widthLabel})`;
+
+      // Update URL without adding history entry
+      const params = new URLSearchParams();
+      params.set('team', team);
+      if (scale !== 'linear') params.set('scale', scale);
+      if (width !== 'const') params.set('width', width);
+      if (showAwards) params.set('awards', '1');
+      if (showPostseason) params.set('postseason', '1');
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
     }
 
     teamSelect.addEventListener('change', updatePlot);
@@ -425,17 +444,17 @@
     awardsCheck.addEventListener('change', updatePlot);
     postseasonCheck.addEventListener('change', updatePlot);
 
+    document.getElementById('share-link').addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('share-link');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 1500);
+      });
+    });
+
     plotImage.addEventListener('error', function() {
       this.alt = 'Plot not yet generated. Run the R scripts first.';
     });
-
-    // --- URL parameter handling ---
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('team') && teamNames[urlParams.get('team')]) {
-      teamSelect.value = urlParams.get('team');
-    }
-    if (urlParams.get('awards') === '1') awardsCheck.checked = true;
-    if (urlParams.get('postseason') === '1') postseasonCheck.checked = true;
 
     updatePlot();
   </script>
