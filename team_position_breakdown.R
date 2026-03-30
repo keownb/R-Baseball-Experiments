@@ -346,7 +346,7 @@ generate_team_position_plot <- function(
       legend.margin = margin(0, 0, 5, 0),
       legend.spacing.x = unit(0.8, "cm"),
       panel.spacing = unit(0.8, "lines"),
-      strip.text = element_text(face = "bold", size = 11),
+      strip.text = element_text(face = "bold", size = 13),
       axis.text = element_text(size = 8),
       panel.grid.major = element_line(color = "gray92", linewidth = 0.3),
       panel.grid.minor = element_blank(),
