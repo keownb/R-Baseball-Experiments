@@ -444,7 +444,7 @@ generate_franchise_war_plot <- function(
       legend.box.just = "left",
       panel.spacing.x = unit(1.5, "lines"),
       panel.spacing.y = unit(1.2, "lines"),
-      panel.border = element_rect(colour = "#444444", fill = NA, linewidth = 0.5),
+      panel.border = element_rect(colour = "#444444", fill = NA, linewidth = 1),
       axis.text = element_text(size = 6),
       axis.text.x = element_text(angle = 0),
       panel.grid.minor = element_blank()
