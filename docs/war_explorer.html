@@ -326,6 +326,7 @@
     </div>
     
     <button class="reset-btn" id="reset-zoom">Reset Zoom</button>
+    <button class="reset-btn" id="share-link" title="Copy shareable link">📋 Copy Link</button>
   </div>
 
   <div class="plot-container">
@@ -413,6 +414,13 @@
       panzoom.reset({ animate: false });
     }
 
+    // --- URL state: read params on load ---
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('pos')) positionSelect.value = urlParams.get('pos');
+    if (urlParams.has('era')) eraSelect.value = urlParams.get('era');
+    if (urlParams.has('awards')) awardsCheck.checked = urlParams.get('awards') === '1';
+    if (urlParams.has('postseason')) postseasonCheck.checked = urlParams.get('postseason') === '1';
+
     function updatePlot() {
       const position = positionSelect.value;
       const era = eraSelect.value;
@@ -440,12 +448,29 @@
       
       // Update era info
       eraInfoDiv.textContent = eraInfo[era];
+
+      // Update URL without adding history entry
+      const params = new URLSearchParams();
+      if (position !== 'all') params.set('pos', position);
+      if (era !== '1901') params.set('era', era);
+      if (showAwards) params.set('awards', '1');
+      if (showPostseason) params.set('postseason', '1');
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
     }
 
     positionSelect.addEventListener('change', updatePlot);
     eraSelect.addEventListener('change', updatePlot);
     awardsCheck.addEventListener('change', updatePlot);
     postseasonCheck.addEventListener('change', updatePlot);
+
+    document.getElementById('share-link').addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('share-link');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 1500);
+      });
+    });
     
     // Handle image load errors
     plotImage.addEventListener('error', function() {
