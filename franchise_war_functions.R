@@ -301,7 +301,7 @@ generate_franchise_war_plot <- function(
   top_segments <- NULL
   if (variable_width && !is.null(pos_year_stats)) {
     zscore_pos <- if (!is.null(position_filter) && position_filter %in% 
-                      c("C", "1B", "2B", "SS", "3B", "OF", "SP", "RP")) {
+                      c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP")) {
       position_filter
     } else {
       NULL  # Can't z-score mixed positions
@@ -599,25 +599,42 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
     ) %>%
     mutate(sd_WAR = replace_na(sd_WAR, 0))
 
-  # --- Step 6: 3-year centered rolling average ---
-  # Smooths year-to-year noise, especially valuable for thin pools (DH, early RP).
-  # Edge years use available neighbors via coalesce fallback.
+  # --- Step 6: 3-year centered rolling average on mean only ---
+  # Smooths year-to-year noise in the positional mean, especially valuable for
+  # thin pools (DH, early RP). SD is left unsmoothed because it should reflect
+  # actual within-year dispersion (e.g., strike-shortened seasons genuinely have
+  # different variance). Uses time-aware windowing: only averages adjacent
+  # calendar years (not just adjacent rows), and uses proper partial windows at
+  # boundaries instead of double-counting edge values.
+  # For pools with fewer than 8 qualified players, SD is replaced with the floor
+  # since the sample variance from tiny pools is unreliable.
+  MIN_POOL_SIZE <- 8
   pos_year_stats <- pos_year_raw %>%
     group_by(position) %>%
     arrange(yearID) %>%
     mutate(
-      mean_WAR = (lag(mean_WAR, default = first(mean_WAR)) +
-                  mean_WAR +
-                  lead(mean_WAR, default = last(mean_WAR))) / 3,
-      sd_WAR   = (lag(sd_WAR, default = first(sd_WAR)) +
-                  sd_WAR +
-                  lead(sd_WAR, default = last(sd_WAR))) / 3
+      prev_year = lag(yearID),
+      next_year = lead(yearID),
+      prev_mean = lag(mean_WAR),
+      next_mean = lead(mean_WAR),
+      # Only include neighbors if they are exactly 1 year away
+      has_prev = !is.na(prev_year) & (yearID - prev_year == 1),
+      has_next = !is.na(next_year) & (next_year - yearID == 1),
+      mean_WAR = case_when(
+        has_prev & has_next ~ (prev_mean + mean_WAR + next_mean) / 3,
+        has_prev            ~ (prev_mean + mean_WAR) / 2,
+        has_next            ~ (mean_WAR + next_mean) / 2,
+        TRUE                ~ mean_WAR
+      ),
+      # Use SD floor for tiny pools where sample variance is unreliable
+      sd_WAR = if_else(n_players < MIN_POOL_SIZE, NA_real_, sd_WAR)
     ) %>%
+    select(-prev_year, -next_year, -prev_mean, -next_mean, -has_prev, -has_next) %>%
     ungroup() %>%
-    mutate(sd_WAR = pmax(sd_WAR, 0.5)) %>%
+    mutate(sd_WAR = pmax(coalesce(sd_WAR, 0), 0.5)) %>%
     rename(year_ID = yearID)
 
-  message(sprintf("  %d position-years computed (3-yr rolling, qualified pools)",
+  message(sprintf("  %d position-years computed (3-yr rolling mean, qualified pools)",
                   nrow(pos_year_stats)))
   pos_year_stats
 }
