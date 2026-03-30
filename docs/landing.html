@@ -144,11 +144,13 @@
       </p>
       <p>
         <strong>Z-Score Line Width:</strong> When enabled, line thickness encodes how exceptional a
-        player's WAR was <em>relative to their position and era</em>. Specifically, the width
-        represents the number of standard deviations above the league mean WAR for that
-        position-year combination. Thicker lines = more dominant seasons compared to peers at the
-        same position. Of course this correlates strongly with slope, but truly exceptional seasons
-        like Cal Raleigh's 2025 really pop.
+        player's WAR was <em>relative to their position and era</em>. For each position and year,
+        we compute the mean and standard deviation of WAR among qualified players at that position
+        (≥60 games for fielders, ≥30 for DH/RP, ≥15 GS for SP). The positional mean is smoothed
+        with a 3-year rolling average to reduce year-to-year noise; the standard deviation is left
+        unsmoothed to preserve actual within-year variance. The width represents how many standard
+        deviations above the mean a player's season was. Thicker lines = more dominant seasons
+        compared to peers at the same position.
       </p>
       <p>
         <strong>Overlay Markers:</strong> Award markers can be toggled on top of the WAR lines.
@@ -220,7 +222,11 @@
       <p>Known issues and possible quibbles:</p>
       <ul style="margin: 8px 0 0 24px; color: #c0c0d0; line-height: 1.7;">
         <li>Position categorization is somewhat fraught — we assign each player to the position where they logged the most career games.</li>
-        <li>The z-score line width can look inflated in thin position-year combinations (e.g., early relief pitching) due to low sample variance.</li>
+        <li>The z-score comparison pool uses year-specific position qualification (not career), with
+            minimum games thresholds and a 3-year rolling average for the positional mean. Pools with
+            fewer than 8 qualified players use a variance floor. Despite this, z-scores for
+            historically thin positions (DH before universal DH, early relief pitching) should be
+            interpreted with some caution.</li>
         <li>I have not exhaustively checked every graph for errors. If you see something that looks off, please let me know.</li>
       </ul>
     </div>
