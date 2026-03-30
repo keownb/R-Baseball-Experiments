@@ -481,7 +481,6 @@
     let mouseDownPos = null;
 
     function getGridTeam(e) {
-      const rect = plotImage.getBoundingClientRect();
       const scale = panzoom.getScale();
       const pan = panzoom.getPan();
       // Convert page coords to image-fraction coords
@@ -526,8 +525,14 @@
         teamTooltip.textContent = GRID_NAMES[team];
         teamTooltip.style.display = 'block';
         const wrapperRect = imageWrapper.getBoundingClientRect();
-        teamTooltip.style.left = (e.clientX - wrapperRect.left + 12) + 'px';
-        teamTooltip.style.top = (e.clientY - wrapperRect.top - 30) + 'px';
+        let tipLeft = e.clientX - wrapperRect.left + 12;
+        let tipTop = e.clientY - wrapperRect.top - 30;
+        // Keep tooltip within the wrapper bounds
+        const tipW = teamTooltip.offsetWidth;
+        if (tipLeft + tipW > imageWrapper.clientWidth) tipLeft = e.clientX - wrapperRect.left - tipW - 8;
+        if (tipTop < 0) tipTop = e.clientY - wrapperRect.top + 16;
+        teamTooltip.style.left = tipLeft + 'px';
+        teamTooltip.style.top = tipTop + 'px';
         imageWrapper.style.cursor = 'pointer';
       } else {
         teamTooltip.style.display = 'none';
