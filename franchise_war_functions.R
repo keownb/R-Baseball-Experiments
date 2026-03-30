@@ -159,6 +159,12 @@ divisions <- tribble(
   "WSN", "NL", "East", 6
 )
 
+# Pre-build per-team colored strip text elements for facet labels
+.strip_franchise_order <- divisions$franchise[order(divisions$div_order, divisions$franchise)]
+.strip_text_elems <- lapply(primary_colors[.strip_franchise_order], function(col) {
+  element_text(face = "bold", size = 14, colour = col)
+})
+
 # =============================================================================
 # DATA LOADING FUNCTIONS
 # =============================================================================
@@ -427,7 +433,8 @@ generate_franchise_war_plot <- function(
   p <- p +
     scale_color_manual(values = primary_colors, guide = "none") +
     scale_x_continuous(breaks = x_breaks) +
-    ggh4x::facet_wrap2(~ reorder(franchise, div_order), ncol = 5, axes = "x") +
+    ggh4x::facet_wrap2(~ reorder(franchise, div_order), ncol = 5, axes = "x",
+      strip = ggh4x::strip_themed(text_x = .strip_text_elems)) +
     coord_cartesian(xlim = c(start_year, 2026), ylim = c(0, ceiling(max(top_plot_data$cumWAR_franchise, na.rm = TRUE) * 1.1 / 5) * 5)) +
     theme_minimal() +
     theme(
@@ -435,9 +442,9 @@ generate_franchise_war_plot <- function(
       legend.justification = "left",
       legend.box = "horizontal",
       legend.box.just = "left",
-      panel.spacing.x = unit(1.2, "lines"),
-      panel.spacing.y = unit(0.8, "lines"),
-      strip.text = element_text(face = "bold", size = 9),
+      panel.spacing.x = unit(1.5, "lines"),
+      panel.spacing.y = unit(1.2, "lines"),
+      panel.border = element_rect(colour = "#444444", fill = NA, linewidth = 0.5),
       axis.text = element_text(size = 6),
       axis.text.x = element_text(angle = 0),
       panel.grid.minor = element_blank()
