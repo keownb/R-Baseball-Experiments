@@ -429,6 +429,14 @@
       this.alt = 'Plot not yet generated. Run the R scripts first.';
     });
 
+    // --- URL parameter handling ---
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('team') && teamNames[urlParams.get('team')]) {
+      teamSelect.value = urlParams.get('team');
+    }
+    if (urlParams.get('awards') === '1') awardsCheck.checked = true;
+    if (urlParams.get('postseason') === '1') postseasonCheck.checked = true;
+
     updatePlot();
   </script>
 </body>
