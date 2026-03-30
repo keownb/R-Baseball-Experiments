@@ -475,12 +475,19 @@
       NYM:'New York Mets', PHI:'Philadelphia Phillies', WSN:'Washington Nationals'
     };
     // Grid bounding box as fractions of image (measured from rendered plots)
-    const GRID = { left: 0.012, right: 0.997, top: 0.033, bottom: 0.999, cols: 5, rows: 6 };
+    // Awards/postseason legends push panels down, so top shifts
+    const GRID_BASE    = { left: 0.0155, right: 1.0, top: 0.022, bottom: 0.991, cols: 5, rows: 6 };
+    const GRID_OVERLAY = { left: 0.0155, right: 1.0, top: 0.0446, bottom: 0.991, cols: 5, rows: 6 };
+
+    function getGrid() {
+      return (awardsCheck.checked || postseasonCheck.checked) ? GRID_OVERLAY : GRID_BASE;
+    }
 
     const teamTooltip = document.getElementById('team-tooltip');
     let mouseDownPos = null;
 
     function getGridTeam(e) {
+      const GRID = getGrid();
       const scale = panzoom.getScale();
       const pan = panzoom.getPan();
       // Convert page coords to image-fraction coords
