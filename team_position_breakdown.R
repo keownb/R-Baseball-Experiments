@@ -36,16 +36,19 @@ generate_team_position_plot <- function(
     team_name <- team_code
   }
   
-  # Get primary position including DH from Appearances
-  # DH is based on most games at DH vs other positions
+  # Get primary DH classification PER FRANCHISE from Lahman Appearances
+  # A player is DH for this franchise only if they played more DH than
+  # field games specifically for this team (not career-wide)
   dh_players <- Lahman::Appearances %>%
+    mutate(franchise = franchise_map(teamID, yearID)) %>%
+    filter(franchise == team_code) %>%
     group_by(playerID) %>%
     summarise(
       dh_games = sum(G_dh, na.rm = TRUE),
       field_games = sum(G_defense, na.rm = TRUE),
       .groups = "drop"
     ) %>%
-    filter(dh_games > field_games * 0.5) %>%  # Primarily DH if >50% DH
+    filter(dh_games > field_games * 0.5) %>%
     select(playerID, is_primary_dh = dh_games) %>%
     mutate(is_primary_dh = TRUE)
   

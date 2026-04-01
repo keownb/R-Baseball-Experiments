@@ -53,7 +53,7 @@ franchise_map <- function(team_id, year_id = NA) {
     # NL Central
     team_id %in% c("CHC", "CHN") ~ "CHC",
     team_id == "CIN" ~ "CIN",
-    team_id %in% c("MIL", "SEP") ~ "MIL",
+    team_id %in% c("MIL", "SEP") & (team_id == "SEP" | year_id >= 1970) ~ "MIL",
     team_id == "PIT" ~ "PIT",
     team_id %in% c("STL", "SLN") ~ "STL",
     
