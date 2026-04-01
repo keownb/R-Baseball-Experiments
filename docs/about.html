@@ -220,8 +220,10 @@
       <p>
         Each player is assigned a single primary position based on where they played the
         most career games. Outfield positions (LF, CF, RF) are consolidated into OF.
-        Pitchers are classified as SP or RP based on whether career games started exceed
-        50% of total games. Two-way players like Ohtani are assigned one position — there
+        Pitchers are classified as SP or RP based on whether games started exceed
+        50% of total games <em>for that franchise</em>. In team breakdowns, DH is assigned
+        per-franchise (a player must have more DH than fielding games with that specific team).
+        Two-way players like Ohtani are assigned one position — there
         is no special handling to capture contributions at multiple positions.
       </p>
       <p>
@@ -235,6 +237,9 @@
       <p>Known issues and possible quibbles:</p>
       <ul style="margin: 8px 0 0 24px; color: #c0c0d0; line-height: 1.7;">
         <li>Position categorization is somewhat fraught — we assign each player to the position where they logged the most career games.</li>
+        <li>NL teams show a DH facet in the team breakdown. This reflects interleague play (1997–2019),
+            the COVID-era universal DH (2020), and the permanent universal DH (2022–present). Pre-2022
+            DH data for NL teams is sparse by nature.</li>
         <li>The z-score comparison pool uses year-specific position qualification (not career), with
             minimum games thresholds and a 3-year rolling average for the positional mean. Pools with
             fewer than 8 qualified players use a variance floor. Despite this, z-scores for
