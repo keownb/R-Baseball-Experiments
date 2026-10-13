@@ -1,16 +1,21 @@
 # generate_team_breakdowns.R
 # Batch generation of team position breakdown charts
-# Runs N_CORES parallel R worker processes via PSOCK cluster.
-# No fork (macOS safe), no serialization overhead per job. Uses ragg if available.
+# Runs N_CORES parallel R worker processes via PSOCK cluster (macOS safe). Data
+# is loaded once in the parent and exported to the workers. Uses ragg if available.
 
 source("franchise_war_functions.R")
 source("team_position_breakdown.R")
+
+message("=== Loading WAR data ===")
+war_data <- load_war_data()
+WAR_bat <- war_data$batting; WAR_pitch <- war_data$pitching
 
 OUTPUT_DIR <- "docs/team_breakdowns"
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 N_CORES <- parallel::detectCores()
 PLOT_WIDTH <- 20; PLOT_DPI <- 150
+PNG_DEVICE <- if (requireNamespace("ragg", quietly = TRUE)) ragg::agg_png else grDevices::png
 
 TEAMS <- list(
   "BAL"="Baltimore Orioles","BOS"="Boston Red Sox","NYY"="New York Yankees",
@@ -55,14 +60,14 @@ message(sprintf("\n=== %d images | %d cores ===\n", length(jobs), N_CORES))
 cl <- parallel::makeCluster(N_CORES)
 
 parallel::clusterExport(cl, c("WAR_bat","WAR_pitch","pos_year_stats","award_data",
-  "PLOT_WIDTH","PLOT_DPI"))
+  "REF_TABLES","PLOT_WIDTH","PLOT_DPI","PNG_DEVICE"))
 
-parallel::clusterEvalQ(cl, {
+invisible(parallel::clusterEvalQ(cl, {
   suppressPackageStartupMessages({
     library(ggplot2); library(dplyr); library(tidyr); library(ggrepel); library(ggh4x)
     source("franchise_war_functions.R"); source("team_position_breakdown.R")
   })
-})
+}))
 
 render_job <- function(job) {
   p <- generate_team_position_plot(WAR_bat, WAR_pitch,
@@ -70,12 +75,12 @@ render_job <- function(job) {
     variable_width=job$iz, pos_year_stats=if(job$iz) pos_year_stats else NULL,
     show_awards=job$sa, award_data=if(job$sa) award_data else NULL)
   n_pos <- attr(p, "n_positions"); ph <- 3 * n_pos + 2
-  ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=ph, dpi=PLOT_DPI, device=grDevices::png)
+  ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=ph, dpi=PLOT_DPI, device=PNG_DEVICE)
   return(job$fname)
 }
 
 t0 <- Sys.time()
-results <- parallel::parLapply(cl, jobs, render_job)
+results <- parallel::parLapplyLB(cl, jobs, render_job)  # load-balanced: workers pull jobs as they finish
 elapsed <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
 parallel::stopCluster(cl)
 

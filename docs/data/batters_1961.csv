@@ -1,9 +1,9 @@
 franchise,player_ID,name_common,primary_pos,total_WAR,first_year,last_year
 ARI,goldspa01,Paul Goldschmidt,1B,39.9,2011,2018
-ARI,marteke01,Ketel Marte,2B,33.1,2017,2025
+ARI,marteke01,Ketel Marte,2B,35.6,2017,2026
 ARI,gonzalu01,Luis Gonzalez,OF,30,1999,2006
+ARI,carroco02,Corbin Carroll,OF,20.6,2022,2026
 ARI,polloaj01,AJ Pollock,OF,18.6,2012,2018
-ARI,finlest01,Steve Finley,OF,18,1999,2004
 ATL,aaronha01,Henry Aaron,OF,95.9,1961,1974
 ATL,jonesch06,Chipper Jones,3B,85.3,1993,2012
 ATL,jonesan01,Andruw Jones,OF,61,1996,2007
@@ -34,7 +34,7 @@ CIN,benchjo01,Johnny Bench,C,75.1,1967,1983
 CIN,larkiba01,Barry Larkin,SS,70.5,1986,2004
 CIN,vottojo01,Joey Votto,1B,63.6,2007,2023
 CIN,morgajo02,Joe Morgan,2B,57.9,1972,1979
-CLE,ramirjo01,José Ramírez,3B,57.6,2013,2025
+CLE,ramirjo01,José Ramírez,3B,60.3,2013,2026
 CLE,loftoke01,Kenny Lofton,OF,48.6,1992,2007
 CLE,thomeji01,Jim Thome,1B,48,1991,2011
 CLE,santaca01,Carlos Santana,1B,31.2,2010,2025
@@ -48,18 +48,18 @@ DET,whitalo01,Lou Whitaker,2B,75.1,1977,1995
 DET,trammal01,Alan Trammell,SS,70.6,1977,1996
 DET,kalinal01,Al Kaline,OF,56.6,1961,1974
 DET,cabremi01,Miguel Cabrera,1B,49,2008,2023
-DET,cashno01,Norm Cash,1B,48.8,1961,1974
+DET,cashno01,Norm Cash,1B,48.9,1961,1974
 HOU,bagweje01,Jeff Bagwell,1B,79.9,1991,2005
 HOU,biggicr01,Craig Biggio,2B,65.5,1988,2007
-HOU,altuvjo01,Jose Altuve,2B,53.4,2011,2025
+HOU,altuvjo01,Jose Altuve,2B,53.4,2011,2026
 HOU,cruzjo01,José Cruz,OF,51.4,1975,1987
 HOU,cedence01,César Cedeño,OF,49.8,1970,1981
 KCR,brettge01,George Brett,3B,88.6,1973,1993
-KCR,otisam01,Amos Otis,OF,44.8,1970,1983
+KCR,otisam01,Amos Otis,OF,44.7,1970,1983
 KCR,wilsowi02,Willie Wilson,OF,42.4,1976,1990
-KCR,perezsa02,Salvador Perez,C,35.5,2011,2025
+KCR,perezsa02,Salvador Perez,C,35.3,2011,2026
 KCR,gordoal01,Alex Gordon,OF,34.9,2007,2020
-LAA,troutmi01,Mike Trout,OF,87.5,2011,2025
+LAA,troutmi01,Mike Trout,OF,91.7,2011,2026
 LAA,fregoji01,Jim Fregosi,SS,45.9,1961,1971
 LAA,salmoti01,Tim Salmon,OF,40.6,1992,2006
 LAA,downibr01,Brian Downing,OF,38,1978,1990
@@ -67,8 +67,8 @@ LAA,grichbo01,Bobby Grich,2B,35.1,1977,1986
 LAD,daviswi02,Willie Davis,OF,53.6,1961,1973
 LAD,ceyro01,Ron Cey,3B,47.7,1971,1982
 LAD,garvest01,Steve Garvey,1B,36.7,1969,1982
+LAD,bettsmo01,Mookie Betts,OF,36.5,2020,2026
 LAD,turneju01,Justin Turner,3B,34.6,2014,2022
-LAD,guerrpe01,Pedro Guerrero,1B,32.7,1978,1988
 MIA,stantmi03,Giancarlo Stanton,OF,35.9,2010,2017
 MIA,ramirha01,Hanley Ramírez,SS,26.9,2006,2012
 MIA,castilu01,Luis Castillo,2B,22.4,1996,2005
@@ -88,9 +88,9 @@ NYM,wrighda03,David Wright,3B,49.1,2004,2018
 NYM,strawda01,Darryl Strawberry,OF,36.6,1983,1990
 NYM,beltrca01,Carlos Beltrán,OF,31.1,2005,2011
 NYM,alfoned01,Edgardo Alfonzo,3B,29.6,1995,2002
-NYM,reyesjo01,José Reyes,SS,27.9,2003,2018
+NYM,lindofr01,Francisco Lindor,SS,29,2021,2026
 NYY,jeterde01,Derek Jeter,SS,71.3,1995,2014
-NYY,judgeaa01,Aaron Judge,OF,62.2,2016,2025
+NYY,judgeaa01,Aaron Judge,OF,64.2,2016,2026
 NYY,randowi01,Willie Randolph,2B,54.1,1976,1988
 NYY,rodrial01,Alex Rodriguez,SS,53.8,2004,2016
 NYY,willibe02,Bernie Williams,OF,49.6,1991,2006
@@ -111,8 +111,8 @@ PIT,mccutan01,Andrew McCutchen,OF,42.6,2009,2025
 PIT,parkeda01,Dave Parker,OF,34.8,1973,1983
 SDP,gwynnto01,Tony Gwynn,OF,69.2,1982,2001
 SDP,winfida01,Dave Winfield,OF,32,1973,1980
-SDP,tatisfe02,Fernando Tatis Jr.,OF,27.2,2019,2025
-SDP,machama01,Manny Machado,3B,27.1,2019,2025
+SDP,tatisfe02,Fernando Tatis Jr.,OF,31.6,2019,2026
+SDP,machama01,Manny Machado,3B,28.8,2019,2026
 SDP,gonzaad01,Adrián González,1B,20.4,2006,2010
 SEA,griffke02,Ken Griffey Jr.,OF,70.6,1989,2010
 SEA,martied01,Edgar Martínez,3B,68.4,1987,2004
@@ -133,7 +133,7 @@ TBR,longoev01,Evan Longoria,3B,51.7,2008,2017
 TBR,crawfca02,Carl Crawford,OF,35.6,2002,2010
 TBR,zobribe01,Ben Zobrist,2B,35.3,2006,2014
 TBR,kiermke01,Kevin Kiermaier,OF,31.5,2013,2022
-TBR,penaca01,Carlos Peña,1B,18.1,2007,2012
+TBR,diazya01,Yandy Díaz,1B,19.9,2019,2026
 TEX,rodriiv01,Iván Rodríguez,C,50,1991,2009
 TEX,palmera01,Rafael Palmeiro,1B,44.6,1989,2003
 TEX,beltrad01,Adrian Beltré,3B,41.3,2011,2018

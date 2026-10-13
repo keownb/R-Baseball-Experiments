@@ -37,3 +37,11 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# macOS
+.DS_Store
+
+# data_cache/: keep the small MLB Stats API supplement CSVs (reproducible builds),
+# but not the 50 MB Baseball-Reference feeds, which load_war_data() re-downloads.
+!data_cache/
+data_cache/br_*.txt

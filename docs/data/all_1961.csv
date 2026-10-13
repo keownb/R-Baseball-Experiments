@@ -1,7 +1,7 @@
 franchise,player_ID,name_common,primary_pos,total_WAR,first_year,last_year
 ARI,johnsra05,Randy Johnson,P,50.9,1999,2008
 ARI,goldspa01,Paul Goldschmidt,1B,39.9,2011,2018
-ARI,marteke01,Ketel Marte,2B,33.1,2017,2025
+ARI,marteke01,Ketel Marte,2B,35.6,2017,2026
 ARI,webbbr01,Brandon Webb,P,31,2003,2009
 ARI,gonzalu01,Luis Gonzalez,OF,30,1999,2006
 ATL,aaronha01,Henry Aaron,OF,95.9,1961,1974
@@ -23,9 +23,9 @@ CHC,santoro01,Ron Santo,3B,71.2,1961,1973
 CHC,sandbry01,Ryne Sandberg,2B,68.1,1982,1997
 CHC,willibi01,Billy Williams,OF,61.4,1961,1974
 CHC,sosasa01,Sammy Sosa,OF,58.8,1992,2004
-CHC,jenkife01,Fergie Jenkins,P,54.8,1966,1983
+CHC,jenkife01,Fergie Jenkins,P,54.9,1966,1983
 CHW,thomafr04,Frank Thomas,1B,68.3,1990,2005
-CHW,woodwi01,Wilbur Wood,P,50,1967,1978
+CHW,woodwi01,Wilbur Wood,P,50.1,1967,1978
 CHW,buehrma01,Mark Buehrle,P,48.7,2000,2011
 CHW,venturo01,Robin Ventura,3B,39.4,1989,1998
 CHW,abreujo02,José Abreu,1B,31.3,2014,2022
@@ -34,7 +34,7 @@ CIN,benchjo01,Johnny Bench,C,75.1,1967,1983
 CIN,larkiba01,Barry Larkin,SS,70.5,1986,2004
 CIN,vottojo01,Joey Votto,1B,63.6,2007,2023
 CIN,morgajo02,Joe Morgan,2B,57.9,1972,1979
-CLE,ramirjo01,José Ramírez,3B,57.6,2013,2025
+CLE,ramirjo01,José Ramírez,3B,60.3,2013,2026
 CLE,loftoke01,Kenny Lofton,OF,48.6,1992,2007
 CLE,thomeji01,Jim Thome,1B,48,1991,2011
 CLE,mcdowsa01,Sam McDowell,P,41.6,1961,1971
@@ -47,19 +47,19 @@ COL,storytr01,Trevor Story,SS,27,2016,2021
 DET,whitalo01,Lou Whitaker,2B,75.1,1977,1995
 DET,trammal01,Alan Trammell,SS,70.6,1977,1996
 DET,kalinal01,Al Kaline,OF,56.6,1961,1974
-DET,verlaju01,Justin Verlander,P,56.1,2005,2017
+DET,verlaju01,Justin Verlander,P,56,2005,2026
 DET,cabremi01,Miguel Cabrera,1B,49,2008,2023
 HOU,bagweje01,Jeff Bagwell,1B,79.9,1991,2005
 HOU,biggicr01,Craig Biggio,2B,65.5,1988,2007
-HOU,altuvjo01,Jose Altuve,2B,53.4,2011,2025
+HOU,altuvjo01,Jose Altuve,2B,53.4,2011,2026
 HOU,cruzjo01,José Cruz,OF,51.4,1975,1987
 HOU,cedence01,César Cedeño,OF,49.8,1970,1981
 KCR,brettge01,George Brett,3B,88.6,1973,1993
 KCR,appieke01,Kevin Appier,P,47,1989,2004
-KCR,otisam01,Amos Otis,OF,44.8,1970,1983
+KCR,otisam01,Amos Otis,OF,44.7,1970,1983
 KCR,wilsowi02,Willie Wilson,OF,42.4,1976,1990
 KCR,saberbr01,Bret Saberhagen,P,40.7,1984,1991
-LAA,troutmi01,Mike Trout,OF,87.5,2011,2025
+LAA,troutmi01,Mike Trout,OF,91.7,2011,2026
 LAA,finlech01,Chuck Finley,P,51.8,1986,1999
 LAA,fregoji01,Jim Fregosi,SS,45.9,1961,1971
 LAA,salmoti01,Tim Salmon,OF,40.6,1992,2006
@@ -72,8 +72,8 @@ LAD,hershor01,Orel Hershiser,P,44.4,1983,2000
 MIA,stantmi03,Giancarlo Stanton,OF,35.9,2010,2017
 MIA,ramirha01,Hanley Ramírez,SS,26.9,2006,2012
 MIA,johnsjo09,Josh Johnson,P,25.7,2005,2012
+MIA,alcansa01,Sandy Alcantara,P,23,2018,2026
 MIA,castilu01,Luis Castillo,2B,22.4,1996,2005
-MIA,willido03,Dontrelle Willis,P,20.8,2003,2007
 MIL,yountro01,Robin Yount,SS,77.4,1974,1993
 MIL,molitpa01,Paul Molitor,3B,59.9,1978,1992
 MIL,braunry02,Ryan Braun,OF,47.2,2007,2020
@@ -90,7 +90,7 @@ NYM,goodedw01,Dwight Gooden,P,46.4,1984,1994
 NYM,degroja01,Jacob deGrom,P,43.9,2014,2022
 NYM,koosmje01,Jerry Koosman,P,36.9,1967,1978
 NYY,jeterde01,Derek Jeter,SS,71.3,1995,2014
-NYY,judgeaa01,Aaron Judge,OF,62.2,2016,2025
+NYY,judgeaa01,Aaron Judge,OF,64.2,2016,2026
 NYY,riverma01,Mariano Rivera,P,56.3,1995,2013
 NYY,randowi01,Willie Randolph,2B,54.1,1976,1988
 NYY,rodrial01,Alex Rodriguez,SS,53.8,2004,2016
@@ -111,8 +111,8 @@ PIT,mccutan01,Andrew McCutchen,OF,42.6,2009,2025
 PIT,parkeda01,Dave Parker,OF,34.8,1973,1983
 SDP,gwynnto01,Tony Gwynn,OF,69.2,1982,2001
 SDP,winfida01,Dave Winfield,OF,32,1973,1980
-SDP,tatisfe02,Fernando Tatis Jr.,OF,27.2,2019,2025
-SDP,machama01,Manny Machado,3B,27.1,2019,2025
+SDP,tatisfe02,Fernando Tatis Jr.,OF,31.6,2019,2026
+SDP,machama01,Manny Machado,3B,28.8,2019,2026
 SDP,peavyja01,Jake Peavy,P,26.8,2002,2009
 SEA,griffke02,Ken Griffey Jr.,OF,70.6,1989,2010
 SEA,martied01,Edgar Martínez,3B,68.4,1987,2004
@@ -125,7 +125,7 @@ SFG,maricju01,Juan Marichal,P,61.7,1961,1973
 SFG,mccovwi01,Willie McCovey,1B,54.6,1961,1980
 SFG,poseybu01,Buster Posey,C,45,2009,2021
 STL,pujolal01,Albert Pujols,1B,88.6,2001,2022
-STL,gibsobo01,Bob Gibson,P,88.4,1961,1975
+STL,gibsobo01,Bob Gibson,P,88.5,1961,1975
 STL,smithoz01,Ozzie Smith,SS,66,1982,1996
 STL,wainwad01,Adam Wainwright,P,45.3,2005,2023
 STL,simmote01,Ted Simmons,C,45,1968,1980

@@ -354,7 +354,7 @@
 
   <footer>
     Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> ·
-    Position data: <a href="https://github.com/chadwickbureau/baseballdatabank" target="_blank">Lahman Database</a> ·
+    Position data: <a href="https://cran.r-project.org/package=Lahman" target="_blank">Lahman Database</a> ·
     <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source Code</a>
   </footer>
 
@@ -435,7 +435,7 @@
       } else if (showPostseason) {
         fname += '_postseason';
       }
-      plotImage.src = `team_breakdowns/${fname}.png?v=20260330d`;
+      plotImage.src = `team_breakdowns/${fname}.png?v=20261013`;
       plotImage.onload = resetZoom;
 
       // Title

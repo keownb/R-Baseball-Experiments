@@ -1,11 +1,11 @@
 franchise,player_ID,name_common,primary_pos,total_WAR,first_year,last_year
 ARI,goldspa01,Paul Goldschmidt,1B,39.9,2011,2018
-ARI,walkech02,Christian Walker,1B,15.3,2017,2024
+ARI,walkech02,Christian Walker,1B,15.2,2017,2024
 ARI,durazer01,Erubiel Durazo,1B,4.3,1999,2002
 ARI,colbrgr01,Greg Colbrunn,1B,3.5,1999,2004
 ARI,jacksco01,Conor Jackson,1B,2.2,2005,2010
 ATL,freemfr01,Freddie Freeman,1B,43,2010,2021
-ATL,olsonma02,Matt Olson,1B,20.7,2022,2025
+ATL,olsonma02,Matt Olson,1B,25.2,2022,2026
 ATL,mcgrifr01,Fred McGriff,1B,11.1,1993,1997
 ATL,chambch01,Chris Chambliss,1B,8.1,1980,1986
 ATL,galaran01,Andrés Galarraga,1B,6.2,1998,2000
@@ -13,7 +13,7 @@ BAL,murraed02,Eddie Murray,1B,56.6,1977,1996
 BAL,palmera01,Rafael Palmeiro,1B,24.4,1994,2005
 BAL,davisch02,Chris Davis,1B,11.9,2011,2020
 BAL,millira01,Randy Milligan,1B,11.1,1989,1992
-BAL,mountry01,Ryan Mountcastle,1B,8.1,2020,2025
+BAL,mancitr01,Trey Mancini,1B,10.1,2016,2022
 BOS,ortizda01,David Ortiz,1B,52.5,2003,2016
 BOS,youklke01,Kevin Youkilis,1B,31.3,2004,2012
 BOS,vaughmo01,Mo Vaughn,1B,24.7,1991,1998
@@ -23,7 +23,7 @@ CHC,gracema01,Mark Grace,1B,44.2,1988,2000
 CHC,rizzoan01,Anthony Rizzo,1B,37.1,2012,2021
 CHC,leede02,Derrek Lee,1B,22.6,2004,2010
 CHC,durhale01,Leon Durham,1B,15.1,1981,1988
-CHC,bucknbi01,Bill Buckner,1B,8.6,1977,1984
+CHC,buschmi02,Michael Busch,1B,8.9,2024,2026
 CHW,thomafr04,Frank Thomas,1B,68.3,1990,2005
 CHW,abreujo02,José Abreu,1B,31.3,2014,2022
 CHW,konerpa01,Paul Konerko,1B,29.2,1999,2014
@@ -33,7 +33,7 @@ CIN,vottojo01,Joey Votto,1B,63.6,2007,2023
 CIN,caseyse01,Sean Casey,1B,16.7,1998,2005
 CIN,driesda01,Dan Driessen,1B,13.4,1977,1984
 CIN,morriha02,Hal Morris,1B,13.1,1990,2000
-CIN,steersp01,Spencer Steer,1B,5.1,2022,2025
+CIN,steersp01,Spencer Steer,1B,5.4,2022,2026
 CLE,thomeji01,Jim Thome,1B,48,1991,2011
 CLE,santaca01,Carlos Santana,1B,31.2,2010,2025
 CLE,hafnetr01,Travis Hafner,1B,25,2003,2012
@@ -58,14 +58,14 @@ KCR,sweenmi01,Mike Sweeney,1B,23.3,1995,2007
 KCR,hosmeer01,Eric Hosmer,1B,15.5,2011,2017
 KCR,butlebi03,Billy Butler,1B,12.5,2007,2014
 KCR,joynewa01,Wally Joyner,1B,7.7,1992,1995
-KCR,aikenwi01,Willie Aikens,1B,7.1,1980,1983
+KCR,pasquvi01,Vinnie Pasquantino,1B,7.6,2022,2026
 LAA,joynewa01,Wally Joyner,1B,18.9,1986,2001
 LAA,carewro01,Rod Carew,1B,17.4,1979,1985
 LAA,pujolal01,Albert Pujols,1B,12.4,2012,2021
 LAA,napolmi01,Mike Napoli,1B,11.1,2006,2010
 LAA,moralke01,Kendrys Morales,1B,7.8,2006,2012
 LAD,guerrpe01,Pedro Guerrero,1B,32.7,1978,1988
-LAD,freemfr01,Freddie Freeman,1B,21.2,2022,2025
+LAD,freemfr01,Freddie Freeman,1B,23.8,2022,2026
 LAD,garvest01,Steve Garvey,1B,18.3,1977,1982
 LAD,gonzaad01,Adrián González,1B,14.3,2012,2017
 LAD,karroer01,Eric Karros,1B,11.9,1991,2002
@@ -85,7 +85,7 @@ MIN,carewro01,Rod Carew,1B,14.6,1977,1978
 MIN,mientdo01,Doug Mientkiewicz,1B,6.4,1998,2004
 MIN,thomeji01,Jim Thome,1B,4.5,2010,2011
 NYM,hernake01,Keith Hernandez,1B,26.6,1983,1989
-NYM,alonspe01,Pete Alonso,1B,23.3,2019,2025
+NYM,alonspe01,Pete Alonso,1B,23.1,2019,2025
 NYM,olerujo01,John Olerud,1B,17.3,1997,1999
 NYM,dudalu01,Lucas Duda,1B,7.8,2010,2017
 NYM,jeffegr01,Gregg Jefferies,1B,6.1,1987,1991
@@ -98,7 +98,7 @@ OAK,mcgwima01,Mark McGwire,1B,42.9,1986,1997
 OAK,giambja01,Jason Giambi,1B,28.8,1995,2009
 OAK,olsonma02,Matt Olson,1B,19,2016,2021
 OAK,bartoda02,Daric Barton,1B,8.9,2007,2014
-OAK,reverda01,Dave Revering,1B,7,1978,1981
+OAK,kurtzni01,Nick Kurtz,1B,8.7,2025,2026
 PHI,krukjo01,John Kruk,1B,18.5,1989,1994
 PHI,howarry01,Ryan Howard,1B,14.5,2004,2016
 PHI,hoskirh01,Rhys Hoskins,1B,11.4,2017,2022
@@ -118,7 +118,7 @@ SEA,davisal01,Alvin Davis,1B,20.1,1984,1991
 SEA,olerujo01,John Olerud,1B,17.1,2000,2004
 SEA,bochtbr01,Bruce Bochte,1B,10.1,1978,1982
 SEA,phelpke01,Ken Phelps,1B,9.6,1983,1988
-SEA,francty01,Ty France,1B,8.3,2020,2024
+SEA,francty01,Ty France,1B,8.2,2020,2024
 SFG,clarkwi02,Will Clark,1B,35.8,1986,1993
 SFG,beltbr01,Brandon Belt,1B,28,2011,2022
 SFG,florewi01,Wilmer Flores,1B,6.3,2020,2025
@@ -126,21 +126,21 @@ SFG,huffau01,Aubrey Huff,1B,5.6,2010,2012
 SFG,iviemi01,Mike Ivie,1B,5.4,1978,1981
 STL,pujolal01,Albert Pujols,1B,88.7,2001,2022
 STL,hernake01,Keith Hernandez,1B,30.8,1977,1983
-STL,goldspa01,Paul Goldschmidt,1B,22.6,2019,2024
+STL,goldspa01,Paul Goldschmidt,1B,22.8,2019,2024
 STL,mcgwima01,Mark McGwire,1B,19.3,1997,2001
 STL,jeffegr01,Gregg Jefferies,1B,7,1993,1994
+TBR,diazya01,Yandy Díaz,1B,19.9,2019,2026
 TBR,penaca01,Carlos Peña,1B,18.1,2007,2012
-TBR,diazya01,Yandy Díaz,1B,17.6,2019,2025
 TBR,huffau01,Aubrey Huff,1B,11.9,2000,2006
 TBR,mcgrifr01,Fred McGriff,1B,9,1998,2004
-TBR,choiji01,Jiman Choi,1B,5.8,2018,2022
+TBR,arandjo01,Jonathan Aranda,1B,6.4,2022,2026
 TEX,palmera01,Rafael Palmeiro,1B,44.6,1989,2003
 TEX,teixema01,Mark Teixeira,1B,21.5,2003,2007
 TEX,clarkwi02,Will Clark,1B,15.1,1994,1998
-TEX,lowena01,Nathaniel Lowe,1B,11.2,2021,2024
+TEX,lowena01,Nathaniel Lowe,1B,11.4,2021,2024
 TEX,napolmi01,Mike Napoli,1B,7.4,2011,2017
 TOR,delgaca01,Carlos Delgado,1B,36.8,1993,2004
-TOR,guerrvl02,Vladimir Guerrero Jr.,1B,25.9,2019,2025
+TOR,guerrvl02,Vladimir Guerrero Jr.,1B,26.9,2019,2026
 TOR,olerujo01,John Olerud,1B,22.6,1989,1996
 TOR,mcgrifr01,Fred McGriff,1B,19.4,1986,1990
 TOR,upshawi01,Willie Upshaw,1B,12.7,1978,1987

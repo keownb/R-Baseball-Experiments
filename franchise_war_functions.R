@@ -14,6 +14,8 @@ library(ggrepel)
 library(ggh4x)
 library(Lahman)
 
+source("supplemental_data.R")
+
 # =============================================================================
 # FRANCHISE MAPPING - All historical team IDs to current 30
 # =============================================================================
@@ -23,8 +25,8 @@ franchise_map <- function(team_id, year_id = NA) {
     # AL West
     # AL West (BR + Lahman codes)
     team_id %in% c("LAA", "ANA", "CAL") ~ "LAA",
-    team_id %in% c("OAK", "PHA") ~ "OAK",
-    team_id == "KCA" & year_id < 1969 ~ "OAK",
+    team_id %in% c("OAK", "ATH", "PHA", "KC1") ~ "OAK",   # ATH = BR code from 2025
+    team_id == "KCA" & year_id < 1969 ~ "OAK",            # BR: Kansas City A's
     team_id == "SEA" ~ "SEA",
     team_id == "HOU" ~ "HOU",
     team_id %in% c("TEX", "WSA", "WS2") ~ "TEX",
@@ -33,7 +35,7 @@ franchise_map <- function(team_id, year_id = NA) {
     team_id %in% c("CHW", "CHA") ~ "CHW",
     team_id == "CLE" ~ "CLE",
     team_id == "DET" ~ "DET",
-    team_id %in% c("KCR", "KCA") ~ "KCR",
+    team_id %in% c("KCR", "KCA") ~ "KCR",                  # Lahman: KCA = Royals
     team_id %in% c("MIN", "WSH", "WS1") ~ "MIN",
     
     # AL East
@@ -48,17 +50,18 @@ franchise_map <- function(team_id, year_id = NA) {
     team_id == "COL" & year_id >= 1993 ~ "COL",
     team_id %in% c("LAD", "BRO", "LAN") ~ "LAD",
     team_id %in% c("SDP", "SDN") ~ "SDP",
-    team_id %in% c("SFG", "NYG", "SFN") ~ "SFG",
+    team_id %in% c("SFG", "NYG", "SFN", "NY1") ~ "SFG",
     
     # NL Central
     team_id %in% c("CHC", "CHN") ~ "CHC",
     team_id == "CIN" ~ "CIN",
     team_id %in% c("MIL", "SEP") & (team_id == "SEP" | year_id >= 1970) ~ "MIL",
+    team_id %in% c("ML4", "SE1") ~ "MIL",                 # Lahman: Brewers 1970-97, Pilots
     team_id == "PIT" ~ "PIT",
     team_id %in% c("STL", "SLN") ~ "STL",
     
     # NL East
-    team_id %in% c("ATL", "MLN", "BSN") ~ "ATL",
+    team_id %in% c("ATL", "MLN", "BSN", "ML1") ~ "ATL",
     team_id %in% c("MIA", "FLA", "FLO") ~ "MIA",
     team_id %in% c("NYM", "NYN") ~ "NYM",
     team_id == "PHI" ~ "PHI",
@@ -66,6 +69,32 @@ franchise_map <- function(team_id, year_id = NA) {
     
     TRUE ~ NA_character_
   )
+}
+
+# Lahman uses its own historical team codes (NY1, ML4, SE1, KC1, ...). Map a
+# Lahman (teamID, yearID) to a current franchise code via Lahman::Teams, which
+# is exact. Supplement rows (see supplemental_data.R) already carry franchise
+# codes and pass through unchanged.
+.lahman_franchid_to_code <- c(ANA = "LAA", FLA = "MIA", TBD = "TBR")
+.lahman_team_lookup <- local({
+  t <- Lahman::Teams
+  franch <- as.character(t$franchID)   # factor in Lahman
+  code <- ifelse(franch %in% names(.lahman_franchid_to_code),
+                 .lahman_franchid_to_code[franch], franch)
+  setNames(unname(code), paste(as.character(t$teamID), t$yearID))
+})
+
+lahman_franchise <- function(team_id, year_id) {
+  code <- unname(.lahman_team_lookup[paste(team_id, year_id)])
+  code <- ifelse(is.na(code) & team_id %in% names(primary_colors), team_id, code)
+  ifelse(code %in% names(primary_colors), code, NA_character_)
+}
+
+# Reference tables (Lahman + post-Lahman supplements). Populated by
+# load_war_data(); falls back to the bare Lahman package until then.
+REF_TABLES <- NULL
+ref_table <- function(name) {
+  if (!is.null(REF_TABLES[[name]])) REF_TABLES[[name]] else getExportedValue("Lahman", name)
 }
 
 # =============================================================================
@@ -169,34 +198,54 @@ divisions <- tribble(
 # DATA LOADING FUNCTIONS
 # =============================================================================
 
-load_war_data <- function() {
+BR_FEEDS <- c(bat = "https://www.baseball-reference.com/data/war_daily_bat.txt",
+              pitch = "https://www.baseball-reference.com/data/war_daily_pitch.txt")
+
+# Download a Baseball-Reference feed into data_cache/ unless a copy newer than
+# max_age_hours already exists. Avoids hammering BR (which rate-limits) when
+# several scripts or worker processes need the same file.
+br_feed_path <- function(which, max_age_hours = 12, refresh = FALSE) {
+  dir.create(SUPP_DIR, showWarnings = FALSE, recursive = TRUE)
+  path <- file.path(SUPP_DIR, sprintf("br_war_daily_%s.txt", which))
+  fresh <- file.exists(path) &&
+    difftime(Sys.time(), file.mtime(path), units = "hours") < max_age_hours
+  if (refresh || !fresh) {
+    message(sprintf("  Downloading %s...", BR_FEEDS[[which]]))
+    utils::download.file(BR_FEEDS[[which]], path, quiet = TRUE, mode = "wb",
+                         headers = c("User-Agent" = "Mozilla/5.0 (R; franchise WAR plots)"))
+  } else {
+    message(sprintf("  Using cached %s (%s)", basename(path), format(file.mtime(path), "%Y-%m-%d %H:%M")))
+  }
+  path
+}
+
+load_war_data <- function(refresh = FALSE) {
   message("Loading WAR data from Baseball Reference...")
-  
-  # Get primary position for each player from Lahman
-  primary_position <- Fielding %>%
+
+  # Load batting WAR
+  WAR_bat <- read_csv(br_feed_path("bat", refresh = refresh), show_col_types = FALSE) %>%
+    mutate(player_type = "batter", WAR = as.numeric(WAR))
+
+  # Load pitching WAR
+  WAR_pitch <- read_csv(br_feed_path("pitch", refresh = refresh), show_col_types = FALSE) %>%
+    mutate(player_type = "pitcher", WAR = as.numeric(WAR), primary_pos = "P")
+
+  # Lahman tables, extended with MLB Stats API data for seasons Lahman lacks.
+  REF_TABLES <<- load_reference_tables(WAR_bat, WAR_pitch, refresh = refresh)
+
+  # Get primary position for each player (most career games at a position)
+  primary_position <- ref_table("Fielding") %>%
     group_by(playerID, POS) %>%
     summarise(games = sum(G), .groups = "drop") %>%
     group_by(playerID) %>%
     slice_max(order_by = games, n = 1, with_ties = FALSE) %>%
     select(playerID, primary_pos = POS)
-  
-  # Load batting WAR
-  WAR_bat <- read_csv(
-    "https://www.baseball-reference.com/data/war_daily_bat.txt",
-    show_col_types = FALSE
-  ) %>%
-    mutate(player_type = "batter", WAR = as.numeric(WAR)) %>%
+
+  WAR_bat <- WAR_bat %>%
     left_join(primary_position, by = c("player_ID" = "playerID"))
-  
-  # Load pitching WAR
-  WAR_pitch <- read_csv(
-    "https://www.baseball-reference.com/data/war_daily_pitch.txt",
-    show_col_types = FALSE
-  ) %>%
-    mutate(player_type = "pitcher", WAR = as.numeric(WAR), primary_pos = "P")
-  
-  message("Data loaded successfully.")
-  
+
+  message(sprintf("Data loaded: seasons %d-%d.", min(WAR_bat$year_ID), max(WAR_bat$year_ID)))
+
   list(batting = WAR_bat, pitching = WAR_pitch)
 }
 
@@ -219,7 +268,7 @@ generate_franchise_war_plot <- function(
   
  # For SP/RP filtering, we need to classify pitchers first
   if (!is.null(position_filter) && position_filter %in% c("SP", "RP")) {
-    pitcher_type <- Lahman::Pitching %>%
+    pitcher_type <- ref_table("Pitching") %>%
       group_by(playerID) %>%
       summarise(
         total_G = sum(G, na.rm = TRUE),
@@ -294,13 +343,16 @@ generate_franchise_war_plot <- function(
       name_common
     })
   
-  # x-axis breaks
+  # x-axis range and breaks follow the data (latest season + 1 so end labels fit)
+  end_year <- max(plot_data$year_ID, na.rm = TRUE)
+  x_max <- end_year + 1
+  last_decade <- floor(end_year / 10) * 10
   if (start_year >= 1990) {
-    x_breaks <- seq(2000, 2020, 10)
+    x_breaks <- seq(2000, last_decade, 10)
   } else if (start_year >= 1960) {
-    x_breaks <- seq(1980, 2020, 20)
+    x_breaks <- seq(1980, last_decade, 20)
   } else {
-    x_breaks <- seq(1920, 2020, 40)
+    x_breaks <- seq(1920, last_decade, 40)
   }
   
   # --- Z-score segments for variable width ---
@@ -435,7 +487,7 @@ generate_franchise_war_plot <- function(
     scale_x_continuous(breaks = x_breaks) +
     ggh4x::facet_wrap2(~ reorder(franchise, div_order), ncol = 5, axes = "x",
       strip = ggh4x::strip_themed(text_x = .strip_text_elems)) +
-    coord_cartesian(xlim = c(start_year, 2026), ylim = c(0, ceiling(max(top_plot_data$cumWAR_franchise, na.rm = TRUE) * 1.1 / 5) * 5)) +
+    coord_cartesian(xlim = c(start_year, x_max), ylim = c(0, ceiling(max(top_plot_data$cumWAR_franchise, na.rm = TRUE) * 1.1 / 5) * 5)) +
     theme_minimal() +
     theme(
       legend.position = "top",
@@ -507,7 +559,7 @@ PLAYER_TYPES <- c("batters", "pitchers", "combined")
 # =============================================================================
 
 load_award_data <- function() {
-  awards_raw <- Lahman::AwardsPlayers %>%
+  awards_raw <- ref_table("AwardsPlayers") %>%
     filter(awardID %in% c("Most Valuable Player", "Cy Young Award")) %>%
     mutate(award = case_when(
       awardID == "Most Valuable Player" ~ "MVP",
@@ -515,7 +567,7 @@ load_award_data <- function() {
     )) %>%
     select(playerID, yearID, award)
   
-  allstars <- Lahman::AllstarFull %>%
+  allstars <- ref_table("AllstarFull") %>%
     distinct(playerID, yearID) %>%
     mutate(award = "AS")
   
@@ -533,7 +585,7 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
   # Classify each player-year by the position where they played the most games
   # that season, rather than career-wide primary position. This ensures the
   # comparison pool reflects the actual positional landscape each year.
-  pos_games <- Lahman::Appearances %>%
+  pos_games <- ref_table("Appearances") %>%
     transmute(
       playerID, yearID,
       C  = G_c,
@@ -553,7 +605,7 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
     ungroup()
 
   # --- Step 2: SP/RP split for pitchers (year-specific) ---
-  pitcher_yearly <- Lahman::Pitching %>%
+  pitcher_yearly <- ref_table("Pitching") %>%
     group_by(playerID, yearID) %>%
     summarise(G = sum(G, na.rm = TRUE), GS = sum(GS, na.rm = TRUE),
               .groups = "drop") %>%
@@ -650,27 +702,10 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
 # POSTSEASON DATA HELPER
 # =============================================================================
 
-# Lahman team code mapping (reverse of franchise_map)
-LAHMAN_CODES <- list(
-  "NYY" = c("NYA"), "LAD" = c("LAN", "BRO"), "SFG" = c("SFN", "NYG"),
-  "ATL" = c("ATL", "MLN", "BSN"), "BAL" = c("BAL", "SLA", "MLA"),
-  "MIN" = c("MIN", "WS1", "WS2"), "OAK" = c("OAK", "PHA", "KCA"),
-  "TEX" = c("TEX", "WS2"), "MIL" = c("MIL", "SEA"),
-  "WSN" = c("WAS", "MON"), "CHC" = c("CHN"), "CIN" = c("CIN"),
-  "STL" = c("SLN"), "PIT" = c("PIT"), "PHI" = c("PHI"),
-  "BOS" = c("BOS"), "CLE" = c("CLE"), "DET" = c("DET"),
-  "CHW" = c("CHA"), "SEA" = c("SEA"), "TBR" = c("TBA"),
-  "TOR" = c("TOR"), "HOU" = c("HOU"), "LAA" = c("ANA", "CAL", "LAA"),
-  "KCR" = c("KCA"), "ARI" = c("ARI"), "COL" = c("COL"),
-  "SDP" = c("SDN"), "MIA" = c("FLO", "MIA"), "NYM" = c("NYN")
-)
-
 get_postseason_data <- function(team_code) {
-  lahman_codes <- LAHMAN_CODES[[team_code]]
-  if (is.null(lahman_codes)) lahman_codes <- team_code
-  
-  Lahman::SeriesPost %>%
-    filter(teamIDwinner %in% lahman_codes) %>%
+  ref_table("SeriesPost") %>%
+    mutate(franchise = lahman_franchise(teamIDwinner, yearID)) %>%
+    filter(franchise == team_code) %>%
     mutate(achievement = case_when(
       round == "WS" ~ "World Series",
       round %in% c("CS", "ALCS", "NLCS") ~ "Pennant/LCS",
@@ -685,12 +720,4 @@ get_postseason_data <- function(team_code) {
     slice_min(achievement, n = 1) %>%
     ungroup()
 }
-
-# =============================================================================
-# OVERLAY GENERATION HELPER
-# =============================================================================
-
-# Save a transparent overlay PNG that is pixel-aligned with the base plot.
-# Builds an overlay plot using the same scales/facets/coords/dimensions,
-# but with transparent backgrounds and invisible text (preserving spacing).
 

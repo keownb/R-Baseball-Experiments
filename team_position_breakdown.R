@@ -2,15 +2,11 @@
 # Deep dive into one team's history by position
 # Shows all players as ghost lines, top 5 per position highlighted
 
+# Function library only: callers load data with load_war_data() (see the usage
+# example at the bottom). Previously this file downloaded the WAR feeds every
+# time it was sourced, including once per worker process.
+
 source("franchise_war_functions.R")
-
-# =============================================================================
-# LOAD DATA
-# =============================================================================
-
-war_data <- load_war_data()
-WAR_bat <- war_data$batting
-WAR_pitch <- war_data$pitching
 
 # =============================================================================
 # TEAM POSITION BREAKDOWN FUNCTION
@@ -39,8 +35,8 @@ generate_team_position_plot <- function(
   # Get primary DH classification PER FRANCHISE from Lahman Appearances
   # A player is DH for this franchise only if they played more DH than
   # field games specifically for this team (not career-wide)
-  dh_players <- Lahman::Appearances %>%
-    mutate(franchise = franchise_map(teamID, yearID)) %>%
+  dh_players <- ref_table("Appearances") %>%
+    mutate(franchise = lahman_franchise(teamID, yearID)) %>%
     filter(franchise == team_code) %>%
     group_by(playerID) %>%
     summarise(
@@ -54,8 +50,8 @@ generate_team_position_plot <- function(
   
   # Get SP vs RP classification PER TEAM from Lahman Pitching
   # Map Lahman teamID to our franchise codes
-  pitcher_type <- Lahman::Pitching %>%
-    mutate(franchise = franchise_map(teamID, yearID)) %>%
+  pitcher_type <- ref_table("Pitching") %>%
+    mutate(franchise = lahman_franchise(teamID, yearID)) %>%
     filter(franchise == team_code) %>%  # Only this team's data
     group_by(playerID) %>%
     summarise(
@@ -93,8 +89,9 @@ generate_team_position_plot <- function(
     # Keep standard positions
     filter(position %in% c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP"))
   
-  # Determine team's start year
+  # Determine team's year range (latest season + 1 so end labels fit)
   start_year <- min(team_data$year_ID)
+  end_year <- max(team_data$year_ID)
   
   # Aggregate by player-position-year (handles multiple stints)
   team_agg <- team_data %>%
@@ -321,9 +318,9 @@ generate_team_position_plot <- function(
       max.overlaps = 5, nudge_y = -1, box.padding = 0.15
     ) +
     ggh4x::facet_wrap2(~ position, ncol = 1, axes = "x") +
-    coord_cartesian(xlim = c(start_year, 2026)) +
+    coord_cartesian(xlim = c(start_year, end_year + 1)) +
     scale_x_continuous(
-      breaks = seq(ceiling(start_year / 10) * 10, 2020, 10)
+      breaks = seq(ceiling(start_year / 10) * 10, floor(end_year / 10) * 10, 10)
     )
   
   if (log_scale) {
