@@ -25,6 +25,8 @@ fg_team_to_br <- function(fg_team, year) {
   case_when(
     fg_team == "WAS" & year >= 1901 & year <= 1960 ~ "WSH",  # original Senators -> MIN
     fg_team == "WAS" & year >= 1961 & year <= 1971 ~ "WSA",  # expansion Senators -> TEX
+    fg_team == "MIL" & year == 1901                 ~ "MLA",  # 1901 Milwaukee Brewers -> BAL
+    fg_team == "BAL" & year >= 1901 & year <= 1902 ~ "BLA",  # original Orioles (not the modern BAL); BR drops them too
     fg_team == "MIL" & year >= 1953 & year <= 1965 ~ "MLN",  # Milwaukee Braves -> ATL
     fg_team == "SEA" & year == 1969                 ~ "SEP",  # Seattle Pilots -> MIL
     fg_team == "NYH" & year >= 1903 & year <= 1912 ~ "NYY",  # Highlanders -> NYY
