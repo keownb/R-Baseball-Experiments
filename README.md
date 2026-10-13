@@ -5,16 +5,19 @@ on GitHub Pages: https://keownb.github.io/R-Baseball-Experiments/
 
 ## How the site works
 
-GitHub Pages serves the `docs/` folder of `master` as-is (no build step on
-GitHub). The two interactive pages (`war_explorer.html`, `team_breakdown.html`)
-are plain HTML that swap between pre-rendered PNGs by filename:
+The site is static HTML in `docs/` plus pre-rendered PNGs, served from
+Cloudflare Workers static assets at https://baseball.bricekeown.net
+(config in `wrangler.jsonc`). The two interactive pages
+(`war_explorer.html`, `team_breakdown.html`) swap between PNGs by filename:
 
 - `docs/plots/{pos}_{era}[_zscore][_awards|_postseason|_all].png` (grid explorer)
 - `docs/team_breakdowns/{TEAM}_{linear|log}_{const|zscore}[_awards|_postseason|_all].png`
 - `docs/data/{pos}_{era}.csv` (top-5 tables behind each grid view)
+- the same three with an `_fg` suffix for the FanGraphs WAR variants
 
-Deploying a stats update therefore means regenerating the PNGs locally and
-committing them.
+The PNG directories are not versioned (they added ~1 GB of git history per
+regeneration). A stats update is: render locally, then `npx wrangler deploy`.
+The old GitHub Pages URL redirects here from the orphan `gh-pages` branch.
 
 ## Data sources
 
@@ -45,9 +48,14 @@ Rscript generate_all_plots.R        # 456 grid PNGs + 66 CSVs (~3 min on 10 core
 Rscript generate_team_breakdowns.R  # 480 team-breakdown PNGs (~2 min)
 ```
 
-Bump the `?v=YYYYMMDD` cache-buster in `docs/war_explorer.html` and
-`docs/team_breakdown.html` so browsers pick up the new images, then commit
-`docs/` and `data_cache/supp_*.csv`.
+Add `fg` as the argument to either script to render the FanGraphs variants
+(needs `data_cache/fg/`, see `fangraphs_data.R`). Then bump the `?v=YYYYMMDD`
+cache-buster in `docs/war_explorer.html` and `docs/team_breakdown.html`,
+commit the source and `data_cache/` changes, and deploy:
+
+```bash
+npx wrangler deploy
+```
 
 ## Files
 
@@ -56,6 +64,8 @@ Bump the `?v=YYYYMMDD` cache-buster in `docs/war_explorer.html` and
 | `franchise_war_functions.R` | Data loading, franchise mapping, grid plot, z-score pools, awards, postseason |
 | `team_position_breakdown.R` | Single-team, per-position plot function |
 | `supplemental_data.R` | MLB Stats API fill-in for post-Lahman seasons |
+| `fangraphs_data.R` | FanGraphs WAR loader (data pulled through a browser session) |
+| `wrangler.jsonc` | Cloudflare deploy config (assets = docs/, custom domain) |
 | `generate_all_plots.R` | Batch driver for the grid explorer |
 | `generate_team_breakdowns.R` | Batch driver for team breakdowns |
 | `franchise_war_analysis.R` | Interactive scratch script for previewing one plot |
