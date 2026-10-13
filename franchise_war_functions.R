@@ -535,6 +535,26 @@ generate_franchise_war_plot <- function(
 }
 
 # =============================================================================
+# HELPER: Save a plot PNG (Quartz device + optional pngquant)
+# =============================================================================
+
+# grDevices::png (Quartz) renders text heavier/crisper than ragg on macOS, so
+# it stays the default. pngquant (brew install pngquant) is lossy palette
+# quantisation; at --quality 80-95 the output is visually identical and about
+# 70% smaller, which keeps the repo and the Pages site small.
+PNG_DEVICE <- grDevices::png
+HAVE_PNGQUANT <- nzchar(Sys.which("pngquant"))
+
+save_plot_png <- function(filename, plot, width, height, dpi) {
+  ggsave(filename, plot = plot, width = width, height = height, dpi = dpi, device = PNG_DEVICE)
+  if (HAVE_PNGQUANT) {
+    system2("pngquant", c("--quality=80-95", "--speed", "1", "--force", "--skip-if-larger",
+                          "--output", shQuote(filename), shQuote(filename)))
+  }
+  invisible(filename)
+}
+
+# =============================================================================
 # HELPER: Export top players data to CSV
 # =============================================================================
 

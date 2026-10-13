@@ -1,7 +1,7 @@
 # generate_team_breakdowns.R
 # Batch generation of team position breakdown charts
 # Runs N_CORES parallel R worker processes via PSOCK cluster (macOS safe). Data
-# is loaded once in the parent and exported to the workers. Uses ragg if available.
+# is loaded once in the parent and exported to the workers. Optional pngquant pass (see save_plot_png).
 
 source("franchise_war_functions.R")
 source("team_position_breakdown.R")
@@ -15,7 +15,6 @@ dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 N_CORES <- parallel::detectCores()
 PLOT_WIDTH <- 20; PLOT_DPI <- 150
-PNG_DEVICE <- if (requireNamespace("ragg", quietly = TRUE)) ragg::agg_png else grDevices::png
 
 TEAMS <- list(
   "BAL"="Baltimore Orioles","BOS"="Boston Red Sox","NYY"="New York Yankees",
@@ -60,7 +59,7 @@ message(sprintf("\n=== %d images | %d cores ===\n", length(jobs), N_CORES))
 cl <- parallel::makeCluster(N_CORES)
 
 parallel::clusterExport(cl, c("WAR_bat","WAR_pitch","pos_year_stats","award_data",
-  "REF_TABLES","PLOT_WIDTH","PLOT_DPI","PNG_DEVICE"))
+  "REF_TABLES","PLOT_WIDTH","PLOT_DPI"))
 
 invisible(parallel::clusterEvalQ(cl, {
   suppressPackageStartupMessages({
@@ -75,7 +74,7 @@ render_job <- function(job) {
     variable_width=job$iz, pos_year_stats=if(job$iz) pos_year_stats else NULL,
     show_awards=job$sa, award_data=if(job$sa) award_data else NULL)
   n_pos <- attr(p, "n_positions"); ph <- 3 * n_pos + 2
-  ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=ph, dpi=PLOT_DPI, device=PNG_DEVICE)
+  save_plot_png(job$fname, p, PLOT_WIDTH, ph, PLOT_DPI)
   return(job$fname)
 }
 

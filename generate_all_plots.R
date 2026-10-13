@@ -1,7 +1,7 @@
 # generate_all_plots.R
 # Batch generation of all WAR plots for GH Pages
 # Runs N_CORES parallel R worker processes (PSOCK cluster, macOS safe). Data is
-# loaded once in the parent and exported to the workers. Uses ragg if available.
+# loaded once in the parent and exported to the workers. Optional pngquant pass (see save_plot_png).
 
 source("franchise_war_functions.R")
 
@@ -28,7 +28,6 @@ POSITIONS <- list(
 )
 
 PLOT_WIDTH <- 20; PLOT_HEIGHT <- 24; PLOT_DPI <- 150
-PNG_DEVICE <- if (requireNamespace("ragg", quietly = TRUE)) ragg::agg_png else grDevices::png
 
 OVERLAY_COMBOS <- list(
   list(suffix = "",            awards = FALSE, postseason = FALSE),
@@ -77,7 +76,7 @@ cl <- parallel::makeCluster(N_CORES)
 
 # Export everything workers need
 parallel::clusterExport(cl, c("WAR_bat","WAR_pitch","WAR_combined","pos_year_stats",
-  "award_data","REF_TABLES","PLOT_WIDTH","PLOT_HEIGHT","PLOT_DPI","PNG_DEVICE"))
+  "award_data","REF_TABLES","PLOT_WIDTH","PLOT_HEIGHT","PLOT_DPI"))
 
 # Each worker loads the function library once
 invisible(parallel::clusterEvalQ(cl, {
@@ -97,7 +96,7 @@ render_job <- function(job) {
   p <- generate_franchise_war_plot(war_src, job$tl, start_year=job$era, position_filter=job$pf,
     variable_width=job$vw, pos_year_stats=if(job$vw) pos_year_stats else NULL,
     show_awards=job$sa, award_data=if(job$sa) award_data else NULL, show_postseason=job$sp)
-  ggsave(job$fname, plot=p, width=PLOT_WIDTH, height=PLOT_HEIGHT, dpi=PLOT_DPI, device=PNG_DEVICE)
+  save_plot_png(job$fname, p, PLOT_WIDTH, PLOT_HEIGHT, PLOT_DPI)
   return(job$fname)
 }
 

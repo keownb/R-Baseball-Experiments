@@ -34,14 +34,15 @@ or the arm64 build from CRAN) and these packages:
 
 ```r
 install.packages(c("dplyr","tidyr","readr","ggplot2","ggrepel","ggh4x",
-                   "Lahman","ragg","jsonlite","curl"))
+                   "Lahman","jsonlite","curl"))
+# optional, ~70% smaller PNGs with no visible change: brew install pngquant
 ```
 
 Then, from the repo root:
 
 ```bash
-Rscript generate_all_plots.R        # 456 grid PNGs + 66 CSVs (~10 cores)
-Rscript generate_team_breakdowns.R  # 480 team-breakdown PNGs
+Rscript generate_all_plots.R        # 456 grid PNGs + 66 CSVs (~3 min on 10 cores)
+Rscript generate_team_breakdowns.R  # 480 team-breakdown PNGs (~2 min)
 ```
 
 Bump the `?v=YYYYMMDD` cache-buster in `docs/war_explorer.html` and
