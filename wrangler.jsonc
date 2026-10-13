@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers static-assets deploy of the rendered site in docs/.
+  // Deploy with:  npx wrangler deploy        (after rendering the plots locally)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "baseball",
+  "compatibility_date": "2026-10-06",
+  "assets": {
+    "directory": "docs"
+  },
+  "routes": [
+    { "pattern": "baseball.bricekeown.net", "custom_domain": true }
+  ]
+}

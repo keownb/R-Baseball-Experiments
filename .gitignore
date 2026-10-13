@@ -45,3 +45,17 @@ vignettes/*.pdf
 # but not the 50 MB Baseball-Reference feeds, which load_war_data() re-downloads.
 !data_cache/
 data_cache/br_*.txt
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# Rendered plots are deployed to Cloudflare (npx wrangler deploy), not versioned.
+# Regenerate with generate_all_plots.R / generate_team_breakdowns.R.
+docs/plots/
+docs/plots_fg/
+docs/team_breakdowns/
+docs/team_breakdowns_fg/
