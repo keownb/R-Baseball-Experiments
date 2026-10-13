@@ -271,7 +271,7 @@
   <div class="mobile-warning">⚠️ Built for large displays. Best viewed on desktop.</div>
   <div class="nav" style="max-width:2400px;">
     <div><a href="index.html">← Home</a> · <a href="about.html">About</a></div>
-    <div><a href="team_breakdown.html">Team Breakdown →</a></div>
+    <div><a href="team_breakdown.html" id="nav-breakdown">Team Breakdown →</a></div>
   </div>
   
   <div class="intro">
@@ -327,6 +327,14 @@
     </div>
 
     <div class="control-group">
+      <label for="war-source">WAR Source</label>
+      <select id="war-source">
+        <option value="br">Baseball-Reference (bWAR)</option>
+        <option value="fg">FanGraphs (fWAR)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
       <label>&nbsp;</label>
       <div class="checkbox-group">
         <input type="checkbox" id="awards">
@@ -363,6 +371,7 @@
 
   <footer>
     Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> ·
+    <a href="https://www.fangraphs.com/leaders/major-league" target="_blank">FanGraphs WAR</a> ·
     Position data: <a href="https://cran.r-project.org/package=Lahman" target="_blank">Lahman Database</a> ·
     <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source Code</a>
   </footer>
@@ -393,6 +402,7 @@
 
     const positionSelect = document.getElementById('position');
     const eraSelect = document.getElementById('era');
+    const warSelect = document.getElementById('war-source');
     const awardsCheck = document.getElementById('awards');
     const postseasonCheck = document.getElementById('postseason');
     const plotImage = document.getElementById('plot-image');
@@ -435,12 +445,14 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('pos')) positionSelect.value = urlParams.get('pos');
     if (urlParams.has('era')) eraSelect.value = urlParams.get('era');
+    if (urlParams.get('war') === 'fg') warSelect.value = 'fg';
     if (urlParams.has('awards')) awardsCheck.checked = urlParams.get('awards') === '1';
     if (urlParams.has('postseason')) postseasonCheck.checked = urlParams.get('postseason') === '1';
 
     function updatePlot() {
       const position = positionSelect.value;
       const era = eraSelect.value;
+      const war = warSelect.value;
       const showAwards = awardsCheck.checked;
       const showPostseason = postseasonCheck.checked;
 
@@ -453,7 +465,8 @@
       } else if (showPostseason) {
         fname += '_postseason';
       }
-      plotImage.src = `plots/${fname}.png?v=20261013`;
+      const plotDir = war === 'fg' ? 'plots_fg' : 'plots';
+      plotImage.src = `${plotDir}/${fname}.png?v=20261013`;
 
       
       // Reset zoom on new image
@@ -461,7 +474,7 @@
       
       // Update title
       const typeLabel = positionLabels[position] || position.toUpperCase();
-      plotTitle.textContent = `Cumulative WAR by Franchise — ${typeLabel} (${era}-Present)`;
+      plotTitle.textContent = `Cumulative WAR by Franchise — ${typeLabel} (${era}-Present)${war === 'fg' ? ' · fWAR' : ''}`;
       
       // Update era info
       eraInfoDiv.textContent = eraInfo[era];
@@ -470,14 +483,19 @@
       const params = new URLSearchParams();
       if (position !== 'all') params.set('pos', position);
       if (era !== '1901') params.set('era', era);
+      if (war === 'fg') params.set('war', 'fg');
       if (showAwards) params.set('awards', '1');
       if (showPostseason) params.set('postseason', '1');
       const qs = params.toString();
       history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+
+      // Keep the nav link to the team breakdown on the same WAR source
+      document.getElementById('nav-breakdown').href = war === 'fg' ? 'team_breakdown.html?war=fg' : 'team_breakdown.html';
     }
 
     positionSelect.addEventListener('change', updatePlot);
     eraSelect.addEventListener('change', updatePlot);
+    warSelect.addEventListener('change', updatePlot);
     awardsCheck.addEventListener('change', updatePlot);
     postseasonCheck.addEventListener('change', updatePlot);
 
@@ -561,6 +579,7 @@
       if (!team) return;
       const params = new URLSearchParams();
       params.set('team', team);
+      if (warSelect.value === 'fg') params.set('war', 'fg');
       if (awardsCheck.checked) params.set('awards', '1');
       if (postseasonCheck.checked) params.set('postseason', '1');
       window.location.href = `team_breakdown.html?${params.toString()}`;

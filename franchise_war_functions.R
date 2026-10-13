@@ -15,6 +15,7 @@ library(ggh4x)
 library(Lahman)
 
 source("supplemental_data.R")
+source("fangraphs_data.R")
 
 # =============================================================================
 # FRANCHISE MAPPING - All historical team IDs to current 30
@@ -219,7 +220,15 @@ br_feed_path <- function(which, max_age_hours = 12, refresh = FALSE) {
   path
 }
 
-load_war_data <- function(refresh = FALSE) {
+# WAR source for the current run: "br" (Baseball-Reference, default) or "fg"
+# (FanGraphs). Set by load_war_data(); used for output dirs and captions.
+WAR_SOURCE <- "br"
+war_source_label <- function() if (identical(WAR_SOURCE, "fg")) "FanGraphs" else "Baseball Reference"
+war_source_suffix <- function() if (identical(WAR_SOURCE, "fg")) "_fg" else ""
+
+load_war_data <- function(refresh = FALSE, source = c("br", "fg")) {
+  source <- match.arg(source)
+  WAR_SOURCE <<- source
   message("Loading WAR data from Baseball Reference...")
 
   # Load batting WAR
@@ -246,6 +255,7 @@ load_war_data <- function(refresh = FALSE) {
 
   message(sprintf("Data loaded: seasons %d-%d.", min(WAR_bat$year_ID), max(WAR_bat$year_ID)))
 
+  if (source == "fg") return(load_fg_war_data(WAR_bat, WAR_pitch))
   list(batting = WAR_bat, pitching = WAR_pitch)
 }
 
@@ -513,7 +523,7 @@ generate_franchise_war_plot <- function(
                      " (", start_year, "-Present)"),
       subtitle = subtitle_parts,
       x = "Year", y = "Cumulative WAR",
-      caption = "Source: Baseball Reference + Lahman"
+      caption = paste0("Source: ", war_source_label(), " WAR + Lahman")
     )
   
   # Attach data for CSV export

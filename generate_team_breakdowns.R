@@ -6,11 +6,14 @@
 source("franchise_war_functions.R")
 source("team_position_breakdown.R")
 
+# Usage: Rscript generate_team_breakdowns.R [br|fg]   (WAR source; default br)
+SRC <- if (length(commandArgs(trailingOnly = TRUE)) >= 1) commandArgs(trailingOnly = TRUE)[1] else "br"
+
 message("=== Loading WAR data ===")
-war_data <- load_war_data()
+war_data <- load_war_data(source = SRC)
 WAR_bat <- war_data$batting; WAR_pitch <- war_data$pitching
 
-OUTPUT_DIR <- "docs/team_breakdowns"
+OUTPUT_DIR <- paste0("docs/team_breakdowns", if (SRC == "fg") "_fg" else "")
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 N_CORES <- parallel::detectCores()
@@ -59,7 +62,7 @@ message(sprintf("\n=== %d images | %d cores ===\n", length(jobs), N_CORES))
 cl <- parallel::makeCluster(N_CORES)
 
 parallel::clusterExport(cl, c("WAR_bat","WAR_pitch","pos_year_stats","award_data",
-  "REF_TABLES","PLOT_WIDTH","PLOT_DPI"))
+  "REF_TABLES","WAR_SOURCE","PLOT_WIDTH","PLOT_DPI"))
 
 invisible(parallel::clusterEvalQ(cl, {
   suppressPackageStartupMessages({

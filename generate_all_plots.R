@@ -5,8 +5,10 @@
 
 source("franchise_war_functions.R")
 
-OUTPUT_DIR <- "docs/plots"
-DATA_DIR <- "docs/data"
+# Usage: Rscript generate_all_plots.R [br|fg]   (WAR source; default br)
+SRC <- if (length(commandArgs(trailingOnly = TRUE)) >= 1) commandArgs(trailingOnly = TRUE)[1] else "br"
+OUTPUT_DIR <- paste0("docs/plots", if (SRC == "fg") "_fg" else "")
+DATA_DIR <- paste0("docs/data", if (SRC == "fg") "_fg" else "")
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 dir.create(DATA_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -38,7 +40,7 @@ OVERLAY_COMBOS <- list(
 
 # Build lightweight job list
 message("=== Loading WAR data ===")
-war_data <- load_war_data()
+war_data <- load_war_data(source = SRC)
 WAR_bat <- war_data$batting; WAR_pitch <- war_data$pitching
 common_cols <- c("year_ID","player_ID","name_common","team_ID","WAR","player_type","primary_pos")
 WAR_combined <- bind_rows(WAR_bat %>% select(all_of(common_cols)),
@@ -76,7 +78,7 @@ cl <- parallel::makeCluster(N_CORES)
 
 # Export everything workers need
 parallel::clusterExport(cl, c("WAR_bat","WAR_pitch","WAR_combined","pos_year_stats",
-  "award_data","REF_TABLES","PLOT_WIDTH","PLOT_HEIGHT","PLOT_DPI"))
+  "award_data","REF_TABLES","WAR_SOURCE","PLOT_WIDTH","PLOT_HEIGHT","PLOT_DPI"))
 
 # Each worker loads the function library once
 invisible(parallel::clusterEvalQ(cl, {

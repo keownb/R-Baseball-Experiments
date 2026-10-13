@@ -366,7 +366,7 @@ generate_team_position_plot <- function(
       title = paste0(team_name, " — Cumulative WAR by Position"),
       subtitle = paste0(subtitle_parts, " (", start_year, "-Present)"),
       x = "Year", y = "Cumulative WAR",
-      caption = "Source: Baseball Reference + Lahman"
+      caption = paste0("Source: ", war_source_label(), " WAR + Lahman")
     )
   
   # Attach position count for dynamic sizing

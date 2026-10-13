@@ -242,7 +242,7 @@
   <div class="mobile-warning">⚠️ Built for large displays. Best viewed on desktop.</div>
   <div class="nav" style="max-width:2400px;">
     <div><a href="index.html">← Home</a> · <a href="about.html">About</a></div>
-    <div><a href="war_explorer.html">← Grid Explorer</a></div>
+    <div><a href="war_explorer.html" id="nav-explorer">← Grid Explorer</a></div>
   </div>
 
   <div class="intro">
@@ -320,6 +320,14 @@
     </div>
 
     <div class="control-group">
+      <label for="war-source">WAR Source</label>
+      <select id="war-source">
+        <option value="br">Baseball-Reference (bWAR)</option>
+        <option value="fg">FanGraphs (fWAR)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
       <label>&nbsp;</label>
       <div class="checkbox-group">
         <input type="checkbox" id="awards">
@@ -354,6 +362,7 @@
 
   <footer>
     Data: <a href="https://www.baseball-reference.com/data/" target="_blank">Baseball Reference WAR</a> ·
+    <a href="https://www.fangraphs.com/leaders/major-league" target="_blank">FanGraphs WAR</a> ·
     Position data: <a href="https://cran.r-project.org/package=Lahman" target="_blank">Lahman Database</a> ·
     <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source Code</a>
   </footer>
@@ -375,6 +384,7 @@
     const teamSelect = document.getElementById('team');
     const scaleSelect = document.getElementById('scale');
     const widthSelect = document.getElementById('line-width');
+    const warSelect = document.getElementById('war-source');
     const awardsCheck = document.getElementById('awards');
     const postseasonCheck = document.getElementById('postseason');
     const plotImage = document.getElementById('plot-image');
@@ -416,6 +426,7 @@
     if (urlParams.has('team') && teamNames[urlParams.get('team')]) teamSelect.value = urlParams.get('team');
     if (urlParams.has('scale')) scaleSelect.value = urlParams.get('scale');
     if (urlParams.has('width')) widthSelect.value = urlParams.get('width');
+    if (urlParams.get('war') === 'fg') warSelect.value = 'fg';
     if (urlParams.has('awards')) awardsCheck.checked = urlParams.get('awards') === '1';
     if (urlParams.has('postseason')) postseasonCheck.checked = urlParams.get('postseason') === '1';
 
@@ -423,6 +434,7 @@
       const team = teamSelect.value;
       const scale = scaleSelect.value;
       const width = widthSelect.value;
+      const war = warSelect.value;
       const showAwards = awardsCheck.checked;
       const showPostseason = postseasonCheck.checked;
 
@@ -435,29 +447,35 @@
       } else if (showPostseason) {
         fname += '_postseason';
       }
-      plotImage.src = `team_breakdowns/${fname}.png?v=20261013`;
+      const plotDir = war === 'fg' ? 'team_breakdowns_fg' : 'team_breakdowns';
+      plotImage.src = `${plotDir}/${fname}.png?v=20261013`;
       plotImage.onload = resetZoom;
 
       // Title
       const name = teamNames[team] || team;
       const scaleLabel = scale === 'linear' ? 'Linear' : 'Log';
       const widthLabel = width === 'const' ? 'Constant Width' : 'Z-Score Width';
-      plotTitle.textContent = `${name} — Position Breakdown (${scaleLabel}, ${widthLabel})`;
+      plotTitle.textContent = `${name} — Position Breakdown (${scaleLabel}, ${widthLabel})${war === 'fg' ? ' · fWAR' : ''}`;
 
       // Update URL without adding history entry
       const params = new URLSearchParams();
       params.set('team', team);
       if (scale !== 'linear') params.set('scale', scale);
       if (width !== 'const') params.set('width', width);
+      if (war === 'fg') params.set('war', 'fg');
       if (showAwards) params.set('awards', '1');
       if (showPostseason) params.set('postseason', '1');
       const qs = params.toString();
       history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+
+      // Keep the nav link to the grid explorer on the same WAR source
+      document.getElementById('nav-explorer').href = war === 'fg' ? 'war_explorer.html?war=fg' : 'war_explorer.html';
     }
 
     teamSelect.addEventListener('change', updatePlot);
     scaleSelect.addEventListener('change', updatePlot);
     widthSelect.addEventListener('change', updatePlot);
+    warSelect.addEventListener('change', updatePlot);
     awardsCheck.addEventListener('change', updatePlot);
     postseasonCheck.addEventListener('change', updatePlot);
 
