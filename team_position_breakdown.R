@@ -369,8 +369,14 @@ generate_team_position_plot <- function(
       caption = paste0("Source: ", war_source_label(), " WAR + Lahman")
     )
   
-  # Attach position count for dynamic sizing
+  # Attach position count for dynamic sizing, and the top-N lists per position
   attr(p, "n_positions") <- length(positions_with_data)
+  attr(p, "top_players") <- team_cum %>%
+    filter(is_top) %>%
+    group_by(position, player_ID, name_common) %>%
+    summarise(total_WAR = round(sum(WAR), 1), first_year = min(year_ID),
+              last_year = max(year_ID), .groups = "drop") %>%
+    arrange(position, desc(total_WAR))
   
   return(p)
 }
