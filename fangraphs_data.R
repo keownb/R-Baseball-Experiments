@@ -15,12 +15,23 @@
 
 FG_DIR <- file.path(SUPP_DIR, "fg")
 
-# FanGraphs team abbreviations that differ from Baseball-Reference's. Anything
-# not listed passes through to franchise_map() as-is; unmapped codes are
-# reported by load_fg_war_data().
-fg_team_to_br <- c(
-  "WAS" = "WSN"    # FanGraphs uses WAS for the Nationals; BR uses WSN
-)
+# FanGraphs team abbreviations differ from Baseball-Reference's for several
+# historical clubs, and some FanGraphs codes are reused across unrelated
+# franchises in different eras, so the translation is year-aware. Output codes
+# are Baseball-Reference's, which franchise_map() understands. Anything not
+# listed passes through unchanged; unmapped post-1900 codes are reported by
+# load_fg_war_data().
+fg_team_to_br <- function(fg_team, year) {
+  case_when(
+    fg_team == "WAS" & year >= 1901 & year <= 1960 ~ "WSH",  # original Senators -> MIN
+    fg_team == "WAS" & year >= 1961 & year <= 1971 ~ "WSA",  # expansion Senators -> TEX
+    fg_team == "MIL" & year >= 1953 & year <= 1965 ~ "MLN",  # Milwaukee Braves -> ATL
+    fg_team == "SEA" & year == 1969                 ~ "SEP",  # Seattle Pilots -> MIL
+    fg_team == "NYH" & year >= 1903 & year <= 1912 ~ "NYY",  # Highlanders -> NYY
+    fg_team == "CHI" & year >= 1876 & year <= 1902 ~ "CHC",  # Chicago NL -> CHC
+    TRUE ~ fg_team
+  )
+}
 
 read_fg_season <- function(path) {
   d <- jsonlite::fromJSON(path, simplifyVector = TRUE)
@@ -57,11 +68,19 @@ load_fg_war_data <- function(war_bat_br, war_pitch_br) {
   message("Loading FanGraphs WAR from ", FG_DIR, "...")
   id_map <- br_id_map(war_bat_br, war_pitch_br)
 
+  # Secondary crosswalk (FanGraphs id -> BR id, from the Chadwick register) for
+  # the few rows that carry no MLBAM id. Built once; see data_cache/fg_id_crosswalk.csv.
+  xwalk_path <- file.path(SUPP_DIR, "fg_id_crosswalk.csv")
+  fg_xwalk <- if (file.exists(xwalk_path)) {
+    x <- readr::read_csv(xwalk_path, show_col_types = FALSE, col_types = "cc")
+    setNames(x$bbref_id, x$fg_id)
+  } else c()
+
   convert <- function(d, player_type) {
     d <- d %>%
       mutate(
-        team_ID   = if_else(fg_team %in% names(fg_team_to_br), unname(fg_team_to_br[fg_team]), fg_team),
-        player_ID = unname(id_map[as.character(mlb_ID)]),
+        team_ID   = fg_team_to_br(fg_team, year_ID),
+        player_ID = coalesce(unname(id_map[as.character(mlb_ID)]), unname(fg_xwalk[fg_id])),
         stint_ID  = 1L,
         player_type = player_type
       ) %>%
@@ -91,7 +110,7 @@ load_fg_war_data <- function(war_bat_br, war_pitch_br) {
   unmapped <- bind_rows(bat, pitch) %>%
     mutate(franchise = franchise_map(team_ID, year_ID)) %>%
     filter(is.na(franchise), year_ID >= 1901) %>%
-    count(team_ID, wt = n(), name = "rows")
+    count(team_ID, name = "rows")
   if (nrow(unmapped) > 0) {
     message("  FanGraphs team codes not in franchise_map (post-1900 rows dropped downstream): ",
             paste(sprintf("%s(%d)", unmapped$team_ID, unmapped$rows), collapse = " "))
