@@ -361,7 +361,7 @@
     </div>
     <div class="image-wrapper" id="image-wrapper">
       <div class="panzoom-container" id="panzoom-container">
-        <img id="plot-image" src="plots/all_1901.png" alt="WAR Plot" style="width:100%; display:block;">
+        <img id="plot-image" src="plots/all_1901.svg" alt="WAR Plot" style="width:100%; display:block;">
       </div>
       <div class="team-tooltip" id="team-tooltip"></div>
       <div class="pan-indicator" id="pan-indicator"><span>↓ Drag to see more teams ↓</span></div>
@@ -456,7 +456,7 @@
       const showAwards = awardsCheck.checked;
       const showPostseason = postseasonCheck.checked;
 
-      // Build filename: {pos}_{era}[_awards|_postseason|_all].png
+      // Build filename: {pos}_{era}[_awards|_postseason|_all].svg
       let fname = `${position}_${era}`;
       if (showAwards && showPostseason) {
         fname += '_all';
@@ -466,7 +466,7 @@
         fname += '_postseason';
       }
       const plotDir = war === 'fg' ? 'plots_fg' : 'plots';
-      plotImage.src = `${plotDir}/${fname}.png?v=20261013`;
+      plotImage.src = `${plotDir}/${fname}.svg?v=20261013`;
 
       
       // Reset zoom on new image

@@ -354,7 +354,7 @@
     </div>
     <div class="image-wrapper" id="image-wrapper">
       <div class="panzoom-container" id="panzoom-container">
-        <img id="plot-image" src="team_breakdowns/SEA_linear_const.png" alt="Team Breakdown Plot" style="width:100%; display:block;">
+        <img id="plot-image" src="team_breakdowns/SEA_linear_const.svg" alt="Team Breakdown Plot" style="width:100%; display:block;">
       </div>
       <div class="pan-indicator" id="pan-indicator"><span>↓ Drag to see more positions ↓</span></div>
     </div>
@@ -438,7 +438,7 @@
       const showAwards = awardsCheck.checked;
       const showPostseason = postseasonCheck.checked;
 
-      // Build filename: {TEAM}_{scale}_{width}[_awards|_postseason|_all].png
+      // Build filename: {TEAM}_{scale}_{width}[_awards|_postseason|_all].svg
       let fname = `${team}_${scale}_${width}`;
       if (showAwards && showPostseason) {
         fname += '_all';
@@ -448,7 +448,7 @@
         fname += '_postseason';
       }
       const plotDir = war === 'fg' ? 'team_breakdowns_fg' : 'team_breakdowns';
-      plotImage.src = `${plotDir}/${fname}.png?v=20261013`;
+      plotImage.src = `${plotDir}/${fname}.svg?v=20261013`;
       plotImage.onload = resetZoom;
 
       // Title

@@ -50,12 +50,16 @@ for (tc in names(TEAMS)) {
     for (wn in c("const","zscore")) {
       for (oc in OVERLAY_COMBOS) {
         jobs[[length(jobs)+1]] <- list(
-          fname=sprintf("%s/%s_%s_%s%s.png",OUTPUT_DIR,tc,sc,wn,oc$suffix),
+          fname=sprintf("%s/%s_%s_%s%s.%s",OUTPUT_DIR,tc,sc,wn,oc$suffix,PLOT_EXT),
           tc=tc, tn=tn, il=(sc=="log"), iz=(wn=="zscore"), sa=oc$awards, sp=oc$postseason)
       }
     }
   }
 }
+
+# One raster copy for the landing-page card
+jobs[[length(jobs)+1]] <- list(fname=sprintf("%s/SEA_linear_const.png",OUTPUT_DIR), tc="SEA", tn=TEAMS[["SEA"]],
+  il=FALSE, iz=FALSE, sa=FALSE, sp=FALSE)
 
 message(sprintf("\n=== %d images | %d cores ===\n", length(jobs), N_CORES))
 
@@ -77,7 +81,7 @@ render_job <- function(job) {
     variable_width=job$iz, pos_year_stats=if(job$iz) pos_year_stats else NULL,
     show_awards=job$sa, award_data=if(job$sa) award_data else NULL)
   n_pos <- attr(p, "n_positions"); ph <- 3 * n_pos + 2
-  save_plot_png(job$fname, p, PLOT_WIDTH, ph, PLOT_DPI)
+  save_plot(job$fname, p, PLOT_WIDTH, ph, PLOT_DPI)
   return(job$fname)
 }
 

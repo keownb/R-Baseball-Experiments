@@ -545,24 +545,35 @@ generate_franchise_war_plot <- function(
 }
 
 # =============================================================================
-# HELPER: Save a plot PNG (Quartz device + optional pngquant)
+# HELPER: Save a plot (SVG by default; PDF or PNG by extension)
 # =============================================================================
 
-# grDevices::png (Quartz) renders text heavier/crisper than ragg on macOS, so
-# it stays the default. pngquant (brew install pngquant) is lossy palette
-# quantisation; at --quality 80-95 the output is visually identical and about
-# 70% smaller, which keeps the repo and the Pages site small.
-PNG_DEVICE <- grDevices::png
+# The site serves SVG: ggplot output is vector-native, the files are smaller
+# than compressed PNGs, and they stay crisp at any zoom. svglite pins each
+# label's rendered width (textLength) to the width R measured, so label layout
+# is identical regardless of the viewer's fonts.
+#   .svg  svglite (web)
+#   .pdf  cairo_pdf (print / plotter source; fonts embedded)
+#   .png  Quartz device, plus pngquant when installed (social-preview images)
+PLOT_EXT <- "svg"
 HAVE_PNGQUANT <- nzchar(Sys.which("pngquant"))
 
-save_plot_png <- function(filename, plot, width, height, dpi) {
-  ggsave(filename, plot = plot, width = width, height = height, dpi = dpi, device = PNG_DEVICE)
-  if (HAVE_PNGQUANT) {
-    system2("pngquant", c("--quality=80-95", "--speed", "1", "--force", "--skip-if-larger",
-                          "--output", shQuote(filename), shQuote(filename)))
+save_plot <- function(filename, plot, width, height, dpi = 150) {
+  ext <- tolower(tools::file_ext(filename))
+  if (ext == "svg") {
+    ggsave(filename, plot = plot, width = width, height = height, device = svglite::svglite)
+  } else if (ext == "pdf") {
+    ggsave(filename, plot = plot, width = width, height = height, device = grDevices::cairo_pdf)
+  } else {
+    ggsave(filename, plot = plot, width = width, height = height, dpi = dpi, device = grDevices::png)
+    if (HAVE_PNGQUANT) {
+      system2("pngquant", c("--quality=80-95", "--speed", "1", "--force", "--skip-if-larger",
+                            "--output", shQuote(filename), shQuote(filename)))
+    }
   }
   invisible(filename)
 }
+save_plot_png <- save_plot   # backwards-compatible name
 
 # =============================================================================
 # HELPER: Export top players data to CSV

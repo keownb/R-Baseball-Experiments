@@ -63,13 +63,16 @@ for (era in ERAS) {
 
     for (wm in wms) {
       for (oc in OVERLAY_COMBOS) {
-        jobs[[length(jobs)+1]] <- list(fname=sprintf("%s/%s%s%s.png",OUTPUT_DIR,bn,wm$n,oc$suffix),
+        jobs[[length(jobs)+1]] <- list(fname=sprintf("%s/%s%s%s.%s",OUTPUT_DIR,bn,wm$n,oc$suffix,PLOT_EXT),
           sn=pc$source, tl=tl, era=era, pf=pf, vw=wm$vw, sa=oc$awards, sp=oc$postseason)
       }
     }
     jobs[[length(jobs)+1]] <- list(csv=sprintf("%s/%s.csv",DATA_DIR,bn), sn=pc$source, tl=tl, era=era, pf=pf)
   }
 }
+# One raster copy of the default view for the landing-page card and og:image tags
+jobs[[length(jobs)+1]] <- list(fname=sprintf("%s/all_1901.png",OUTPUT_DIR), sn="combined", tl="All Players",
+  era=1901, pf=NULL, vw=FALSE, sa=FALSE, sp=FALSE)
 
 message(sprintf("\n=== %d items | %d cores ===\n", length(jobs), N_CORES))
 
@@ -98,7 +101,7 @@ render_job <- function(job) {
   p <- generate_franchise_war_plot(war_src, job$tl, start_year=job$era, position_filter=job$pf,
     variable_width=job$vw, pos_year_stats=if(job$vw) pos_year_stats else NULL,
     show_awards=job$sa, award_data=if(job$sa) award_data else NULL, show_postseason=job$sp)
-  save_plot_png(job$fname, p, PLOT_WIDTH, PLOT_HEIGHT, PLOT_DPI)
+  save_plot(job$fname, p, PLOT_WIDTH, PLOT_HEIGHT, PLOT_DPI)
   return(job$fname)
 }
 
