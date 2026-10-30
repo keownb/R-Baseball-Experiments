@@ -1,4 +1,5 @@
 yearID,round,teamIDwinner,lgIDwinner,teamIDloser,lgIDloser,wins,losses,ties
+2026,WS,MIL,NA,TBR,NA,4,1,0
 2026,ALWC,NYY,NA,BOS,NA,2,0,0
 2026,ALWC,CHW,NA,HOU,NA,2,0,0
 2026,NLWC,SDP,NA,CHC,NA,2,0,0
@@ -7,3 +8,5 @@ yearID,round,teamIDwinner,lgIDwinner,teamIDloser,lgIDloser,wins,losses,ties
 2026,ALDS,TBR,NA,NYY,NA,3,0,0
 2026,NLDS,LAD,NA,ATL,NA,3,1,0
 2026,NLDS,MIL,NA,SDP,NA,3,1,0
+2026,NLCS,MIL,NA,LAD,NA,4,0,0
+2026,ALCS,TBR,NA,CLE,NA,4,2,0
