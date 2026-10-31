@@ -11,9 +11,9 @@ ATL,wohlema01,Mark Wohlers,P,7.8,1991,1999
 ATL,bedrost01,Steve Bedrosian,P,7.7,1981,1995
 BAL,wilheho01,Hoyt Wilhelm,P,11.2,1958,1962
 BAL,halldi01,Dick Hall,P,10.3,1961,1971
+BAL,o'delbi01,Billy O'Dell,P,9.4,1954,1959
 BAL,olsongr01,Gregg Olson,P,9.1,1988,1993
 BAL,brittza01,Zack Britton,P,8.8,2011,2018
-BAL,coffmdi01,Dick Coffman,P,8.8,1928,1935
 BOS,stanlbo01,Bob Stanley,P,20.9,1977,1989
 BOS,eckerde01,Dennis Eckersley,P,18.8,1978,1998
 BOS,kindeel01,Ellis Kinder,P,17.9,1948,1955
@@ -72,8 +72,8 @@ LAD,willist02,Stan Williams,P,10.2,1958,1962
 MIA,cishest01,Steve Cishek,P,5.8,2010,2015
 MIA,nenro01,Robb Nen,P,5.4,1993,1997
 MIA,hammoch01,Chris Hammond,P,5.3,1993,1998
-MIA,smithch07,Chuck Smith,P,4.5,2000,2001
 MIA,ramosaj01,AJ Ramos,P,4.4,2012,2017
+MIA,scottta01,Tanner Scott,P,4.2,2022,2024
 MIL,haderjo01,Josh Hader,P,9.4,2017,2022
 MIL,plesada01,Dan Plesac,P,9.1,1986,1992
 MIL,pattima01,Marty Pattin,P,7.9,1969,1971
@@ -119,11 +119,11 @@ SEA,rhodear01,Arthur Rhodes,P,8.5,2000,2008
 SEA,bankhsc01,Scott Bankhead,P,8.2,1987,1991
 SEA,fasseje01,Jeff Fassero,P,7.3,1997,1999
 SEA,munozan01,Andrés Muñoz,P,6.4,2021,2026
+SFG,o'delbi01,Billy O'Dell,P,14.6,1960,1964
 SFG,nenro01,Robb Nen,P,12.9,1998,2002
 SFG,lavelga01,Gary Lavelle,P,11.1,1974,1984
 SFG,garresc01,Scott Garrelts,P,10.5,1982,1991
 SFG,bolinbo01,Bobby Bolin,P,9.5,1961,1969
-SFG,gumbeha01,Harry Gumbert,P,9.1,1935,1941
 STL,brazlal01,Al Brazle,P,17.2,1943,1954
 STL,stalege01,Gerry Staley,P,15.7,1947,1954
 STL,johnssy01,Syl Johnson,P,13.6,1926,1933

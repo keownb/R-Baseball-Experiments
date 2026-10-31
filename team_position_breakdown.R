@@ -63,7 +63,7 @@ generate_team_position_plot <- function(
     select(playerID, pitcher_role)
   
   # Combine batting and pitching data
-  common_cols <- c("year_ID", "player_ID", "name_common", "team_ID", "WAR", "primary_pos")
+  common_cols <- c("year_ID", "player_ID", "name_common", "team_ID", "WAR", "primary_pos", "player_type")
   
   war_all <- bind_rows(
     war_batting %>% select(all_of(common_cols)),
@@ -78,9 +78,11 @@ generate_team_position_plot <- function(
     left_join(dh_players, by = c("player_ID" = "playerID")) %>%
     # Join pitcher type (SP/RP)
     left_join(pitcher_type, by = c("player_ID" = "playerID")) %>%
-    # Consolidate OF positions and assign DH, split P into SP/RP
+    # Consolidate OF positions and assign DH, split P into SP/RP. The DH rule
+    # applies to a player's batting only: a two-way player's pitching WAR
+    # belongs on the SP/RP panel, not the DH panel.
     mutate(position = case_when(
-      include_dh & !is.na(is_primary_dh) ~ "DH",
+      include_dh & player_type == "batter" & !is.na(is_primary_dh) ~ "DH",
       primary_pos %in% c("LF", "CF", "RF") ~ "OF",
       primary_pos == "P" & pitcher_role == "RP" ~ "RP",
       primary_pos == "P" ~ "SP",
@@ -125,7 +127,9 @@ generate_team_position_plot <- function(
     ) %>%
     filter(years_played >= 2) %>%
     group_by(position) %>%
-    slice_max(order_by = total_WAR, n = top_n) %>%
+    arrange(desc(total_WAR), player_ID, .by_group = TRUE) %>%   # exactly top_n, deterministic on ties
+    slice_head(n = top_n) %>%
+    ungroup() %>%
     mutate(is_top = TRUE) %>%
     select(position, player_ID, is_top)
   
@@ -152,6 +156,20 @@ generate_team_position_plot <- function(
   team_cum <- team_cum %>%
     left_join(best_ghosts, by = c("position", "year_ID", "player_ID")) %>%
     mutate(is_best_ghost = replace_na(is_best_ghost, FALSE))
+  
+  # A "best ghost" line covers only consecutive seasons in which the player was
+  # the best non-top player; a single such season is drawn as a point.
+  ghost_runs <- team_cum %>%
+    filter(is_best_ghost) %>%
+    group_by(position, player_ID) %>%
+    arrange(year_ID, .by_group = TRUE) %>%
+    mutate(ghost_run = cumsum(c(1, diff(year_ID)) > 1),
+           ghost_run_id = paste(player_ID, position, ghost_run, sep = "_")) %>%
+    group_by(ghost_run_id) %>%
+    mutate(ghost_run_len = n()) %>%
+    ungroup() %>%
+    select(position, player_ID, year_ID, ghost_run_id, ghost_run_len)
+  team_cum <- team_cum %>% left_join(ghost_runs, by = c("position", "player_ID", "year_ID"))
   
   # Order positions — filter first, set factor AFTER z-score join
   position_order <- c("C", "1B", "2B", "SS", "3B", "OF", "DH", "SP", "RP")
@@ -207,7 +225,8 @@ generate_team_position_plot <- function(
       filter(is_top) %>%
       inner_join(award_data, by = c("player_ID" = "playerID", "year_ID" = "yearID"),
                  relationship = "many-to-many") %>%
-      filter(award %in% c("MVP", "CYA", "AS")) %>%
+      filter(award %in% c("MVP", "CYA", "AS"),
+             is.na(award_franchise) | award_franchise == team_code) %>%
       mutate(
         award = factor(award, levels = c("MVP", "CYA", "AS")),
         position = factor(position, levels = positions_with_data)
@@ -235,16 +254,17 @@ generate_team_position_plot <- function(
       aes(xintercept = yearID, linetype = achievement),
       alpha = 0.35, linewidth = 0.4
     ) +
-    scale_linetype_manual(name = "Postseason",
-      values = c("World Series" = "solid", "Pennant/LCS" = "dashed",
-                 "Division Series" = "dotted", "Wild Card" = "dotdash"))
+    postseason_linetype_scale()
   }
   
-  # Best ghost lines
+  # Best ghost lines (consecutive seasons) and points (single seasons)
   p <- p + geom_line(
-    data = filter(team_cum, player_category == "Best in Gap Years (2+ yr)"),
-    aes(group = stint_id, color = player_category),
+    data = filter(team_cum, is_best_ghost, ghost_run_len >= 2),
+    aes(group = ghost_run_id, color = player_category),
     linewidth = 0.7, show.legend = TRUE
+  ) + geom_point(
+    data = filter(team_cum, is_best_ghost, ghost_run_len == 1),
+    aes(color = player_category), size = 0.8, show.legend = FALSE
   )
   
   # Top players: z-score segments or constant lines
@@ -291,31 +311,26 @@ generate_team_position_plot <- function(
                  "Best in Gap Years (2+ yr)" = ghost_highlight_color),
       guide = guide_legend(override.aes = list(linewidth = 2))
     ) +
+    # One label per top player per position, at his final season with the club
     geom_label_repel(
-      data = team_cum %>%
-        filter(is_top) %>%
-        group_by(position, player_ID, stint_id) %>%
-        filter(n() >= 2) %>%
-        filter(year_ID == max(year_ID)) %>%
-        ungroup(),
+      data = team_cum %>% filter(is_top, year_ID == max_year),
       aes(label = name_common),
       color = team_color,
       size = 2.5, fill = alpha("white", 0.9), label.size = 0,
       segment.size = 0.3, segment.alpha = 0.5,
-      max.overlaps = 10, nudge_y = 2, box.padding = 0.2
+      max.overlaps = 10, nudge_y = 2, box.padding = 0.2, seed = LABEL_SEED
     ) +
     geom_label_repel(
       data = team_cum %>%
-        filter(is_best_ghost) %>%
-        group_by(position, player_ID, stint_id) %>%
-        filter(n() >= 2) %>%
+        filter(is_best_ghost, ghost_run_len >= 2) %>%
+        group_by(ghost_run_id) %>%
         filter(year_ID == max(year_ID)) %>%
         ungroup(),
       aes(label = name_common),
       color = ghost_highlight_color,
       size = 2, fill = alpha("white", 0.85), label.size = 0,
       segment.size = 0.2, segment.alpha = 0.4,
-      max.overlaps = 5, nudge_y = -1, box.padding = 0.15
+      max.overlaps = 5, nudge_y = -1, box.padding = 0.15, seed = LABEL_SEED
     ) +
     ggh4x::facet_wrap2(~ position, ncol = 1, axes = "x") +
     coord_cartesian(xlim = c(start_year, end_year + 1)) +
@@ -371,6 +386,11 @@ generate_team_position_plot <- function(
   
   # Attach position count for dynamic sizing, and the top-N lists per position
   attr(p, "n_positions") <- length(positions_with_data)
+  attr(p, "meta") <- list(
+    max_year = end_year, caption = paste0("Source: ", war_source_label(), " WAR + Lahman"),
+    n_top = sum(top_players$is_top),
+    postseason_years = if (!is.null(postseason_data) && nrow(postseason_data) > 0) sort(unique(postseason_data$yearID)) else NULL,
+    postseason_max_year = if (!is.null(postseason_data) && nrow(postseason_data) > 0) max(postseason_data$yearID) else NULL)
   attr(p, "top_players") <- team_cum %>%
     filter(is_top) %>%
     group_by(position, player_ID, name_common) %>%

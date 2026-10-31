@@ -18,74 +18,58 @@ source("supplemental_data.R")
 source("fangraphs_data.R")
 
 # =============================================================================
-# FRANCHISE MAPPING - All historical team IDs to current 30
+# FRANCHISE MAPPING - every team code and season to one of the current 30
 # =============================================================================
+#
+# Exact for every season Lahman covers: Lahman::Teams carries each club's
+# Baseball-Reference code (teamIDBR) and franchise, so a (code, year) lookup
+# follows the real lineage and keeps the 19th-century, Federal League and
+# Negro League clubs that reused a modern code (BOS 1871-75, BAL 1914-15,
+# CLE 1879-99, ...) out of the modern franchises. Seasons newer than the
+# installed Lahman release fall back to the static table of current codes.
 
-franchise_map <- function(team_id, year_id = NA) {
+.lahman_franchid_to_code <- c(ANA = "LAA", FLA = "MIA", TBD = "TBR")
+.franchid_code <- function(franch) {
+  franch <- as.character(franch)
+  unname(ifelse(franch %in% names(.lahman_franchid_to_code), .lahman_franchid_to_code[franch], franch))
+}
+LAHMAN_MAX_YEAR <- max(Lahman::Teams$yearID)
+.br_team_lookup <- local({
+  t <- Lahman::Teams
+  setNames(.franchid_code(t$franchID), paste(as.character(t$teamIDBR), t$yearID))
+})
+.lahman_team_lookup <- local({
+  t <- Lahman::Teams
+  setNames(.franchid_code(t$franchID), paste(as.character(t$teamID), t$yearID))
+})
+
+# Current Baseball-Reference codes (used only for seasons Lahman lacks)
+franchise_map_current <- function(team_id) {
   case_when(
-    # AL West
-    # AL West (BR + Lahman codes)
-    team_id %in% c("LAA", "ANA", "CAL") ~ "LAA",
-    team_id %in% c("OAK", "ATH", "PHA", "KC1") ~ "OAK",   # ATH = BR code from 2025
-    team_id == "KCA" & year_id < 1969 ~ "OAK",            # BR: Kansas City A's
-    team_id == "SEA" ~ "SEA",
-    team_id == "HOU" ~ "HOU",
-    team_id %in% c("TEX", "WSA", "WS2") ~ "TEX",
-    
-    # AL Central
-    team_id %in% c("CHW", "CHA") ~ "CHW",
-    team_id == "CLE" ~ "CLE",
-    team_id == "DET" ~ "DET",
-    team_id %in% c("KCR", "KCA") ~ "KCR",                  # Lahman: KCA = Royals
-    team_id %in% c("MIN", "WSH", "WS1") ~ "MIN",
-    
-    # AL East
-    team_id %in% c("BAL", "SLB", "MLA", "SLA") ~ "BAL",
-    team_id == "BOS" ~ "BOS",
-    team_id %in% c("NYY", "NYA") ~ "NYY",
-    team_id %in% c("TBR", "TBD", "TBA") ~ "TBR",
-    team_id == "TOR" ~ "TOR",
-    
-    # NL West
-    team_id == "ARI" ~ "ARI",
-    team_id == "COL" & year_id >= 1993 ~ "COL",
-    team_id %in% c("LAD", "BRO", "LAN") ~ "LAD",
-    team_id %in% c("SDP", "SDN") ~ "SDP",
-    team_id %in% c("SFG", "NYG", "SFN", "NY1") ~ "SFG",
-    
-    # NL Central
-    team_id %in% c("CHC", "CHN") ~ "CHC",
-    team_id == "CIN" ~ "CIN",
-    team_id %in% c("MIL", "SEP") & (team_id == "SEP" | year_id >= 1970) ~ "MIL",
-    team_id %in% c("ML4", "SE1") ~ "MIL",                 # Lahman: Brewers 1970-97, Pilots
-    team_id == "PIT" ~ "PIT",
-    team_id %in% c("STL", "SLN") ~ "STL",
-    
-    # NL East
-    team_id %in% c("ATL", "MLN", "BSN", "ML1") ~ "ATL",
-    team_id %in% c("MIA", "FLA", "FLO") ~ "MIA",
-    team_id %in% c("NYM", "NYN") ~ "NYM",
-    team_id == "PHI" ~ "PHI",
-    team_id %in% c("WSN", "MON", "WAS") ~ "WSN",
-    
+    team_id %in% c("LAA", "ANA")  ~ "LAA",
+    team_id %in% c("OAK", "ATH")  ~ "OAK",
+    team_id %in% c("TBR", "TBD")  ~ "TBR",
+    team_id %in% c("MIA", "FLA")  ~ "MIA",
+    team_id %in% c("SEA", "HOU", "TEX", "CHW", "CLE", "DET", "KCR", "MIN", "BAL", "BOS",
+                   "NYY", "TOR", "ARI", "COL", "LAD", "SDP", "SFG", "CHC", "CIN", "MIL",
+                   "PIT", "STL", "ATL", "NYM", "PHI", "WSN") ~ team_id,
     TRUE ~ NA_character_
   )
 }
 
-# Lahman uses its own historical team codes (NY1, ML4, SE1, KC1, ...). Map a
-# Lahman (teamID, yearID) to a current franchise code via Lahman::Teams, which
-# is exact. Supplement rows (see supplemental_data.R) already carry franchise
-# codes and pass through unchanged.
-.lahman_franchid_to_code <- c(ANA = "LAA", FLA = "MIA", TBD = "TBR")
-.lahman_team_lookup <- local({
-  t <- Lahman::Teams
-  franch <- as.character(t$franchID)   # factor in Lahman
-  code <- ifelse(franch %in% names(.lahman_franchid_to_code),
-                 .lahman_franchid_to_code[franch], franch)
-  setNames(unname(code), paste(as.character(t$teamID), t$yearID))
-})
+# Baseball-Reference (and FanGraphs-translated) team code + season -> franchise
+franchise_map <- function(team_id, year_id) {
+  team_id <- as.character(team_id)
+  code <- unname(.br_team_lookup[paste(team_id, year_id)])
+  recent <- is.na(code) & !is.na(year_id) & year_id > LAHMAN_MAX_YEAR
+  if (any(recent)) code[recent] <- franchise_map_current(team_id[recent])
+  ifelse(code %in% names(primary_colors), code, NA_character_)
+}
 
+# Lahman team code + season -> franchise. Supplement rows (see
+# supplemental_data.R) already carry franchise codes and pass through.
 lahman_franchise <- function(team_id, year_id) {
+  team_id <- as.character(team_id)
   code <- unname(.lahman_team_lookup[paste(team_id, year_id)])
   code <- ifelse(is.na(code) & team_id %in% names(primary_colors), team_id, code)
   ifelse(code %in% names(primary_colors), code, NA_character_)
@@ -93,7 +77,7 @@ lahman_franchise <- function(team_id, year_id) {
 
 # Reference tables (Lahman + post-Lahman supplements). Populated by
 # load_war_data(); falls back to the bare Lahman package until then.
-REF_TABLES <- NULL
+if (!exists("REF_TABLES", inherits = FALSE)) REF_TABLES <- NULL
 ref_table <- function(name) {
   if (!is.null(REF_TABLES[[name]])) REF_TABLES[[name]] else getExportedValue("Lahman", name)
 }
@@ -194,6 +178,14 @@ divisions <- tribble(
 .strip_text_elems <- lapply(primary_colors[.strip_franchise_order], function(col) {
   element_text(face = "bold", size = 14, colour = col)
 })
+# Postseason line types: how far the club got that October
+POSTSEASON_LEVELS <- c("Won World Series", "Lost World Series", "Lost LCS", "Lost Division Series", "Lost Wild Card")
+POSTSEASON_LINETYPES <- c("Won World Series" = "solid", "Lost World Series" = "longdash", "Lost LCS" = "dashed",
+                          "Lost Division Series" = "dotted", "Lost Wild Card" = "dotdash")
+postseason_linetype_scale <- function() {
+  scale_linetype_manual(name = "Postseason", values = POSTSEASON_LINETYPES, breaks = POSTSEASON_LEVELS, drop = TRUE)
+}
+LABEL_SEED <- 1   # ggrepel seed: identical data -> identical files
 
 # =============================================================================
 # DATA LOADING FUNCTIONS
@@ -222,14 +214,14 @@ br_feed_path <- function(which, max_age_hours = 12, refresh = FALSE) {
 
 # WAR source for the current run: "br" (Baseball-Reference, default) or "fg"
 # (FanGraphs). Set by load_war_data(); used for output dirs and captions.
-WAR_SOURCE <- "br"
+if (!exists("WAR_SOURCE", inherits = FALSE)) WAR_SOURCE <- "br"
 war_source_label <- function() if (identical(WAR_SOURCE, "fg")) "FanGraphs" else "Baseball Reference"
 war_source_suffix <- function() if (identical(WAR_SOURCE, "fg")) "_fg" else ""
 
 load_war_data <- function(refresh = FALSE, source = c("br", "fg")) {
   source <- match.arg(source)
   WAR_SOURCE <<- source
-  message("Loading WAR data from Baseball Reference...")
+  message("Loading Baseball-Reference WAR feeds...")
 
   # Load batting WAR
   WAR_bat <- read_csv(br_feed_path("bat", refresh = refresh), show_col_types = FALSE) %>%
@@ -316,7 +308,10 @@ generate_franchise_war_plot <- function(
     left_join(divisions, by = "franchise") %>%
     mutate(division_full = paste(league, division))
   
+  # Era views start every line at zero in start_year, so lines, rankings and
+  # the exported CSV all describe the same seasons.
   WAR_cum <- WAR_clean %>%
+    filter(year_ID >= start_year) %>%
     group_by(player_ID, franchise) %>%
     arrange(year_ID) %>%
     mutate(
@@ -326,8 +321,8 @@ generate_franchise_war_plot <- function(
     ) %>%
     ungroup()
   
+  # Exactly top_n per franchise; ties broken by player id for determinism
   top_players <- WAR_cum %>%
-    filter(year_ID >= start_year) %>%
     group_by(franchise, player_ID) %>%
     summarise(
       totalWAR = sum(WAR, na.rm = TRUE),
@@ -337,7 +332,9 @@ generate_franchise_war_plot <- function(
     ) %>%
     filter(years_played >= 2) %>%
     group_by(franchise) %>%
-    slice_max(order_by = totalWAR, n = top_n) %>%
+    arrange(desc(totalWAR), player_ID, .by_group = TRUE) %>%
+    slice_head(n = top_n) %>%
+    ungroup() %>%
     mutate(is_top = TRUE) %>%
     select(franchise, player_ID, is_top)
   
@@ -427,11 +424,14 @@ generate_franchise_war_plot <- function(
   
   # Award markers (before labels so labels render on top)
   if (show_awards && !is.null(award_data)) {
+    # All-Star rows carry the club the player represented; keep them on that
+    # franchise's line only (a mid-season trade otherwise marks both clubs)
     award_markers <- top_plot_data %>%
       filter(is_top) %>%
       inner_join(award_data, by = c("player_ID" = "playerID", "year_ID" = "yearID"),
                  relationship = "many-to-many") %>%
-      filter(award %in% c("MVP", "CYA", "AS")) %>%
+      filter(award %in% c("MVP", "CYA", "AS"),
+             is.na(award_franchise) | award_franchise == franchise) %>%
       mutate(award = factor(award, levels = c("MVP", "CYA", "AS")))
     
     if (nrow(award_markers) > 0) {
@@ -469,9 +469,7 @@ generate_franchise_war_plot <- function(
         aes(xintercept = yearID, linetype = achievement),
         alpha = 0.3, linewidth = 0.3
       ) +
-      scale_linetype_manual(name = "Postseason",
-        values = c("World Series" = "solid", "Pennant/LCS" = "dashed",
-                   "Division Series" = "dotted", "Wild Card" = "dotdash"))
+      postseason_linetype_scale()
     }
   }
   
@@ -483,7 +481,7 @@ generate_franchise_war_plot <- function(
     segment.size = 0.3, segment.alpha = 0.5,
     max.overlaps = 15, nudge_y = 3,
     box.padding = 0.15, point.padding = 0.1,
-    min.segment.length = 0.2
+    min.segment.length = 0.2, seed = LABEL_SEED
   )
   
   # Scales, facets, theme
@@ -495,8 +493,8 @@ generate_franchise_war_plot <- function(
   p <- p +
     scale_color_manual(values = primary_colors, guide = "none") +
     scale_x_continuous(breaks = x_breaks) +
-    ggh4x::facet_wrap2(~ reorder(franchise, div_order), ncol = 5, axes = "x",
-      strip = ggh4x::strip_themed(text_x = .strip_text_elems)) +
+    ggh4x::facet_wrap2(~ factor(franchise, levels = .strip_franchise_order), ncol = 5, axes = "x",
+      strip = ggh4x::strip_themed(text_x = .strip_text_elems[intersect(.strip_franchise_order, unique(top_plot_data$franchise))])) +
     coord_cartesian(xlim = c(start_year, x_max), ylim = c(0, ceiling(max(top_plot_data$cumWAR_franchise, na.rm = TRUE) * 1.1 / 5) * 5)) +
     theme_minimal() +
     theme(
@@ -540,6 +538,11 @@ generate_franchise_war_plot <- function(
   
   attr(p, "top_players") <- top_summary
   attr(p, "start_year") <- start_year
+  attr(p, "meta") <- list(
+    max_year = end_year, caption = paste0("Source: ", war_source_label(), " WAR + Lahman"),
+    n_top = nrow(top_summary),
+    postseason_years = if (show_postseason && exists("all_postseason") && nrow(all_postseason) > 0) sort(unique(all_postseason$yearID)) else NULL,
+    postseason_max_year = if (show_postseason && exists("all_postseason") && nrow(all_postseason) > 0) max(all_postseason$yearID) else NULL)
   
   return(p)
 }
@@ -560,17 +563,20 @@ HAVE_PNGQUANT <- nzchar(Sys.which("pngquant"))
 
 save_plot <- function(filename, plot, width, height, dpi = 150) {
   ext <- tolower(tools::file_ext(filename))
+  tmp <- file.path(dirname(filename), paste0(".", basename(filename), ".", Sys.getpid(), ".tmp.", ext))
+  on.exit(if (file.exists(tmp)) unlink(tmp), add = TRUE)
   if (ext == "svg") {
-    ggsave(filename, plot = plot, width = width, height = height, device = svglite::svglite)
+    ggsave(tmp, plot = plot, width = width, height = height, device = svglite::svglite)
   } else if (ext == "pdf") {
-    ggsave(filename, plot = plot, width = width, height = height, device = grDevices::cairo_pdf)
+    ggsave(tmp, plot = plot, width = width, height = height, device = grDevices::cairo_pdf)
   } else {
-    ggsave(filename, plot = plot, width = width, height = height, dpi = dpi, device = grDevices::png)
+    ggsave(tmp, plot = plot, width = width, height = height, dpi = dpi, device = grDevices::png)
     if (HAVE_PNGQUANT) {
       system2("pngquant", c("--quality=80-95", "--speed", "1", "--force", "--skip-if-larger",
-                            "--output", shQuote(filename), shQuote(filename)))
+                            "--output", shQuote(tmp), shQuote(tmp)))
     }
   }
+  if (!file.rename(tmp, filename)) stop("could not move ", tmp, " to ", filename)
   invisible(filename)
 }
 save_plot_png <- save_plot   # backwards-compatible name
@@ -609,10 +615,11 @@ load_award_data <- function() {
     select(playerID, yearID, award)
   
   allstars <- ref_table("AllstarFull") %>%
-    distinct(playerID, yearID) %>%
+    mutate(award_franchise = lahman_franchise(teamID, yearID)) %>%
+    distinct(playerID, yearID, award_franchise) %>%
     mutate(award = "AS")
   
-  bind_rows(awards_raw, allstars)
+  bind_rows(awards_raw %>% mutate(award_franchise = NA_character_), allstars)
 }
 
 # =============================================================================
@@ -626,17 +633,20 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
   # Classify each player-year by the position where they played the most games
   # that season, rather than career-wide primary position. This ensures the
   # comparison pool reflects the actual positional landscape each year.
+  # Games are summed across clubs first, so a player traded mid-season counts
+  # as one full season at his position.
   pos_games <- ref_table("Appearances") %>%
-    transmute(
-      playerID, yearID,
-      C  = G_c,
-      `1B` = G_1b,
-      `2B` = G_2b,
-      SS = G_ss,
-      `3B` = G_3b,
-      OF = G_lf + G_cf + G_rf,
-      DH = G_dh,
-      P  = G_p
+    group_by(playerID, yearID) %>%
+    summarise(
+      C  = sum(G_c, na.rm = TRUE),
+      `1B` = sum(G_1b, na.rm = TRUE),
+      `2B` = sum(G_2b, na.rm = TRUE),
+      SS = sum(G_ss, na.rm = TRUE),
+      `3B` = sum(G_3b, na.rm = TRUE),
+      OF = sum(G_lf + G_cf + G_rf, na.rm = TRUE),
+      DH = sum(G_dh, na.rm = TRUE),
+      P  = sum(G_p, na.rm = TRUE),
+      .groups = "drop"
     ) %>%
     pivot_longer(cols = c(C, `1B`, `2B`, SS, `3B`, OF, DH, P),
                  names_to = "position", values_to = "games") %>%
@@ -661,17 +671,23 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
       TRUE ~ position
     ))
 
-  # --- Step 3: Apply minimum-games thresholds ---
+  # --- Step 3: Apply minimum-games thresholds (per 162-game schedule) ---
   # Field positions: 60 games (~37% of season) — captures regulars
   # DH: 30 games — lower bar since even full-time DHs get rested/platooned
   # SP: 15 GS — roughly one start every 10 days
   # RP: 30 games
+  # Scaled to the season's schedule, so 1981, 1994-95 and the 60-game 2020
+  # season keep sensible pools instead of emptying out.
+  schedule <- Lahman::Teams %>% group_by(yearID) %>% summarise(sched_G = max(G, na.rm = TRUE), .groups = "drop")
+  pos_games <- pos_games %>%
+    left_join(schedule, by = "yearID") %>%
+    mutate(scale = coalesce(sched_G, 162) / 162)
   qualified <- pos_games %>%
     filter(
-      (position %in% c("C", "1B", "2B", "SS", "3B", "OF") & games >= 60) |
-      (position == "DH" & games >= 30) |
-      (position == "SP" & !is.na(GS) & GS >= 15) |
-      (position == "RP" & games >= 30)
+      (position %in% c("C", "1B", "2B", "SS", "3B", "OF") & games >= 60 * scale) |
+      (position == "DH" & games >= 30 * scale) |
+      (position == "SP" & !is.na(GS) & GS >= 15 * scale) |
+      (position == "RP" & games >= 30 * scale)
     )
 
   # --- Step 4: Join WAR values ---
@@ -734,6 +750,16 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
     mutate(sd_WAR = pmax(coalesce(sd_WAR, 0), 0.5)) %>%
     rename(year_ID = yearID)
 
+  # Every position gets a row for every season in its range (a season with no
+  # qualified pool borrows the nearest season's stats) so no line segment is
+  # ever dropped for want of a comparison pool.
+  pos_year_stats <- pos_year_stats %>%
+    group_by(position) %>%
+    tidyr::complete(year_ID = seq(min(year_ID), max(year_ID))) %>%
+    arrange(year_ID, .by_group = TRUE) %>%
+    tidyr::fill(mean_WAR, sd_WAR, n_players, .direction = "downup") %>%
+    ungroup()
+
   message(sprintf("  %d position-years computed (3-yr rolling mean, qualified pools)",
                   nrow(pos_year_stats)))
   pos_year_stats
@@ -744,21 +770,33 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
 # =============================================================================
 
 get_postseason_data <- function(team_code) {
-  ref_table("SeriesPost") %>%
-    mutate(franchise = lahman_franchise(teamIDwinner, yearID)) %>%
-    filter(franchise == team_code) %>%
-    mutate(achievement = case_when(
-      round == "WS" ~ "World Series",
-      round %in% c("CS", "ALCS", "NLCS") ~ "Pennant/LCS",
-      grepl("DS|DIV", round) ~ "Division Series",
-      grepl("WC", round) ~ "Wild Card",
-      TRUE ~ "Pennant/LCS"
+  sp <- ref_table("SeriesPost") %>%
+    mutate(type = case_when(
+      round == "WS" ~ "WS",
+      round %in% c("ALCS", "NLCS", "CS") ~ "LCS",
+      grepl("DS|DIV", round) ~ "DS",
+      grepl("WC", round) ~ "WC",
+      TRUE ~ NA_character_
     )) %>%
-    distinct(yearID, achievement) %>%
-    mutate(achievement = factor(achievement,
-      levels = c("World Series", "Pennant/LCS", "Division Series", "Wild Card"))) %>%
+    filter(!is.na(type))
+  bind_rows(
+    sp %>% transmute(yearID, team = teamIDwinner, type, won = TRUE),
+    sp %>% transmute(yearID, team = teamIDloser,  type, won = FALSE)
+  ) %>%
+    mutate(franchise = lahman_franchise(team, yearID)) %>%
+    filter(!is.na(franchise), franchise == team_code) %>%
+    mutate(achievement = case_when(
+      type == "WS" & won  ~ "Won World Series",
+      type == "WS"        ~ "Lost World Series",
+      type == "LCS" & !won ~ "Lost LCS",
+      type == "DS"  & !won ~ "Lost Division Series",
+      type == "WC"  & !won ~ "Lost Wild Card",
+      TRUE ~ NA_character_          # a round won on the way to a later round
+    )) %>%
+    filter(!is.na(achievement)) %>%
+    mutate(achievement = factor(achievement, levels = POSTSEASON_LEVELS)) %>%
     group_by(yearID) %>%
-    slice_min(achievement, n = 1) %>%
-    ungroup()
+    slice_min(achievement, n = 1, with_ties = FALSE) %>%
+    ungroup() %>%
+    select(yearID, achievement)
 }
-

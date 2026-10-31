@@ -7,8 +7,8 @@
   <meta property="og:title" content="Team Position Breakdown — MLB WAR">
   <meta property="og:description" content="Per-team position-by-position WAR breakdown. Compare careers across all 9 positions with z-score analysis.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://keownb.github.io/R-Baseball-Experiments/team_breakdown.html">
-  <meta property="og:image" content="https://keownb.github.io/R-Baseball-Experiments/plots/all_1901.png">
+  <meta property="og:url" content="https://baseball.bricekeown.net/team_breakdown">
+  <meta property="og:image" content="https://baseball.bricekeown.net/plots/all_1901.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚾</text></svg>">
   <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
@@ -241,8 +241,8 @@
 <body>
   <div class="mobile-warning">⚠️ Built for large displays. Best viewed on desktop.</div>
   <div class="nav" style="max-width:2400px;">
-    <div><a href="index.html">← Home</a> · <a href="about.html">About</a> · <a href="changelog.html">Changelog</a></div>
-    <div><a href="war_explorer.html" id="nav-explorer">← Grid Explorer</a></div>
+    <div><a href="./">← Home</a> · <a href="about">About</a> · <a href="changelog">Changelog</a></div>
+    <div><a href="war_explorer" id="nav-explorer">← Grid Explorer</a></div>
   </div>
 
   <div class="intro">
@@ -424,8 +424,8 @@
     // --- URL state: read params on load ---
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('team') && teamNames[urlParams.get('team')]) teamSelect.value = urlParams.get('team');
-    if (urlParams.has('scale')) scaleSelect.value = urlParams.get('scale');
-    if (urlParams.has('width')) widthSelect.value = urlParams.get('width');
+    if (['linear', 'log'].includes(urlParams.get('scale'))) scaleSelect.value = urlParams.get('scale');
+    if (['const', 'zscore'].includes(urlParams.get('width'))) widthSelect.value = urlParams.get('width');
     if (urlParams.get('war') === 'fg') warSelect.value = 'fg';
     if (urlParams.has('awards')) awardsCheck.checked = urlParams.get('awards') === '1';
     if (urlParams.has('postseason')) postseasonCheck.checked = urlParams.get('postseason') === '1';
@@ -448,7 +448,7 @@
         fname += '_postseason';
       }
       const plotDir = war === 'fg' ? 'team_breakdowns_fg' : 'team_breakdowns';
-      plotImage.src = `${plotDir}/${fname}.svg?v=20261029`;
+      plotImage.src = `${plotDir}/${fname}.svg?v=202610302131`;
       plotImage.onload = resetZoom;
 
       // Title
@@ -469,7 +469,7 @@
       history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
 
       // Keep the nav link to the grid explorer on the same WAR source
-      document.getElementById('nav-explorer').href = war === 'fg' ? 'war_explorer.html?war=fg' : 'war_explorer.html';
+      document.getElementById('nav-explorer').href = war === 'fg' ? 'war_explorer?war=fg' : 'war_explorer';
     }
 
     teamSelect.addEventListener('change', updatePlot);

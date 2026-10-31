@@ -7,8 +7,8 @@
   <meta property="og:title" content="MLB Franchise WAR Explorer">
   <meta property="og:description" content="30-team grid of cumulative WAR by franchise. Filter by position, era, awards, and postseason appearances.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://keownb.github.io/R-Baseball-Experiments/war_explorer.html">
-  <meta property="og:image" content="https://keownb.github.io/R-Baseball-Experiments/plots/all_1901.png">
+  <meta property="og:url" content="https://baseball.bricekeown.net/war_explorer">
+  <meta property="og:image" content="https://baseball.bricekeown.net/plots/all_1901.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚾</text></svg>">
   <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
@@ -270,8 +270,8 @@
 <body>
   <div class="mobile-warning">⚠️ Built for large displays. Best viewed on desktop.</div>
   <div class="nav" style="max-width:2400px;">
-    <div><a href="index.html">← Home</a> · <a href="about.html">About</a> · <a href="changelog.html">Changelog</a></div>
-    <div><a href="team_breakdown.html" id="nav-breakdown">Team Breakdown →</a></div>
+    <div><a href="./">← Home</a> · <a href="about">About</a> · <a href="changelog">Changelog</a></div>
+    <div><a href="team_breakdown" id="nav-breakdown">Team Breakdown →</a></div>
   </div>
   
   <div class="intro">
@@ -443,8 +443,8 @@
 
     // --- URL state: read params on load ---
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('pos')) positionSelect.value = urlParams.get('pos');
-    if (urlParams.has('era')) eraSelect.value = urlParams.get('era');
+    if ([...positionSelect.options].some(o => o.value === urlParams.get('pos'))) positionSelect.value = urlParams.get('pos');
+    if ([...eraSelect.options].some(o => o.value === urlParams.get('era'))) eraSelect.value = urlParams.get('era');
     if (urlParams.get('war') === 'fg') warSelect.value = 'fg';
     if (urlParams.has('awards')) awardsCheck.checked = urlParams.get('awards') === '1';
     if (urlParams.has('postseason')) postseasonCheck.checked = urlParams.get('postseason') === '1';
@@ -466,7 +466,7 @@
         fname += '_postseason';
       }
       const plotDir = war === 'fg' ? 'plots_fg' : 'plots';
-      plotImage.src = `${plotDir}/${fname}.svg?v=20261029`;
+      plotImage.src = `${plotDir}/${fname}.svg?v=202610302131`;
 
       
       // Reset zoom on new image
@@ -490,7 +490,7 @@
       history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
 
       // Keep the nav link to the team breakdown on the same WAR source
-      document.getElementById('nav-breakdown').href = war === 'fg' ? 'team_breakdown.html?war=fg' : 'team_breakdown.html';
+      document.getElementById('nav-breakdown').href = war === 'fg' ? 'team_breakdown?war=fg' : 'team_breakdown';
     }
 
     positionSelect.addEventListener('change', updatePlot);

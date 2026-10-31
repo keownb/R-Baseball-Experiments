@@ -7,7 +7,7 @@
   <meta property="og:title" content="Changelog — MLB Franchise WAR">
   <meta property="og:description" content="What changed on the MLB Franchise WAR visualizations, and when.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://baseball.bricekeown.net/changelog.html">
+  <meta property="og:url" content="https://baseball.bricekeown.net/changelog">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚾</text></svg>">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,11 +48,62 @@
 <body>
   <div class="container">
     <div class="nav">
-      <a href="index.html">← Home</a> · <a href="about.html">About</a> ·
-      <a href="war_explorer.html">Grid Explorer</a> · <a href="team_breakdown.html">Team Breakdown</a>
+      <a href="./">← Home</a> · <a href="about">About</a> ·
+      <a href="war_explorer">Grid Explorer</a> · <a href="team_breakdown">Team Breakdown</a>
     </div>
     <h1>Changelog</h1>
     <p class="subtitle">What changed, and when.</p>
+
+    <div class="entry">
+      <h2>Pipeline audit</h2>
+      <div class="date">October 30, 2026</div>
+      <p>A full review of how the charts are built, after the 2026 World Series failed to show up on the
+         Brewers' charts. Everything below is corrected in the current renders.</p>
+
+      <h3>What was wrong</h3>
+      <ul>
+        <li><strong>2026 postseason missing everywhere.</strong> The parallel render workers were handed the
+            current reference tables and then reloaded the code, which reset them to the Lahman database
+            (which ends in 2025). Workers therefore drew no 2026 postseason lines for any club and classified
+            2026 rookies without their positions. The FanGraphs charts were also captioned as Baseball-Reference
+            for the same reason.</li>
+        <li><strong>About 500 players never joined to Lahman's tables</strong> because Lahman and
+            Baseball-Reference spell their ids differently (apostrophes, periods, suffixes). Johan Santana,
+            CC Sabathia, Paul O'Neill, Rafael Furcal, Steve O'Neill, Pete O'Brien, J.D. Drew and others were
+            missing from position charts, team breakdowns and award markers. Lahman ids are now reconciled
+            to Baseball-Reference's.</li>
+        <li><strong>19th-century and Federal League clubs that reused a modern code</strong> were credited to
+            the modern franchise (Al Spalding and Ross Barnes of the 1871–75 Red Stockings in the Red Sox top 5;
+            the Baltimore Terrapins on the Orioles; Cy Young's Spiders years on Cleveland in the FanGraphs view).
+            Franchise membership now comes from Lahman's team table for every season, so the 1901–02 Baltimore
+            Orioles also follow Lahman's and Baseball-Reference's lineage into the Yankees.</li>
+        <li><strong>Postseason lines only marked clubs that won a series.</strong> Every pre-1969 pennant winner
+            that lost the World Series, and every club eliminated in its first round, had no marker. Lines now
+            show how far each club went: won the World Series, lost the World Series, lost the LCS, lost the
+            Division Series, lost the Wild Card round.</li>
+        <li><strong>Shohei Ohtani's pitching WAR was plotted on the DH panel</strong> of the Angels and Dodgers
+            breakdowns. Pitching WAR now goes to the SP/RP panels for two-way players.</li>
+        <li><strong>Z-score line widths skipped 2020.</strong> Qualification thresholds (60 games, 15 starts)
+            were not scaled to the 60-game season, so most positions had no comparison pool and the 2019→2020
+            segment vanished from hundreds of lines. Thresholds now scale with the schedule.</li>
+        <li><strong>Traded players in the newest season</strong> had all their games credited to their last club
+            by the MLB Stats API query the pipeline used; it now queries each club separately.</li>
+        <li>Era views now start every line at zero in the era's first season, so the lines, the top-5 ranking and
+            the downloadable tables describe the same seasons (previously a line carried pre-era WAR while the
+            ranking did not). Ties no longer produce a sixth "top 5" player. All-Star markers for a player traded
+            mid-season appear only on the club he represented. Team breakdowns label each player once, and
+            "best in gap years" lines only connect consecutive seasons.</li>
+      </ul>
+
+      <h3>Process</h3>
+      <ul>
+        <li>One build script now refreshes the data, checks it (season coverage, every team code mapped, every
+            regular has a position, postseason complete, awards present once announced), renders, checks the
+            rendered files against the data (including parsing the SVGs to confirm the latest World Series line
+            is actually drawn), and only then installs and deploys. Renders are deterministic, so unchanged data
+            produces identical files.</li>
+      </ul>
+    </div>
 
     <div class="entry">
       <h2>2026 season update</h2>
@@ -66,7 +117,7 @@
             full 2026 bracket (Brewers over Rays in the World Series).</li>
         <li><strong>FanGraphs WAR</strong> is available as an alternate source on both pages (the
             "WAR Source" control). Pitcher rankings differ substantially between the two systems, since fWAR
-            is FIP-based; see <a href="about.html">About</a>.</li>
+            is FIP-based; see <a href="about">About</a>.</li>
         <li>Seasons newer than the Lahman database (currently 2026) are filled from the MLB Stats API, so
             All-Star markers, postseason lines, z-score comparison pools and rookies' positions no longer stop
             a year early. MVP and Cy Young markers for 2026 will appear after the November announcements.</li>
@@ -100,7 +151,7 @@
   </div>
 
   <footer>
-    <a href="about.html">About & Methodology</a>
+    <a href="about">About & Methodology</a>
     &nbsp;·&nbsp;
     <a href="https://github.com/keownb/R-Baseball-Experiments" target="_blank">Source on GitHub</a>
   </footer>

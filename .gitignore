@@ -59,3 +59,7 @@ docs/plots/
 docs/plots_fg/
 docs/team_breakdowns/
 docs/team_breakdowns_fg/
+
+# build.sh staging area, logs, and per-build render manifests (docs/build.json is versioned)
+build/
+docs/build/

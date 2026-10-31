@@ -52,7 +52,8 @@ read_fg_season <- function(path) {
     G         = suppressWarnings(as.integer(rows$G)),
     GS        = suppressWarnings(as.integer(rows$GS)),
     PA        = suppressWarnings(as.numeric(rows$PA)),
-    fg_pos    = as.character(if (!all(is.na(rows$Pos))) rows$Pos else rows$position)
+    # bat files carry a numeric positional share in `Pos`; the label is `position`
+    fg_pos    = as.character(if (is.character(rows$position)) rows$position else if (is.character(rows$Pos)) rows$Pos else NA)
   )
 }
 
@@ -89,10 +90,13 @@ load_fg_war_data <- function(war_bat_br, war_pitch_br) {
       group_by(player_ID, year_ID, team_ID) %>%
       mutate(stint_ID = row_number()) %>%
       ungroup()
-    unmatched <- d %>% filter(is.na(player_ID))
+    # Report only rows that would otherwise reach a chart (post-1900, mapped
+    # franchise); Negro League rows have no MLBAM ids and no franchise either way.
+    unmatched <- d %>% filter(is.na(player_ID), year_ID >= 1901, !is.na(franchise_map(team_ID, year_ID)))
     if (nrow(unmatched) > 0) {
-      message(sprintf("  %s: %d of %d rows (%.1f WAR) have no Baseball-Reference id and are dropped",
-                      player_type, nrow(unmatched), nrow(d), sum(unmatched$WAR, na.rm = TRUE)))
+      message(sprintf("  %s: %d franchise rows (%.1f WAR) have no Baseball-Reference id and are dropped: %s",
+                      player_type, nrow(unmatched), sum(unmatched$WAR, na.rm = TRUE),
+                      paste(head(unique(unmatched$name_common), 8), collapse = ", ")))
     }
     d %>% filter(!is.na(player_ID))
   }

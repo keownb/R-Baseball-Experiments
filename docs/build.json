@@ -1,0 +1,13 @@
+{
+  "build": "202610302131",
+  "built_at": "2026-10-30T21:32:08-0700",
+  "sources": ["br", "fg"],
+  "data_max_year": 2026,
+  "lahman_version": "14.0.0",
+  "br_feed_mtime": {
+    "bat": "2026-10-30T20:54:05-0700",
+    "pitch": "2026-10-30T20:54:06-0700"
+  },
+  "r_version": "R version 4.6.1 (2026-06-24)",
+  "files": 1624
+}
