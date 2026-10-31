@@ -70,14 +70,15 @@ done
 log "step 4/7  validating outputs"
 "$RSCRIPT" pipeline_checks.R outputs "$STAGE" --sources "$(echo $SOURCES | tr ' ' ,)" 2>&1 | tee "$LOG/outputs.log"
 
-# 5. Swap staged output into docs/ (old dir is moved aside first, then removed)
+# 5. Install staged output into docs/ (old dir is moved aside first, then removed).
+#    The stage is copied, not moved, so --from-stage can re-validate and redeploy it.
 log "step 5/7  installing into docs/"
 for s in $SOURCES; do
   sfx=""; [ "$s" = fg ] && sfx="_fg"
   for d in "plots$sfx" "data$sfx" "team_breakdowns$sfx"; do
     rm -rf "docs/$d.old"
     [ -d "docs/$d" ] && mv "docs/$d" "docs/$d.old"
-    mv "$STAGE/$d" "docs/$d"
+    cp -R "$STAGE/$d" "docs/$d"
     rm -rf "docs/$d.old"
   done
 done

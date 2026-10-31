@@ -257,14 +257,12 @@ generate_team_position_plot <- function(
     postseason_linetype_scale()
   }
   
-  # Best ghost lines (consecutive seasons) and points (single seasons)
+  # Best ghost lines: only runs of 2+ consecutive seasons, as the legend says.
+  # A single-season best is not drawn (a lone point reads as noise).
   p <- p + geom_line(
     data = filter(team_cum, is_best_ghost, ghost_run_len >= 2),
     aes(group = ghost_run_id, color = player_category),
     linewidth = 0.7, show.legend = TRUE
-  ) + geom_point(
-    data = filter(team_cum, is_best_ghost, ghost_run_len == 1),
-    aes(color = player_category), size = 0.8, show.legend = FALSE
   )
   
   # Top players: z-score segments or constant lines
