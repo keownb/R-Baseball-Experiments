@@ -76,7 +76,10 @@ validate_war_data <- function(war_data, src = WAR_SOURCE, stop_on_failure = TRUE
     filter(year_ID >= 1901) %>%
     mutate(franchise = franchise_map(team_ID, year_ID))
   if (!is.null(lg_col)) {
-    unmapped <- fr %>% filter(is.na(franchise), lg_ID %in% c("AL", "NL")) %>% count(team_ID, year_ID, name = "rows")
+    # The 1901-02 Baltimore Orioles (BLA) are a defunct AL club that maps to no
+    # modern franchise on purpose (see .defunct_as_na in franchise_war_functions.R).
+    unmapped <- fr %>% filter(is.na(franchise), lg_ID %in% c("AL", "NL"), !(team_ID == "BLA" & year_ID %in% 1901:1902)) %>%
+      count(team_ID, year_ID, name = "rows")
     rep <- check(rep, nrow(unmapped) == 0, sprintf("every 1901+ AL/NL team-season maps to a franchise (unmapped: %s)",
                  if (nrow(unmapped)) paste(head(sprintf("%s %d", unmapped$team_ID, unmapped$year_ID), 8), collapse = ",") else "none"))
   }

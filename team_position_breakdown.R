@@ -309,9 +309,16 @@ generate_team_position_plot <- function(
                  "Best in Gap Years (2+ yr)" = ghost_highlight_color),
       guide = guide_legend(override.aes = list(linewidth = 2))
     ) +
-    # One label per top player per position, at his final season with the club
+    # One label per stint of two or more seasons (the original rule). The audit
+    # labelled each player once at his final season, which put labels on one-year
+    # returns where no line is drawn; a better rule awaits a decision.
     geom_label_repel(
-      data = team_cum %>% filter(is_top, year_ID == max_year),
+      data = team_cum %>%
+        filter(is_top) %>%
+        group_by(position, player_ID, stint_id) %>%
+        filter(n() >= 2) %>%
+        filter(year_ID == max(year_ID)) %>%
+        ungroup(),
       aes(label = name_common),
       color = team_color,
       size = 2.5, fill = alpha("white", 0.9), label.size = 0,

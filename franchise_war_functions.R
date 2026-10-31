@@ -57,10 +57,17 @@ franchise_map_current <- function(team_id) {
   )
 }
 
+# Lahman folds the 1901-02 Baltimore Orioles (BLA) into the Yankees; Baseball-Reference
+# removed them from the Yankees' history in 2014 and MLB counts the franchise from
+# 1903. The charts follow Baseball-Reference, so those two seasons map to no franchise.
+.defunct_as_na <- function(code, team_id, year_id) {
+  ifelse(team_id == "BLA" & !is.na(year_id) & year_id %in% 1901:1902, NA_character_, code)
+}
+
 # Baseball-Reference (and FanGraphs-translated) team code + season -> franchise
 franchise_map <- function(team_id, year_id) {
   team_id <- as.character(team_id)
-  code <- unname(.br_team_lookup[paste(team_id, year_id)])
+  code <- .defunct_as_na(unname(.br_team_lookup[paste(team_id, year_id)]), team_id, year_id)
   recent <- is.na(code) & !is.na(year_id) & year_id > LAHMAN_MAX_YEAR
   if (any(recent)) code[recent] <- franchise_map_current(team_id[recent])
   ifelse(code %in% names(primary_colors), code, NA_character_)
@@ -70,7 +77,7 @@ franchise_map <- function(team_id, year_id) {
 # supplemental_data.R) already carry franchise codes and pass through.
 lahman_franchise <- function(team_id, year_id) {
   team_id <- as.character(team_id)
-  code <- unname(.lahman_team_lookup[paste(team_id, year_id)])
+  code <- .defunct_as_na(unname(.lahman_team_lookup[paste(team_id, year_id)]), team_id, year_id)
   code <- ifelse(is.na(code) & team_id %in% names(primary_colors), team_id, code)
   ifelse(code %in% names(primary_colors), code, NA_character_)
 }
