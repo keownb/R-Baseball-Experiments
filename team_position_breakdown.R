@@ -127,8 +127,7 @@ generate_team_position_plot <- function(
     ) %>%
     filter(years_played >= 2) %>%
     group_by(position) %>%
-    arrange(desc(total_WAR), player_ID, .by_group = TRUE) %>%   # exactly top_n, deterministic on ties
-    slice_head(n = top_n) %>%
+    slice_max(order_by = total_WAR, n = top_n) %>%   # a tie for the last place shows every tied player
     ungroup() %>%
     mutate(is_top = TRUE) %>%
     select(position, player_ID, is_top)

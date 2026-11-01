@@ -185,10 +185,12 @@ divisions <- tribble(
 .strip_text_elems <- lapply(primary_colors[.strip_franchise_order], function(col) {
   element_text(face = "bold", size = 14, colour = col)
 })
-# Postseason line types: how far the club got that October
-POSTSEASON_LEVELS <- c("Won World Series", "Lost World Series", "Lost LCS", "Lost Division Series", "Lost Wild Card")
-POSTSEASON_LINETYPES <- c("Won World Series" = "solid", "Lost World Series" = "longdash", "Lost LCS" = "dashed",
-                          "Lost Division Series" = "dotted", "Lost Wild Card" = "dotdash")
+# Postseason line types: the biggest series the club won that October. A club that
+# lost its first series gets no line. Before 1969 the pennant was decided by the
+# regular season, so a World Series loser from those years counts as a pennant winner.
+POSTSEASON_LEVELS <- c("World Series", "Pennant/LCS", "Division Series", "Wild Card")
+POSTSEASON_LINETYPES <- c("World Series" = "solid", "Pennant/LCS" = "dashed",
+                          "Division Series" = "dotted", "Wild Card" = "dotdash")
 postseason_linetype_scale <- function() {
   scale_linetype_manual(name = "Postseason", values = POSTSEASON_LINETYPES, breaks = POSTSEASON_LEVELS, drop = TRUE)
 }
@@ -315,10 +317,11 @@ generate_franchise_war_plot <- function(
     left_join(divisions, by = "franchise") %>%
     mutate(division_full = paste(league, division))
   
-  # Era views start every line at zero in start_year, so lines, rankings and
-  # the exported CSV all describe the same seasons.
+  # Cumulative WAR runs over a player's whole time with the franchise. An era view
+  # (start_year > 1901) shows the same lines from start_year on, so a player who
+  # arrived earlier carries his previous WAR into the era; only the top-5 ranking
+  # and the exported table are limited to the era's seasons.
   WAR_cum <- WAR_clean %>%
-    filter(year_ID >= start_year) %>%
     group_by(player_ID, franchise) %>%
     arrange(year_ID) %>%
     mutate(
@@ -328,8 +331,10 @@ generate_franchise_war_plot <- function(
     ) %>%
     ungroup()
   
-  # Exactly top_n per franchise; ties broken by player id for determinism
+  # Top top_n per franchise, ranked on the era's seasons; a tie for the last place
+  # shows every tied player rather than dropping one of them.
   top_players <- WAR_cum %>%
+    filter(year_ID >= start_year) %>%
     group_by(franchise, player_ID) %>%
     summarise(
       totalWAR = sum(WAR, na.rm = TRUE),
@@ -339,8 +344,7 @@ generate_franchise_war_plot <- function(
     ) %>%
     filter(years_played >= 2) %>%
     group_by(franchise) %>%
-    arrange(desc(totalWAR), player_ID, .by_group = TRUE) %>%
-    slice_head(n = top_n) %>%
+    slice_max(order_by = totalWAR, n = top_n) %>%
     ungroup() %>%
     mutate(is_top = TRUE) %>%
     select(franchise, player_ID, is_top)
@@ -779,28 +783,22 @@ compute_position_year_stats <- function(war_batting, war_pitching) {
 get_postseason_data <- function(team_code) {
   sp <- ref_table("SeriesPost") %>%
     mutate(type = case_when(
-      round == "WS" ~ "WS",
-      round %in% c("ALCS", "NLCS", "CS") ~ "LCS",
-      grepl("DS|DIV", round) ~ "DS",
-      grepl("WC", round) ~ "WC",
-      TRUE ~ NA_character_
+      round == "WS" ~ "World Series",
+      round %in% c("ALCS", "NLCS", "CS") ~ "Pennant/LCS",
+      grepl("DS|DIV", round) ~ "Division Series",
+      grepl("WC", round) ~ "Wild Card",
+      TRUE ~ NA_character_          # Negro League rounds in Lahman: no modern franchise
     )) %>%
     filter(!is.na(type))
   bind_rows(
-    sp %>% transmute(yearID, team = teamIDwinner, type, won = TRUE),
-    sp %>% transmute(yearID, team = teamIDloser,  type, won = FALSE)
+    # every series the club won
+    sp %>% transmute(yearID, team = teamIDwinner, achievement = type),
+    # a pennant won without a series: the World Series loser before the LCS era (1969)
+    sp %>% filter(type == "World Series", yearID < 1969) %>%
+      transmute(yearID, team = teamIDloser, achievement = "Pennant/LCS")
   ) %>%
     mutate(franchise = lahman_franchise(team, yearID)) %>%
     filter(!is.na(franchise), franchise == team_code) %>%
-    mutate(achievement = case_when(
-      type == "WS" & won  ~ "Won World Series",
-      type == "WS"        ~ "Lost World Series",
-      type == "LCS" & !won ~ "Lost LCS",
-      type == "DS"  & !won ~ "Lost Division Series",
-      type == "WC"  & !won ~ "Lost Wild Card",
-      TRUE ~ NA_character_          # a round won on the way to a later round
-    )) %>%
-    filter(!is.na(achievement)) %>%
     mutate(achievement = factor(achievement, levels = POSTSEASON_LEVELS)) %>%
     group_by(yearID) %>%
     slice_min(achievement, n = 1, with_ties = FALSE) %>%

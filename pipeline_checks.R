@@ -284,9 +284,10 @@ validate_outputs <- function(root = "docs", sources = WAR_SOURCES, stop_on_failu
       caps <- unique(unlist(lapply(m$plots, function(p) p$caption)))
       rep <- check(rep, length(caps) >= 1 && all(grepl(label, caps, fixed = TRUE)), sprintf("[%s/%s] plot captions credit %s", src, kind, label))
       if (postseason_final) {
-        # grid: every postseason overlay spans all clubs; breakdowns: only the clubs that played in October
+        # grid: every postseason overlay spans all clubs; breakdowns: only the clubs that won a series
+        # that October (a club that lost its first series draws no line under the postseason rule)
         ps_plots <- Filter(function(p) isTRUE(p$ok) && grepl("_postseason|_all", p$id) &&
-                             (kind == "grid" || sub("_.*", "", p$id) %in% ps_teams), m$plots)
+                             (kind == "grid" || sub("_.*", "", p$id) %in% series_winners), m$plots)
         n_ok <- sum(vapply(ps_plots, function(p) !is.null(p$postseason_max_year) && p$postseason_max_year == max_year, logical(1)))
         rep <- check(rep, length(ps_plots) > 0 && n_ok == length(ps_plots),
                      sprintf("[%s/%s] %d of %d postseason overlays include %d (per manifest)", src, kind, n_ok, length(ps_plots), max_year))
