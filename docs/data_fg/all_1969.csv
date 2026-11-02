@@ -4,7 +4,7 @@ ARI,goldspa01,Paul Goldschmidt,1B,35.2,2011,2018
 ARI,gonzalu01,Luis Gonzalez,OF,33.8,1999,2006
 ARI,marteke01,Ketel Marte,2B,33,2017,2026
 ARI,webbbr01,Brandon Webb,P,27.7,2003,2009
-ATL,jonesch06,Chipper Jones Jr.,3B,84.6,1993,2012
+ATL,jonesch06,Chipper Jones,3B,84.6,1993,2012
 ATL,smoltjo01,John Smoltz,P,81.6,1988,2008
 ATL,maddugr01,Greg Maddux,P,74.1,1993,2003
 ATL,niekrph01,Phil Niekro,P,64.6,1969,1987
@@ -53,7 +53,7 @@ HOU,bagweje01,Jeff Bagwell,1B,80.2,1991,2005
 HOU,biggicr01,Craig Biggio,2B,65.8,1988,2007
 HOU,altuvjo01,Jose Altuve,2B,61,2011,2026
 HOU,berkmla01,Lance Berkman,OF,51.4,1999,2010
-HOU,cruzjo01,Jose Cruz,OF,47.8,1975,1987
+HOU,cruzjo01,José Cruz,OF,47.8,1975,1987
 KCR,brettge01,George Brett,3B,84.6,1973,1993
 KCR,otisam01,Amos Otis,OF,42,1970,1983
 KCR,appieke01,Kevin Appier,P,41.8,1989,2004
@@ -61,7 +61,7 @@ KCR,gubicma01,Mark Gubicza,P,38.8,1984,1996
 KCR,saberbr01,Bret Saberhagen,P,36.9,1984,1991
 LAA,troutmi01,Mike Trout,OF,90.6,2011,2026
 LAA,finlech01,Chuck Finley,P,45.8,1986,1999
-LAA,ryanno01,Nolan Ryan Jr.,P,44.8,1972,1979
+LAA,ryanno01,Nolan Ryan,P,44.8,1972,1979
 LAA,downibr01,Brian Downing,OF,36.5,1978,1990
 LAA,grichbo01,Bobby Grich,2B,35.6,1977,1986
 LAD,kershcl01,Clayton Kershaw,P,80.6,2008,2025
@@ -70,7 +70,7 @@ LAD,ceyro01,Ron Cey,3B,49.9,1971,1982
 LAD,hershor01,Orel Hershiser,P,41.6,1983,2000
 LAD,valenfe01,Fernando Valenzuela,P,40.1,1980,1990
 MIA,stantmi03,Giancarlo Stanton,OF,33.7,2010,2017
-MIA,ramirha01,Hanley Ramirez,SS,30.5,2006,2012
+MIA,ramirha01,Hanley Ramírez,SS,30.5,2006,2012
 MIA,johnsjo09,Josh Johnson,P,21.3,2005,2012
 MIA,castilu01,Luis Castillo,2B,21.1,1996,2005
 MIA,alcansa01,Sandy Alcantara,P,20.9,2018,2026
@@ -115,7 +115,7 @@ SDP,peavyja01,Jake Peavy,P,30.7,2002,2009
 SDP,machama01,Manny Machado,3B,29.9,2019,2026
 SDP,winfida01,Dave Winfield,OF,29.1,1973,1980
 SEA,griffke02,Ken Griffey Jr.,OF,67.6,1989,2010
-SEA,martied01,Edgar Martinez,3B,65.5,1987,2004
+SEA,martied01,Edgar Martínez,3B,65.5,1987,2004
 SEA,suzukic01,Ichiro Suzuki,OF,54.1,2001,2019
 SEA,hernafe02,Félix Hernández,P,54,2005,2019
 SEA,johnsra05,Randy Johnson,P,44.3,1989,1998
@@ -134,7 +134,7 @@ TBR,crawfca02,Carl Crawford,OF,36.9,2002,2010
 TBR,zobribe01,Ben Zobrist,2B,33.1,2006,2014
 TBR,shielja02,James Shields,P,24.1,2006,2012
 TBR,kiermke01,Kevin Kiermaier,OF,23.6,2013,2022
-TEX,rodriiv01,Ivan Rodriguez,C,49.3,1991,2009
+TEX,rodriiv01,Iván Rodríguez,C,49.3,1991,2009
 TEX,palmera01,Rafael Palmeiro,1B,42.3,1989,2003
 TEX,beltrad01,Adrian Beltré,3B,35.8,2011,2018
 TEX,bellbu01,Buddy Bell,3B,34.6,1979,1989
@@ -142,10 +142,10 @@ TEX,sundbji01,Jim Sundberg,C,31.4,1974,1989
 TOR,hallaro01,Roy Halladay,P,48.3,1998,2009
 TOR,stiebda01,Dave Stieb,P,43.6,1979,1998
 TOR,bautijo02,José Bautista,OF,36.2,2008,2017
-TOR,fernato01,Tony Fernandez,SS,35.1,1983,2001
+TOR,fernato01,Tony Fernández,SS,35.1,1983,2001
 TOR,delgaca01,Carlos Delgado,1B,34.7,1993,2004
 WSN,cartega01,Gary Carter,C,53.8,1974,1992
-WSN,raineti01,Tim Raines Sr.,OF,49.3,1979,2001
+WSN,raineti01,Tim Raines,OF,49.3,1979,2001
 WSN,rogerst01,Steve Rogers,P,49,1973,1985
 WSN,dawsoan01,Andre Dawson,OF,44.3,1976,1986
 WSN,zimmery01,Ryan Zimmerman,3B,39.5,2005,2021

@@ -5,7 +5,7 @@ ARI,lambja01,Jake Lamb,3B,7.7,2014,2020
 ARI,suareeu01,Eugenio Suárez,3B,7,2024,2025
 ARI,tracych01,Chad Tracy,3B,6.6,2004,2009
 ATL,matheed01,Eddie Mathews,3B,94.3,1952,1966
-ATL,jonesch06,Chipper Jones Jr.,3B,84.6,1993,2012
+ATL,jonesch06,Chipper Jones,3B,84.6,1993,2012
 ATL,elliobo01,Bob Elliott,3B,25.9,1947,1951
 ATL,evansda01,Darrell Evans,3B,23.7,1969,1989
 ATL,rileyau01,Austin Riley,3B,21.3,2019,2026
@@ -23,7 +23,7 @@ CHC,santoro01,Ron Santo,3B,71.9,1960,1973
 CHC,hackst01,Stan Hack,3B,55.9,1932,1947
 CHC,bryankr01,Kris Bryant,3B,30.5,2015,2021
 CHC,zimmehe01,Heinie Zimmerman,3B,26.3,1907,1916
-CHC,ramirar01,Aramis Ramirez,3B,25.7,2003,2011
+CHC,ramirar01,Aramis Ramírez,3B,25.7,2003,2011
 CHW,venturo01,Robin Ventura,3B,39.2,1989,1998
 CHW,kammwi01,Willie Kamm,3B,24,1923,1931
 CHW,wardpe01,Pete Ward,3B,20.7,1963,1969
@@ -114,7 +114,7 @@ SDP,headlch01,Chase Headley,3B,19,2007,2018
 SDP,caminke01,Ken Caminiti,3B,17.4,1995,1998
 SDP,nevinph01,Phil Nevin,3B,16.9,1999,2005
 SDP,kouzmke01,Kevin Kouzmanoff,3B,6.5,2007,2009
-SEA,martied01,Edgar Martinez,3B,65.5,1987,2004
+SEA,martied01,Edgar Martínez,3B,65.5,1987,2004
 SEA,seageky01,Kyle Seager,3B,34.1,2011,2021
 SEA,beltrad01,Adrian Beltré,3B,16.1,2005,2009
 SEA,suareeu01,Eugenio Suárez,3B,8.5,2022,2025

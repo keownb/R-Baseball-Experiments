@@ -4,7 +4,7 @@ ARI,reynoma01,Mark Reynolds,3B,8,2007,2010
 ARI,lambja01,Jake Lamb,3B,7.7,2014,2020
 ARI,suareeu01,Eugenio Suárez,3B,7,2024,2025
 ARI,tracych01,Chad Tracy,3B,6.6,2004,2009
-ATL,jonesch06,Chipper Jones Jr.,3B,84.6,1993,2012
+ATL,jonesch06,Chipper Jones,3B,84.6,1993,2012
 ATL,rileyau01,Austin Riley,3B,21.3,2019,2026
 ATL,hornebo01,Bob Horner,3B,19.4,1978,1986
 ATL,pendlte01,Terry Pendleton,3B,12.8,1991,1996
@@ -12,7 +12,7 @@ ATL,pradoma01,Martín Prado,3B,12.7,2006,2012
 BAL,morame01,Melvin Mora,3B,27.5,2000,2009
 BAL,machama01,Manny Machado,3B,27.1,2012,2018
 BAL,decindo01,Doug DeCinces,3B,20.1,1977,1981
-BAL,gomezle02,Leo Gomez,3B,8.8,1990,1995
+BAL,gomezle02,Leo Gómez,3B,8.8,1990,1995
 BAL,uriasra01,Ramón Urías,3B,6.1,2020,2025
 BOS,boggswa01,Wade Boggs,3B,70.8,1982,1992
 BOS,deverra01,Rafael Devers,3B,27.9,2017,2025
@@ -20,7 +20,7 @@ BOS,naehrti01,Tim Naehring,3B,11.8,1990,1997
 BOS,muellbi02,Bill Mueller,3B,9.3,2003,2005
 BOS,lowelmi01,Mike Lowell,3B,8.7,2006,2010
 CHC,bryankr01,Kris Bryant,3B,30.5,2015,2021
-CHC,ramirar01,Aramis Ramirez,3B,25.7,2003,2011
+CHC,ramirar01,Aramis Ramírez,3B,25.7,2003,2011
 CHC,derosma01,Mark DeRosa,3B,6.6,2007,2008
 CHC,valbulu01,Luis Valbuena,3B,6.1,2012,2014
 CHC,ceyro01,Ron Cey,3B,5.6,1983,1986
@@ -114,7 +114,7 @@ SDP,headlch01,Chase Headley,3B,19,2007,2018
 SDP,caminke01,Ken Caminiti,3B,17.4,1995,1998
 SDP,nevinph01,Phil Nevin,3B,16.9,1999,2005
 SDP,kouzmke01,Kevin Kouzmanoff,3B,6.5,2007,2009
-SEA,martied01,Edgar Martinez,3B,65.5,1987,2004
+SEA,martied01,Edgar Martínez,3B,65.5,1987,2004
 SEA,seageky01,Kyle Seager,3B,34.1,2011,2021
 SEA,beltrad01,Adrian Beltré,3B,16.1,2005,2009
 SEA,suareeu01,Eugenio Suárez,3B,8.5,2022,2025

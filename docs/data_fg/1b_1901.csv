@@ -30,17 +30,17 @@ CHW,konerpa01,Paul Konerko,1B,24.5,1999,2014
 CHW,sheelea01,Earl Sheely,1B,17.9,1921,1927
 CHW,bonurze01,Zeke Bonura,1B,16.3,1934,1937
 CIN,vottojo01,Joey Votto,1B,58.7,2007,2023
-CIN,perezto01,Tony Perez,1B,49.5,1964,1986
+CIN,perezto01,Tony Pérez,1B,49.5,1964,1986
 CIN,mccorfr01,Frank McCormick,1B,29.9,1934,1945
 CIN,kluszte01,Ted Kluszewski,1B,25.6,1947,1957
 CIN,driesda01,Dan Driessen,1B,20.4,1973,1984
 CLE,thomeji01,Jim Thome,1B,46.4,1991,2011
-CLE,troskha01,Hal Trosky Sr.,1B,30.8,1933,1941
+CLE,troskha01,Hal Trosky,1B,30.8,1933,1941
 CLE,hafnetr01,Travis Hafner,1B,22.3,2003,2012
 CLE,santaca01,Carlos Santana,1B,22.1,2010,2025
 CLE,thornan01,Andre Thornton,1B,18.7,1977,1987
 COL,heltoto01,Todd Helton,1B,54.9,1997,2013
-COL,galaran01,Andres Galarraga,1B,13.4,1993,1997
+COL,galaran01,Andrés Galarraga,1B,13.4,1993,1997
 COL,croncj01,C.J. Cron,1B,3.7,2021,2023
 COL,morneju01,Justin Morneau,1B,2.8,2014,2015
 COL,giambja01,Jason Giambi,1B,1.1,2009,2012
@@ -54,7 +54,7 @@ HOU,watsobo01,Bob Watson,1B,25.4,1966,1979
 HOU,davisgl01,Glenn Davis,1B,18,1984,1990
 HOU,gourryu01,Yuli Gurriel,1B,10.6,2016,2022
 HOU,johnscl01,Cliff Johnson,1B,7,1972,1977
-KCR,maybejo01,John Mayberry Sr.,1B,21.8,1972,1977
+KCR,maybejo01,John Mayberry,1B,21.8,1972,1977
 KCR,sweenmi01,Mike Sweeney,1B,20.1,1995,2007
 KCR,hosmeer01,Eric Hosmer,1B,10,2011,2017
 KCR,aikenwi01,Willie Aikens,1B,9.2,1980,1983
@@ -130,7 +130,7 @@ STL,bottoji01,Jim Bottomley,1B,36.5,1922,1932
 STL,hernake01,Keith Hernandez,1B,33.9,1974,1983
 STL,koneted01,Ed Konetchy,1B,28.1,1907,1913
 TBR,diazya01,Yandy Díaz,1B,20,2019,2026
-TBR,penaca01,Carlos Pena,1B,14.1,2007,2012
+TBR,penaca01,Carlos Peña,1B,14.1,2007,2012
 TBR,huffau01,Aubrey Huff,1B,9.9,2000,2006
 TBR,mcgrifr01,Fred McGriff,1B,8.5,1998,2004
 TBR,arandjo01,Jonathan Aranda,1B,5.9,2022,2026
@@ -146,6 +146,6 @@ TOR,mcgrifr01,Fred McGriff,1B,19.7,1986,1990
 TOR,upshawi01,Willie Upshaw,1B,12.2,1978,1987
 WSN,fairlro01,Ron Fairly,1B,17.5,1969,1974
 WSN,johnsni01,Nick Johnson,1B,11.4,2004,2009
-WSN,galaran01,Andres Galarraga,1B,10.6,1985,2002
+WSN,galaran01,Andrés Galarraga,1B,10.6,1985,2002
 WSN,jorgemi01,Mike Jorgensen,1B,9.5,1972,1977
-WSN,perezto01,Tony Perez,1B,7.3,1977,1979
+WSN,perezto01,Tony Pérez,1B,7.3,1977,1979

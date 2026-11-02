@@ -11,9 +11,9 @@ ATL,friedma01,Max Fried,P,19,2017,2024
 ATL,millwke01,Kevin Millwood,P,18.4,1998,2002
 BAL,mussimi01,Mike Mussina,P,17.6,1998,2000
 BAL,ponsosi01,Sidney Ponson,P,16.3,1998,2005
-BAL,bedarer01,Erik Bedard,P,15.5,2002,2007
+BAL,bedarer01,Érik Bédard,P,15.5,2002,2007
 BAL,gausmke01,Kevin Gausman,P,11,2013,2018
-BAL,lopezro02,Rodrigo Lopez,P,10.6,2002,2006
+BAL,lopezro02,Rodrigo López,P,10.6,2002,2006
 BOS,martipe02,Pedro Martínez,P,51.9,1998,2004
 BOS,lestejo01,Jon Lester,P,27.8,2006,2014
 BOS,beckejo02,Josh Beckett,P,21.3,2006,2012
@@ -52,7 +52,7 @@ DET,porceri01,Rick Porcello,P,14.9,2009,2014
 HOU,oswalro01,Roy Oswalt,P,46.3,2001,2010
 HOU,verlaju01,Justin Verlander,P,22.2,2017,2024
 HOU,valdefr01,Framber Valdez,P,20.4,2018,2025
-HOU,rodriwa01,Wandy Rodriguez,P,18.7,2005,2012
+HOU,rodriwa01,Wandy Rodríguez,P,18.7,2005,2012
 HOU,keuchda01,Dallas Keuchel,P,17.6,2012,2018
 KCR,greinza01,Zack Greinke,P,26.8,2004,2023
 KCR,duffyda01,Danny Duffy,P,16.3,2011,2021
@@ -116,7 +116,7 @@ SDP,darviyu01,Yu Darvish,P,10.9,2021,2025
 SDP,musgrjo01,Joe Musgrove,P,10.2,2021,2024
 SEA,hernafe02,Félix Hernández,P,54,2005,2019
 SEA,moyerja01,Jamie Moyer,P,25.8,1998,2006
-SEA,garcifr03,Freddy Garcia,P,18,1999,2004
+SEA,garcifr03,Freddy García,P,18,1999,2004
 SEA,gilbelo01,Logan Gilbert,P,17.7,2021,2026
 SEA,kirbyge01,George Kirby,P,16.3,2022,2026
 SFG,bumgama01,Madison Bumgarner,P,31.5,2009,2019
@@ -146,6 +146,6 @@ TOR,escobke01,Kelvim Escobar,P,12.6,1998,2003
 TOR,happja01,J.A. Happ,P,11.1,2012,2018
 WSN,scherma01,Max Scherzer,P,36.8,2015,2021
 WSN,strasst01,Stephen Strasburg,P,36.6,2010,2022
-WSN,vazquja01,Javier Vazquez,P,24.5,1998,2003
+WSN,vazquja01,Javier Vázquez,P,24.5,1998,2003
 WSN,gonzagi01,Gio Gonzalez,P,23.5,2012,2018
 WSN,zimmejo02,Jordan Zimmermann,P,20.5,2009,2015

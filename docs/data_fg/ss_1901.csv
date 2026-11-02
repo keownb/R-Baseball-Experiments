@@ -28,11 +28,11 @@ CHW,applilu01,Luke Appling,SS,72.6,1930,1950
 CHW,aparilu01,Luis Aparicio,SS,32,1956,1970
 CHW,davisge01,George Davis,SS,32,1902,1909
 CHW,weavebu01,Buck Weaver,SS,20.3,1912,1920
-CHW,ramiral03,Alexei Ramirez,SS,19.5,2008,2015
+CHW,ramiral03,Alexei Ramírez,SS,19.5,2008,2015
 CIN,larkiba01,Barry Larkin,SS,67,1986,2004
-CIN,conceda01,Dave Concepcion,SS,39.7,1970,1988
+CIN,conceda01,Dave Concepción,SS,39.7,1970,1988
 CIN,delacel01,Elly De La Cruz,SS,19.7,2023,2026
-CIN,cardele01,Leo Cardenas,SS,15.5,1960,1968
+CIN,cardele01,Leo Cárdenas,SS,15.5,1960,1968
 CIN,mcmilro01,Roy McMillan,SS,14.6,1951,1960
 CLE,boudrlo01,Lou Boudreau,SS,62.9,1938,1950
 CLE,seweljo01,Joe Sewell,SS,40.8,1920,1930
@@ -53,11 +53,11 @@ HOU,correca01,Carlos Correa,SS,30.1,2015,2026
 HOU,penaje02,Jeremy Peña,SS,17.9,2022,2026
 HOU,thondi01,Dickie Thon,SS,14.6,1981,1987
 HOU,everead01,Adam Everett,SS,9.2,2001,2007
-HOU,gonzama01,Marwin Gonzalez,SS,9.1,2012,2021
+HOU,gonzama01,Marwin González,SS,9.1,2012,2021
 KCR,wittbo02,Bobby Witt Jr.,SS,33.6,2022,2026
 KCR,patekfr01,Freddie Patek,SS,17,1971,1979
 KCR,escobal02,Alcides Escobar,SS,11.3,2011,2018
-KCR,offerjo01,Jose Offerman,SS,8.1,1996,1998
+KCR,offerjo01,José Offerman,SS,8.1,1996,1998
 KCR,washiu_01,U L Washington,SS,7.6,1977,1984
 LAA,fregoji01,Jim Fregosi,SS,42.6,1961,1971
 LAA,aybarer01,Erick Aybar,SS,19.4,2006,2015
@@ -69,19 +69,19 @@ LAD,willsma01,Maury Wills,SS,29.5,1959,1972
 LAD,russebi01,Bill Russell,SS,28.2,1969,1986
 LAD,seageco01,Corey Seager,SS,21.9,2015,2021
 LAD,furcara02,Rafael Furcal,SS,14,2006,2011
-MIA,ramirha01,Hanley Ramirez,SS,30.5,2006,2012
+MIA,ramirha01,Hanley Ramírez,SS,30.5,2006,2012
 MIA,lopezot01,Otto Lopez,SS,10.7,2024,2026
 MIA,rojasmi02,Miguel Rojas,SS,9.4,2015,2022
-MIA,renteed01,Edgar Renteria,SS,5.5,1996,1998
+MIA,renteed01,Édgar Rentería,SS,5.5,1996,1998
 MIA,castrst01,Starlin Castro,SS,5.3,2018,2019
 MIL,yountro01,Robin Yount,SS,66.5,1974,1993
 MIL,adamewi01,Willy Adames,SS,15.9,2021,2024
 MIL,hardyjj01,J.J. Hardy,SS,11,2005,2009
-MIL,valenjo03,Jose Valentin,SS,9.9,1992,1999
+MIL,valenjo03,José Valentín,SS,9.9,1992,1999
 MIL,ortizjo06,Joey Ortiz,SS,7.5,2024,2026
 MIN,cronijo01,Joe Cronin,SS,36.4,1928,1934
 MIN,travice01,Cecil Travis,SS,27.9,1933,1947
-MIN,smallro02,Roy Smalley III,SS,20.9,1976,1987
+MIN,smallro02,Roy Smalley,SS,20.9,1976,1987
 MIN,mcbrige01,George McBride,SS,18.3,1908,1920
 MIN,versazo01,Zoilo Versalles,SS,15.4,1959,1967
 NYM,reyesjo01,José Reyes,SS,33.1,2003,2018
@@ -103,7 +103,7 @@ PHI,rolliji01,Jimmy Rollins,SS,49,2000,2014
 PHI,bowala01,Larry Bowa,SS,16.8,1970,1981
 PHI,turnetr01,Trea Turner,SS,15.6,2023,2026
 PHI,hamnegr01,Granny Hamner,SS,15.5,1944,1959
-PHI,doolami01,Michael Doolin,SS,15,1905,1913
+PHI,doolami01,Mickey Doolin,SS,15,1905,1913
 PIT,wagneho01,Honus Wagner,SS,120.3,1901,1917
 PIT,vaughar01,Arky Vaughan,SS,63.1,1932,1941
 PIT,bellja01,Jay Bell,SS,24.5,1989,1996
@@ -112,7 +112,7 @@ PIT,groatdi01,Dick Groat,SS,20.2,1952,1962
 SDP,bogaexa01,Xander Bogaerts,SS,12.5,2023,2026
 SDP,kimha01,Ha-Seong Kim,SS,10.9,2021,2024
 SDP,greenkh01,Khalil Greene,SS,9,2003,2008
-SDP,templga01,Garry Templeton Sr.,SS,8.4,1982,1991
+SDP,templga01,Garry Templeton,SS,8.4,1982,1991
 SDP,smithoz01,Ozzie Smith,SS,8.1,1978,1981
 SEA,rodrial01,Alex Rodriguez,SS,35,1994,2000
 SEA,crawfjp01,J.P. Crawford,SS,18.3,2019,2026
@@ -127,8 +127,8 @@ SFG,bancrda01,Dave Bancroft,SS,23.6,1920,1930
 STL,smithoz01,Ozzie Smith,SS,59.5,1982,1996
 STL,marioma01,Marty Marion,SS,30,1940,1950
 STL,hemusso01,Solly Hemus,SS,20.1,1949,1959
-STL,renteed01,Edgar Renteria,SS,17.4,1999,2004
-STL,templga01,Garry Templeton Sr.,SS,17,1976,1981
+STL,renteed01,Édgar Rentería,SS,17.4,1999,2004
+STL,templga01,Garry Templeton,SS,17,1976,1981
 TBR,lugoju01,Julio Lugo,SS,13.9,2003,2006
 TBR,francwa01,Wander Franco,SS,9.4,2021,2023
 TBR,bartlja01,Jason Bartlett,SS,8.4,2008,2010
@@ -139,7 +139,7 @@ TEX,rodrial01,Alex Rodriguez,SS,27,2001,2003
 TEX,youngmi02,Michael Young,SS,25,2000,2012
 TEX,seageco01,Corey Seager,SS,21.6,2022,2026
 TEX,francju01,Julio Franco,SS,18.7,1989,1993
-TOR,fernato01,Tony Fernandez,SS,35.1,1983,2001
+TOR,fernato01,Tony Fernández,SS,35.1,1983,2001
 TOR,bichebo01,Bo Bichette,SS,19.9,2019,2025
 TOR,gonzaal01,Alex Gonzalez,SS,8,1994,2001
 TOR,reyesjo01,José Reyes,SS,7.2,2013,2015

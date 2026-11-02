@@ -7,7 +7,7 @@ ARI,hudsoor01,Orlando Hudson,2B,5.8,2006,2008
 ATL,albieoz01,Ozzie Albies,2B,23,2017,2026
 ATL,gilesma01,Marcus Giles,2B,17.9,2001,2006
 ATL,hubbagl01,Glenn Hubbard,2B,12.8,1978,1987
-ATL,millafe01,Felix Millan,2B,8.2,1966,1972
+ATL,millafe01,Félix Millán,2B,8.2,1966,1972
 ATL,johnske05,Kelly Johnson,2B,7.4,2005,2016
 BAL,grichbo01,Bobby Grich,2B,33.6,1970,1976
 BAL,roberbr01,Brian Roberts,2B,29.4,2001,2013
@@ -18,7 +18,7 @@ BOS,pedrodu01,Dustin Pedroia,2B,44.8,2006,2019
 BOS,reedjo01,Jody Reed,2B,12.7,1987,1992
 BOS,andremi01,Mike Andrews,2B,9.9,1966,1970
 BOS,barrema02,Marty Barrett,2B,9.7,1982,1990
-BOS,mantife01,Felix Mantilla,2B,7.3,1963,1965
+BOS,mantife01,Félix Mantilla,2B,7.3,1963,1965
 CHC,sandbry01,Ryne Sandberg,2B,61,1982,1997
 CHC,hoernni01,Nico Hoerner,2B,22.6,2019,2026
 CHC,beckegl01,Glenn Beckert,2B,9.7,1965,1973
@@ -47,7 +47,7 @@ COL,rodgebr02,Brendan Rodgers,2B,2.9,2019,2024
 DET,whitalo01,Lou Whitaker,2B,68.1,1977,1995
 DET,mcauldi01,Dick McAuliffe,2B,35.5,1961,1973
 DET,kinslia01,Ian Kinsler,2B,16.3,2014,2017
-DET,polanpl01,Placido Polanco,2B,15.6,2005,2009
+DET,polanpl01,Plácido Polanco,2B,15.6,2005,2009
 DET,easleda01,Damion Easley,2B,15.4,1996,2002
 HOU,biggicr01,Craig Biggio,2B,65.8,1988,2007
 HOU,altuvjo01,Jose Altuve,2B,61,2011,2026
@@ -75,7 +75,7 @@ MIA,gordode01,Dee Strange-Gordon,2B,8.1,2015,2017
 MIA,chishja01,Jazz Chisholm Jr.,2B,7.8,2020,2024
 MIA,edwarxa01,Xavier Edwards,2B,7.2,2023,2026
 MIL,gantnji01,Jim Gantner,2B,19.5,1976,1992
-MIL,weeksri01,Rickie Weeks Jr.,2B,18.7,2003,2014
+MIL,weeksri01,Rickie Weeks,2B,18.7,2003,2014
 MIL,turanbr02,Brice Turang,2B,12.8,2023,2026
 MIL,counscr01,Craig Counsell,2B,5.7,2004,2011
 MIL,vinafe01,Fernando Viña,2B,5.4,1995,1999
@@ -100,7 +100,7 @@ OAK,semiema01,Marcus Semien,2B,15.1,2015,2020
 OAK,gallemi01,Mike Gallego,2B,7.2,1985,1995
 OAK,lumpeje01,Jerry Lumpe,2B,7.2,1961,1963
 PHI,utleych01,Chase Utley,2B,59.3,2003,2015
-PHI,polanpl01,Placido Polanco,2B,15.7,2002,2012
+PHI,polanpl01,Plácido Polanco,2B,15.7,2002,2012
 PHI,stottbr01,Bryson Stott,2B,13.9,2022,2026
 PHI,tayloto02,Tony Taylor,2B,13,1961,1976
 PHI,samueju01,Juan Samuel,2B,11.7,1983,1989
@@ -141,10 +141,10 @@ TEX,odorro01,Rougned Odor,2B,8.8,2014,2020
 TEX,mclemma01,Mark McLemore,2B,8.3,1995,1999
 TOR,alomaro01,Roberto Alomar,2B,20.4,1991,1995
 TOR,hillaa01,Aaron Hill,2B,12.4,2005,2011
-TOR,garcida01,Damaso Garcia,2B,8.7,1980,1986
+TOR,garcida01,Dámaso García,2B,8.7,1980,1986
 TOR,hudsoor01,Orlando Hudson,2B,8.3,2002,2005
 TOR,biggica01,Cavan Biggio,2B,6.4,2019,2024
-WSN,vidrojo01,Jose Vidro,2B,16.4,1997,2006
+WSN,vidrojo01,José Vidro,2B,16.4,1997,2006
 WSN,huntro01,Ron Hunt,2B,12,1971,1974
 WSN,lansimi01,Mike Lansing,2B,12,1993,1997
 WSN,deshide01,Delino DeShields,2B,11.6,1990,1993

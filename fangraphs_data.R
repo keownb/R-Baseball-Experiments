@@ -71,6 +71,17 @@ load_fg_war_data <- function(war_bat_br, war_pitch_br) {
   message("Loading FanGraphs WAR from ", FG_DIR, "...")
   id_map <- br_id_map(war_bat_br, war_pitch_br)
 
+  # Players are labelled with the Baseball-Reference feeds' common name (latest season),
+  # so both sources name a player the same way. FanGraphs' PlayerName carries legal
+  # suffixes and birth names that no chart reader uses ("Nolan Ryan Jr.", "Chipper Jones Jr.").
+  br_names <- bind_rows(war_bat_br %>% select(player_ID, year_ID, name_common),
+                        war_pitch_br %>% select(player_ID, year_ID, name_common)) %>%
+    filter(!is.na(player_ID), !is.na(name_common)) %>%
+    group_by(player_ID) %>%
+    slice_max(order_by = year_ID, n = 1, with_ties = FALSE) %>%
+    ungroup() %>%
+    select(player_ID, br_name = name_common)
+
   # Secondary crosswalk (FanGraphs id -> BR id, from the Chadwick register) for
   # the few rows that carry no MLBAM id. Built once; see data_cache/fg_id_crosswalk.csv.
   xwalk_path <- file.path(SUPP_DIR, "fg_id_crosswalk.csv")
@@ -87,6 +98,9 @@ load_fg_war_data <- function(war_bat_br, war_pitch_br) {
         stint_ID  = 1L,
         player_type = player_type
       ) %>%
+      left_join(br_names, by = "player_ID") %>%
+      mutate(name_common = coalesce(br_name, name_common)) %>%
+      select(-br_name) %>%
       group_by(player_ID, year_ID, team_ID) %>%
       mutate(stint_ID = row_number()) %>%
       ungroup()

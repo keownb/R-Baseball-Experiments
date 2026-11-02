@@ -4,7 +4,7 @@ ARI,gonzalu01,Luis Gonzalez,OF,33.8,1999,2006
 ARI,marteke01,Ketel Marte,2B,33,2017,2026
 ARI,montemi01,Miguel Montero,C,24.2,2006,2014
 ARI,carroco02,Corbin Carroll,OF,21.9,2022,2026
-ATL,jonesch06,Chipper Jones Jr.,3B,71.6,1998,2012
+ATL,jonesch06,Chipper Jones,3B,71.6,1998,2012
 ATL,jonesan01,Andruw Jones,OF,60.6,1998,2007
 ATL,freemfr01,Freddie Freeman,1B,42.5,2010,2021
 ATL,mccanbr01,Brian McCann,C,41.1,2005,2019
@@ -22,12 +22,12 @@ BOS,garcino01,Nomar Garciaparra,SS,32.4,1998,2004
 CHC,sosasa01,Sammy Sosa,OF,38.3,1998,2004
 CHC,rizzoan01,Anthony Rizzo,1B,32.8,2012,2021
 CHC,bryankr01,Kris Bryant,3B,30.5,2015,2021
-CHC,ramirar01,Aramis Ramirez,3B,25.7,2003,2011
+CHC,ramirar01,Aramis Ramírez,3B,25.7,2003,2011
 CHC,happia01,Ian Happ,OF,23.3,2017,2026
 CHW,abreujo02,José Abreu,1B,28.3,2014,2022
 CHW,konerpa01,Paul Konerko,1B,24.5,1999,2014
-CHW,ordonma01,Magglio Ordonez,OF,21.3,1998,2004
-CHW,ramiral03,Alexei Ramirez,SS,19.5,2008,2015
+CHW,ordonma01,Magglio Ordóñez,OF,21.3,1998,2004
+CHW,ramiral03,Alexei Ramírez,SS,19.5,2008,2015
 CHW,thomafr04,Frank Thomas,1B,19.4,1998,2005
 CIN,vottojo01,Joey Votto,1B,58.7,2007,2023
 CIN,phillbr01,Brandon Phillips,2B,30.1,2006,2016
@@ -70,7 +70,7 @@ LAD,muncyma01,Max Muncy,3B,27.4,2018,2026
 LAD,kempma01,Matt Kemp,OF,27.1,2006,2018
 LAD,beltrad01,Adrian Beltré,3B,25.2,1998,2004
 MIA,stantmi03,Giancarlo Stanton,OF,33.7,2010,2017
-MIA,ramirha01,Hanley Ramirez,SS,30.5,2006,2012
+MIA,ramirha01,Hanley Ramírez,SS,30.5,2006,2012
 MIA,castilu01,Luis Castillo,2B,20.8,1998,2005
 MIA,cabremi01,Miguel Cabrera,1B,19.6,2003,2007
 MIA,ugglada01,Dan Uggla,2B,18,2006,2010
@@ -116,7 +116,7 @@ SDP,headlch01,Chase Headley,3B,19,2007,2018
 SDP,gilesbr02,Brian Giles,OF,18.4,2003,2009
 SEA,suzukic01,Ichiro Suzuki,OF,54.1,2001,2019
 SEA,seageky01,Kyle Seager,3B,34.1,2011,2021
-SEA,martied01,Edgar Martinez,3B,25.3,1998,2004
+SEA,martied01,Edgar Martínez,3B,25.3,1998,2004
 SEA,raleica01,Cal Raleigh,C,24.8,2021,2026
 SEA,rodriju01,Julio Rodríguez,OF,23.8,2022,2026
 SFG,bondsba01,Barry Bonds,OF,73.8,1998,2007
@@ -138,7 +138,7 @@ TEX,beltrad01,Adrian Beltré,3B,35.8,2011,2018
 TEX,andruel01,Elvis Andrus,SS,29.8,2009,2020
 TEX,kinslia01,Ian Kinsler,2B,29.3,2006,2013
 TEX,rodrial01,Alex Rodriguez,SS,27,2001,2003
-TEX,rodriiv01,Ivan Rodriguez,C,26.1,1998,2009
+TEX,rodriiv01,Iván Rodríguez,C,26.1,1998,2009
 TOR,bautijo02,José Bautista,OF,36.2,2008,2017
 TOR,delgaca01,Carlos Delgado,1B,32.6,1998,2004
 TOR,wellsve01,Vernon Wells,OF,24.8,1999,2010

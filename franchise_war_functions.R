@@ -187,7 +187,8 @@ divisions <- tribble(
 })
 # Postseason line types: the biggest series the club won that October. A club that
 # lost its first series gets no line. Before 1969 the pennant was decided by the
-# regular season, so a World Series loser from those years counts as a pennant winner.
+# regular season, so a World Series loser from those years counts as a pennant winner,
+# and so do both clubs of a World Series that ended level (1885, 1890).
 POSTSEASON_LEVELS <- c("World Series", "Pennant/LCS", "Division Series", "Wild Card")
 POSTSEASON_LINETYPES <- c("World Series" = "solid", "Pennant/LCS" = "dashed",
                           "Division Series" = "dotted", "Wild Card" = "dotdash")
@@ -789,13 +790,19 @@ get_postseason_data <- function(team_code) {
       grepl("WC", round) ~ "Wild Card",
       TRUE ~ NA_character_          # Negro League rounds in Lahman: no modern franchise
     )) %>%
-    filter(!is.na(type))
+    filter(!is.na(type)) %>%
+    # Lahman names a "winner" for the 1885 (Chicago-St. Louis) and 1890 (Brooklyn-
+    # Louisville) World Series, but both ended 3-3-1: nobody won them.
+    mutate(tied = !is.na(wins) & !is.na(losses) & wins == losses)
   bind_rows(
     # every series the club won
-    sp %>% transmute(yearID, team = teamIDwinner, achievement = type),
+    sp %>% filter(!tied) %>% transmute(yearID, team = teamIDwinner, achievement = type),
     # a pennant won without a series: the World Series loser before the LCS era (1969)
     sp %>% filter(type == "World Series", yearID < 1969) %>%
-      transmute(yearID, team = teamIDloser, achievement = "Pennant/LCS")
+      transmute(yearID, team = teamIDloser, achievement = "Pennant/LCS"),
+    # ...and the other club of a tied World Series
+    sp %>% filter(tied, type == "World Series") %>%
+      transmute(yearID, team = teamIDwinner, achievement = "Pennant/LCS")
   ) %>%
     mutate(franchise = lahman_franchise(team, yearID)) %>%
     filter(!is.na(franchise), franchise == team_code) %>%

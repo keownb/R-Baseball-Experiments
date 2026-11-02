@@ -11,7 +11,7 @@ ATL,ugglada01,Dan Uggla,2B,5.4,2011,2014
 ATL,infanom01,Omar Infante,2B,3.8,2008,2010
 BAL,roberbr01,Brian Roberts,2B,29.4,2001,2013
 BAL,schoojo01,Jonathan Schoop,2B,10.7,2013,2018
-BAL,hairsje02,Jerry Hairston Jr.,2B,6.8,1998,2004
+BAL,hairsje02,Jerry Hairston,2B,6.8,1998,2004
 BAL,deshide01,Delino DeShields,2B,2.8,1999,2001
 BAL,alberha01,Hanser Alberto,2B,2.4,2019,2020
 BOS,pedrodu01,Dustin Pedroia,2B,44.8,2006,2019
@@ -45,7 +45,7 @@ COL,carroja01,Jamey Carroll,2B,2.9,2006,2007
 COL,rodgebr02,Brendan Rodgers,2B,2.9,2019,2024
 COL,walketo04,Todd Walker,2B,2,2000,2001
 DET,kinslia01,Ian Kinsler,2B,16.3,2014,2017
-DET,polanpl01,Placido Polanco,2B,15.6,2005,2009
+DET,polanpl01,Plácido Polanco,2B,15.6,2005,2009
 DET,easleda01,Damion Easley,2B,13,1998,2002
 DET,infanom01,Omar Infante,2B,5.8,2002,2013
 DET,schoojo01,Jonathan Schoop,2B,4.6,2020,2023
@@ -58,7 +58,7 @@ KCR,merriwh01,Whit Merrifield,2B,17.3,2016,2022
 KCR,lopezni01,Nicky Lopez,2B,7,2019,2023
 KCR,grudzma01,Mark Grudzielanek,2B,6.7,2006,2008
 KCR,massemi02,Michael Massey,2B,4.1,2022,2026
-KCR,germaes01,Esteban German,2B,2.4,2006,2008
+KCR,germaes01,Esteban Germán,2B,2.4,2006,2008
 LAA,kendrho01,Howie Kendrick,2B,23.1,2006,2014
 LAA,kennead01,Adam Kennedy,2B,15.6,2000,2006
 LAA,fletcda02,David Fletcher,2B,7.3,2018,2023
@@ -74,7 +74,7 @@ MIA,ugglada01,Dan Uggla,2B,18,2006,2010
 MIA,gordode01,Dee Strange-Gordon,2B,8.1,2015,2017
 MIA,chishja01,Jazz Chisholm Jr.,2B,7.8,2020,2024
 MIA,edwarxa01,Xavier Edwards,2B,7.2,2023,2026
-MIL,weeksri01,Rickie Weeks Jr.,2B,18.7,2003,2014
+MIL,weeksri01,Rickie Weeks,2B,18.7,2003,2014
 MIL,turanbr02,Brice Turang,2B,12.8,2023,2026
 MIL,counscr01,Craig Counsell,2B,5.7,2004,2011
 MIL,belliro01,Ronnie Belliard,2B,5.2,1998,2002
@@ -100,7 +100,7 @@ OAK,gelofza01,Zack Gelof,2B,6.4,2023,2026
 OAK,velarra01,Randy Velarde,2B,4.6,1999,2002
 OAK,menecfr01,Frank Menechino,2B,3.3,1999,2004
 PHI,utleych01,Chase Utley,2B,59.3,2003,2015
-PHI,polanpl01,Placido Polanco,2B,15.7,2002,2012
+PHI,polanpl01,Plácido Polanco,2B,15.7,2002,2012
 PHI,stottbr01,Bryson Stott,2B,13.9,2022,2026
 PHI,hernace02,César Hernández,2B,10.6,2013,2019
 PHI,anderma02,Marlon Anderson,2B,2,1998,2002
@@ -118,7 +118,7 @@ SEA,canoro01,Robinson Canó,2B,20.6,2014,2018
 SEA,boonebr01,Bret Boone,2B,19.4,2001,2005
 SEA,ackledu01,Dustin Ackley,2B,6.9,2011,2015
 SEA,mclemma01,Mark McLemore,2B,6.9,2000,2003
-SEA,lopezjo01,Jose Lopez,2B,5.6,2004,2010
+SEA,lopezjo01,José López,2B,5.6,2004,2010
 SFG,kentje01,Jeff Kent,2B,26.8,1998,2002
 SFG,durhara01,Ray Durham,2B,13,2003,2008
 SFG,panikjo01,Joe Panik,2B,9.1,2014,2019
@@ -144,7 +144,7 @@ TOR,hudsoor01,Orlando Hudson,2B,8.3,2002,2005
 TOR,biggica01,Cavan Biggio,2B,6.4,2019,2024
 TOR,travide01,Devon Travis,2B,4.2,2015,2018
 TOR,gimenan01,Andrés Giménez,2B,3.8,2025,2026
-WSN,vidrojo01,Jose Vidro,2B,16.8,1998,2006
+WSN,vidrojo01,José Vidro,2B,16.8,1998,2006
 WSN,espinda01,Danny Espinosa,2B,9.1,2010,2016
 WSN,murphda08,Daniel Murphy,2B,8.6,2016,2018
 WSN,garcilu04,Luis García Jr.,2B,5.2,2020,2026

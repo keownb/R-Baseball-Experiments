@@ -24,7 +24,7 @@ CHC,eversjo01,Johnny Evers,2B,41,1902,1913
 CHC,hermabi01,Billy Herman,2B,40.5,1931,1941
 CHC,hoernni01,Nico Hoerner,2B,22.6,2019,2026
 CHC,hornsro01,Rogers Hornsby,2B,16.6,1929,1932
-CHW,collied01,Eddie Collins Sr.,2B,64.2,1915,1926
+CHW,collied01,Eddie Collins,2B,64.2,1915,1926
 CHW,foxne01,Nellie Fox,2B,43.8,1950,1963
 CHW,durhara01,Ray Durham,2B,14.2,1995,2002
 CHW,michaca01,Cass Michaels,2B,13.1,1943,1954
@@ -35,7 +35,7 @@ CIN,phillbr01,Brandon Phillips,2B,30.1,2006,2016
 CIN,huggimi01,Miller Huggins,2B,18,1904,1909
 CIN,templjo01,Johnny Temple,2B,14.2,1952,1964
 CLE,lajoina01,Nap Lajoie,2B,74.9,1902,1914
-CLE,avilabo01,Bobby Avila,2B,25,1949,1958
+CLE,avilabo01,Bobby Ávila,2B,25,1949,1958
 CLE,kipnija01,Jason Kipnis,2B,20.6,2011,2019
 CLE,gordojo01,Joe Gordon,2B,20.4,1947,1950
 CLE,alomaro01,Roberto Alomar,2B,18.9,1999,2001
@@ -48,7 +48,7 @@ DET,gehrich01,Charlie Gehringer,2B,78.6,1924,1942
 DET,whitalo01,Lou Whitaker,2B,68.1,1977,1995
 DET,mcauldi01,Dick McAuliffe,2B,35.5,1960,1973
 DET,kinslia01,Ian Kinsler,2B,16.3,2014,2017
-DET,polanpl01,Placido Polanco,2B,15.6,2005,2009
+DET,polanpl01,Plácido Polanco,2B,15.6,2005,2009
 HOU,biggicr01,Craig Biggio,2B,65.8,1988,2007
 HOU,altuvjo01,Jose Altuve,2B,61,2011,2026
 HOU,morgajo02,Joe Morgan,2B,29.3,1963,1980
@@ -75,7 +75,7 @@ MIA,gordode01,Dee Strange-Gordon,2B,8.1,2015,2017
 MIA,chishja01,Jazz Chisholm Jr.,2B,7.8,2020,2024
 MIA,edwarxa01,Xavier Edwards,2B,7.2,2023,2026
 MIL,gantnji01,Jim Gantner,2B,19.5,1976,1992
-MIL,weeksri01,Rickie Weeks Jr.,2B,18.7,2003,2014
+MIL,weeksri01,Rickie Weeks,2B,18.7,2003,2014
 MIL,turanbr02,Brice Turang,2B,12.8,2023,2026
 MIL,counscr01,Craig Counsell,2B,5.7,2004,2011
 MIL,vinafe01,Fernando Viña,2B,5.4,1995,1999
@@ -94,13 +94,13 @@ NYY,lazzeto01,Tony Lazzeri,2B,48.4,1926,1937
 NYY,gordojo01,Joe Gordon,2B,39.9,1938,1946
 NYY,mcdougi01,Gil McDougald,2B,39.7,1951,1960
 NYY,canoro01,Robinson Canó,2B,35.7,2005,2013
-OAK,collied01,Eddie Collins Sr.,2B,55.9,1906,1930
+OAK,collied01,Eddie Collins,2B,55.9,1906,1930
 OAK,bishoma01,Max Bishop,2B,35.8,1924,1933
 OAK,murphda02,Danny Murphy,2B,33.7,1902,1913
 OAK,ellisma01,Mark Ellis,2B,21.9,2002,2011
 OAK,greendi01,Dick Green,2B,16.3,1963,1974
 PHI,utleych01,Chase Utley,2B,59.3,2003,2015
-PHI,polanpl01,Placido Polanco,2B,15.7,2002,2012
+PHI,polanpl01,Plácido Polanco,2B,15.7,2002,2012
 PHI,tayloto02,Tony Taylor,2B,14.2,1960,1976
 PHI,stottbr01,Bryson Stott,2B,13.9,2022,2026
 PHI,knabeot01,Otto Knabe,2B,12.2,1907,1913
@@ -141,10 +141,10 @@ TEX,odorro01,Rougned Odor,2B,8.8,2014,2020
 TEX,mclemma01,Mark McLemore,2B,8.3,1995,1999
 TOR,alomaro01,Roberto Alomar,2B,20.4,1991,1995
 TOR,hillaa01,Aaron Hill,2B,12.4,2005,2011
-TOR,garcida01,Damaso Garcia,2B,8.7,1980,1986
+TOR,garcida01,Dámaso García,2B,8.7,1980,1986
 TOR,hudsoor01,Orlando Hudson,2B,8.3,2002,2005
 TOR,biggica01,Cavan Biggio,2B,6.4,2019,2024
-WSN,vidrojo01,Jose Vidro,2B,16.4,1997,2006
+WSN,vidrojo01,José Vidro,2B,16.4,1997,2006
 WSN,huntro01,Ron Hunt,2B,12,1971,1974
 WSN,lansimi01,Mike Lansing,2B,12,1993,1997
 WSN,deshide01,Delino DeShields,2B,11.6,1990,1993

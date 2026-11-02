@@ -5,7 +5,7 @@ ARI,milleda02,Damian Miller,C,7.5,1998,2002
 ARI,snydech02,Chris Snyder,C,6.7,2004,2010
 ARI,kellyca02,Carson Kelly,C,5,2019,2023
 ATL,mccanbr01,Brian McCann,C,41.1,2005,2019
-ATL,lopezja01,Javy Lopez,C,26.1,1993,2003
+ATL,lopezja01,Javy López,C,26.1,1993,2003
 ATL,flowety01,Tyler Flowers,C,10.5,2016,2020
 ATL,rossda01,David Ross,C,10.2,2009,2012
 ATL,darnatr01,Travis d'Arnaud,C,9.4,2020,2024
@@ -13,12 +13,12 @@ BAL,hoilech01,Chris Hoiles,C,20.2,1993,1998
 BAL,rutscad01,Adley Rutschman,C,17.5,2022,2026
 BAL,wietema01,Matt Wieters,C,16.5,2009,2016
 BAL,johnsch04,Charles Johnson,C,6.2,1999,2000
-BAL,hernara02,Ramon Hernandez,C,6.1,2006,2008
+BAL,hernara02,Ramón Hernández,C,6.1,2006,2008
 BOS,varitja01,Jason Varitek,C,21.2,1997,2011
 BOS,vazquch01,Christian Vázquez,C,13.6,2014,2022
 BOS,saltaja01,Jarrod Saltalamacchia,C,8.9,2010,2013
 BOS,stanlmi02,Mike Stanley,C,6.5,1996,2000
-BOS,martivi01,Victor Martinez,C,5,2009,2010
+BOS,martivi01,Víctor Martínez,C,5,2009,2010
 CHC,contrwi01,Willson Contreras,C,16.1,2016,2022
 CHC,sotoge01,Geovany Soto,C,12.7,2005,2012
 CHC,wilkiri01,Rick Wilkins,C,8.6,1993,1995
@@ -33,18 +33,18 @@ CIN,hanigry01,Ryan Hanigan,C,14.6,2007,2013
 CIN,larueja01,Jason LaRue,C,9.5,1999,2006
 CIN,stephty01,Tyler Stephenson,C,8.9,2020,2026
 CIN,barnhtu01,Tucker Barnhart,C,5.8,2014,2021
-CIN,taubeed01,Eddie Taubensee,C,5.5,1994,2000
-CLE,martivi01,Victor Martinez,C,18.2,2002,2009
+CIN,taubeed01,Ed Taubensee,C,5.5,1994,2000
+CLE,martivi01,Víctor Martínez,C,18.2,2002,2009
 CLE,gomesya01,Yan Gomes,C,13.5,2013,2018
 CLE,perezro02,Roberto Pérez,C,10.2,2014,2021
-CLE,alomasa02,Sandy Alomar Jr.,C,10,1993,2000
+CLE,alomasa02,Sandy Alomar,C,10,1993,2000
 CLE,shoppke01,Kelly Shoppach,C,5.1,2006,2013
 COL,goodmhu01,Hunter Goodman,C,4.5,2023,2026
 COL,iannech01,Chris Iannetta,C,4.2,2006,2019
 COL,reedje02,Jeff Reed,C,4,1996,1999
 COL,torreyo01,Yorvit Torrealba,C,2.6,2006,2013
 COL,johnsch04,Charles Johnson,C,2.4,2003,2004
-DET,rodriiv01,Ivan Rodriguez,C,13.6,2004,2008
+DET,rodriiv01,Iván Rodríguez,C,13.6,2004,2008
 DET,avilaal01,Alex Avila,C,12.5,2009,2017
 DET,dingldi01,Dillon Dingler,C,8.9,2024,2026
 DET,ausmubr01,Brad Ausmus,C,7.8,1996,2000
@@ -96,7 +96,7 @@ NYY,martiru01,Russell Martin,C,9.4,2011,2012
 NYY,wellsau01,Austin Wells,C,8.4,2023,2026
 OAK,steinte01,Terry Steinbach,C,11.7,1993,1996
 OAK,murphse01,Sean Murphy,C,10.5,2019,2022
-OAK,hernara02,Ramon Hernandez,C,9.4,1999,2003
+OAK,hernara02,Ramón Hernández,C,9.4,1999,2003
 OAK,langesh01,Shea Langeliers,C,8.6,2022,2026
 OAK,suzukku01,Kurt Suzuki,C,7.5,2007,2013
 PHI,realmjt01,J.T. Realmuto,C,25.6,2019,2026
@@ -112,7 +112,7 @@ PIT,slaugdo01,Don Slaught,C,3.3,1993,1995
 SDP,grandya01,Yasmani Grandal,C,7.6,2012,2014
 SDP,hedgeau01,Austin Hedges,C,6.2,2015,2020
 SDP,riverre01,René Rivera,C,5.9,2013,2014
-SDP,hernara02,Ramon Hernandez,C,5.3,2004,2005
+SDP,hernara02,Ramón Hernández,C,5.3,2004,2005
 SDP,norride01,Derek Norris,C,4.2,2015,2016
 SEA,raleica01,Cal Raleigh,C,24.8,2021,2026
 SEA,wilsoda01,Dan Wilson,C,14.6,1994,2005
@@ -133,8 +133,8 @@ TBR,molinjo01,José Molina,C,7.4,2012,2014
 TBR,hallto02,Toby Hall,C,4.2,2000,2006
 TBR,zuninmi01,Mike Zunino,C,4.1,2019,2022
 TBR,ramoswi01,Wilson Ramos,C,3,2017,2018
-TBR,lobatjo01,Jose Lobatón,C,2.2,2011,2013
-TEX,rodriiv01,Ivan Rodriguez,C,46.3,1993,2009
+TBR,lobatjo01,José Lobatón,C,2.2,2011,2013
+TEX,rodriiv01,Iván Rodríguez,C,46.3,1993,2009
 TEX,heimjo01,Jonah Heim,C,7.1,2021,2025
 TEX,chiriro01,Robinson Chirinos,C,4.2,2013,2020
 TEX,barajro01,Rod Barajas,C,3.8,2004,2006

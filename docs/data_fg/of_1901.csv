@@ -4,7 +4,7 @@ ARI,carroco02,Corbin Carroll,OF,21.9,2022,2026
 ARI,finlest01,Steve Finley,OF,18.2,1999,2004
 ARI,polloaj01,AJ Pollock,OF,16.7,2012,2018
 ARI,uptonju01,Justin Upton,OF,16.3,2007,2012
-ATL,aaronha01,Hank Aaron,OF,136,1954,1974
+ATL,aaronha01,Henry Aaron,OF,136,1954,1974
 ATL,jonesan01,Andruw Jones,OF,64.3,1996,2007
 ATL,murphda05,Dale Murphy,OF,44.3,1976,1990
 ATL,bergewa01,Wally Berger,OF,36.9,1930,1937
@@ -17,14 +17,14 @@ BAL,singlke01,Ken Singleton,OF,31.5,1975,1984
 BOS,willite01,Ted Williams,OF,129.8,1939,1960
 BOS,yastrca01,Carl Yastrzemski,OF,94.8,1961,1983
 BOS,evansdw01,Dwight Evans,OF,64.3,1972,1990
-BOS,speaktr01,Tristram Speaker,OF,54.4,1907,1915
+BOS,speaktr01,Tris Speaker,OF,54.4,1907,1915
 BOS,riceji01,Jim Rice,OF,50.8,1974,1989
 CHC,sosasa01,Sammy Sosa,OF,60.7,1992,2004
 CHC,willibi01,Billy Williams,OF,58.9,1959,1974
 CHC,nichobi01,Bill Nicholson,OF,37.7,1939,1948
 CHC,wilsoha01,Hack Wilson,OF,33.7,1926,1931
 CHC,cuyleki01,Kiki Cuyler,OF,29.3,1928,1935
-CHW,minosmi01,Minnie Minoso,OF,41.8,1951,1980
+CHW,minosmi01,Minnie Miñoso,OF,41.8,1951,1980
 CHW,jonesfi01,Fielder Jones,OF,32.3,1901,1908
 CHW,jacksjo01,Joe Jackson,OF,26.9,1915,1920
 CHW,baineha01,Harold Baines,OF,24.5,1980,2001
@@ -34,8 +34,8 @@ CIN,robinfr02,Frank Robinson,OF,59.6,1956,1965
 CIN,pinsova01,Vada Pinson,OF,42.8,1958,1968
 CIN,fostege01,George Foster,OF,42,1971,1981
 CIN,roushed01,Edd Roush,OF,41.9,1916,1931
-CLE,speaktr01,Tristram Speaker,OF,72.2,1916,1926
-CLE,averiea01,Earl Averill Sr.,OF,47.7,1929,1939
+CLE,speaktr01,Tris Speaker,OF,72.2,1916,1926
+CLE,averiea01,Earl Averill,OF,47.7,1929,1939
 CLE,dobyla01,Larry Doby,OF,45.5,1947,1958
 CLE,loftoke01,Kenny Lofton,OF,43.1,1992,2007
 CLE,jacksjo01,Joe Jackson,OF,34,1910,1915
@@ -50,9 +50,9 @@ DET,heilmha01,Harry Heilmann,OF,63.9,1914,1929
 DET,crawfsa01,Sam Crawford,OF,60.1,1903,1917
 DET,veachbo01,Bobby Veach,OF,42.4,1912,1923
 HOU,berkmla01,Lance Berkman,OF,51.4,1999,2010
-HOU,cruzjo01,Jose Cruz,OF,47.8,1975,1987
-HOU,cedence01,Cesar Cedeno,OF,46.6,1970,1981
-HOU,wynnji01,Jimmy Wynn,OF,38.7,1963,1973
+HOU,cruzjo01,José Cruz,OF,47.8,1975,1987
+HOU,cedence01,César Cedeño,OF,46.6,1970,1981
+HOU,wynnji01,Jim Wynn,OF,38.7,1963,1973
 HOU,alvaryo01,Yordan Alvarez,OF,30.6,2019,2026
 KCR,otisam01,Amos Otis,OF,42,1970,1983
 KCR,wilsowi02,Willie Wilson,OF,35.2,1976,1990
@@ -134,17 +134,17 @@ TBR,kiermke01,Kevin Kiermaier,OF,23.6,2013,2022
 TBR,uptonbj01,B.J. Upton,OF,22.5,2004,2012
 TBR,jennide01,Desmond Jennings,OF,12,2010,2016
 TBR,arozara01,Randy Arozarena,OF,11.5,2020,2024
-TEX,gonzaju03,Juan Gonzalez,OF,30.3,1989,2003
+TEX,gonzaju03,Juan González,OF,30.3,1989,2003
 TEX,howarfr01,Frank Howard,OF,27.9,1965,1972
 TEX,hamiljo03,Josh Hamilton,OF,23.2,2008,2015
-TEX,sierrru01,Ruben Sierra,OF,19.1,1986,2003
+TEX,sierrru01,Rubén Sierra,OF,19.1,1986,2003
 TEX,greerru01,Rusty Greer,OF,18.2,1994,2002
 TOR,bautijo02,José Bautista,OF,36.2,2008,2017
 TOR,barfije01,Jesse Barfield,OF,29.6,1981,1989
 TOR,wellsve01,Vernon Wells,OF,24.8,1999,2010
 TOR,mosebll01,Lloyd Moseby,OF,24.6,1980,1989
 TOR,whitede03,Devon White,OF,20.9,1991,1995
-WSN,raineti01,Tim Raines Sr.,OF,49.3,1979,2001
+WSN,raineti01,Tim Raines,OF,49.3,1979,2001
 WSN,dawsoan01,Andre Dawson,OF,44.3,1976,1986
 WSN,guerrvl01,Vladimir Guerrero,OF,33.8,1996,2003
 WSN,harpebr03,Bryce Harper,OF,28.6,2012,2018
