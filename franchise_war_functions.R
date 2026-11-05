@@ -479,7 +479,8 @@ generate_franchise_war_plot <- function(
       p <- p + geom_vline(
         data = all_postseason,
         aes(xintercept = yearID, linetype = achievement),
-        alpha = 0.3, linewidth = 0.3
+        alpha = 0.3, linewidth = 0.3,
+        key_glyph = "path"     # horizontal key: dashed, dotted and dot-dash can be told apart
       ) +
       postseason_linetype_scale()
     }
@@ -514,6 +515,7 @@ generate_franchise_war_plot <- function(
       legend.justification = "left",
       legend.box = "horizontal",
       legend.box.just = "left",
+      legend.key.width = unit(1.6, "cm"),
       panel.spacing.x = unit(1.5, "lines"),
       panel.spacing.y = unit(1.2, "lines"),
       panel.border = element_rect(colour = "#444444", fill = NA, linewidth = 1),

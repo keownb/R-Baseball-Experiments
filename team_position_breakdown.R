@@ -251,17 +251,21 @@ generate_team_position_plot <- function(
     p <- p + geom_vline(
       data = postseason_data,
       aes(xintercept = yearID, linetype = achievement),
-      alpha = 0.35, linewidth = 0.4
+      alpha = 0.35, linewidth = 0.4,
+      key_glyph = "path"     # horizontal key: dashed, dotted and dot-dash can be told apart
     ) +
     postseason_linetype_scale()
   }
   
   # Best ghost lines: only runs of 2+ consecutive seasons, as the legend says.
   # A single-season best is not drawn (a lone point reads as noise).
+  # The line layers appear in the colour legend only; with show.legend = TRUE
+  # they were also drawn through every postseason and award key.
+  LINE_LEGEND <- c(colour = TRUE, linetype = FALSE, shape = FALSE, size = FALSE, fill = FALSE, linewidth = FALSE)
   p <- p + geom_line(
     data = filter(team_cum, is_best_ghost, ghost_run_len >= 2),
     aes(group = ghost_run_id, color = player_category),
-    linewidth = 0.7, show.legend = TRUE
+    linewidth = 0.7, show.legend = LINE_LEGEND
   )
   
   # Top players: z-score segments or constant lines
@@ -270,7 +274,8 @@ generate_team_position_plot <- function(
       data = top_segments,
       aes(x = year_ID, xend = next_year, y = cumWAR, yend = next_cumWAR,
           linewidth = width_z, color = player_category),
-      lineend = "round", linejoin = "round", show.legend = TRUE
+      lineend = "round", linejoin = "round",
+      show.legend = replace(LINE_LEGEND, "linewidth", TRUE)
     ) +
     scale_linewidth_continuous(
       name = "Positional Dominance (σ above mean)",
@@ -282,7 +287,23 @@ generate_team_position_plot <- function(
     p <- p + geom_line(
       data = filter(team_cum, player_category == "Top 5 (Team WAR)"),
       aes(group = stint_id, color = player_category),
-      linewidth = 1.2, show.legend = TRUE
+      linewidth = 1.2, show.legend = LINE_LEGEND
+    )
+  }
+
+  # A top player's one-season stint (a one-year return, a season before or after
+  # military service, the 2020 opt-outs) has no line to draw: it gets a dot at
+  # that season's cumulative WAR, and its label below like every other stint.
+  single_seasons <- team_cum %>%
+    filter(is_top) %>%
+    group_by(stint_id) %>%
+    filter(n() == 1) %>%
+    ungroup()
+  if (nrow(single_seasons) > 0) {
+    p <- p + geom_point(
+      data = single_seasons,
+      aes(color = player_category),
+      size = 2, show.legend = FALSE
     )
   }
   
@@ -308,14 +329,12 @@ generate_team_position_plot <- function(
                  "Best in Gap Years (2+ yr)" = ghost_highlight_color),
       guide = guide_legend(override.aes = list(linewidth = 2))
     ) +
-    # One label per stint of two or more seasons (the original rule). The audit
-    # labelled each player once at his final season, which put labels on one-year
-    # returns where no line is drawn; a better rule awaits a decision.
+    # One label per stint, at its last season: a line of two or more seasons, or
+    # the dot of a one-season stint.
     geom_label_repel(
       data = team_cum %>%
         filter(is_top) %>%
         group_by(position, player_ID, stint_id) %>%
-        filter(n() >= 2) %>%
         filter(year_ID == max(year_ID)) %>%
         ungroup(),
       aes(label = name_common),
@@ -364,6 +383,7 @@ generate_team_position_plot <- function(
       legend.box.just = "left",
       legend.margin = margin(0, 0, 5, 0),
       legend.spacing.x = unit(0.8, "cm"),
+      legend.key.width = unit(1.6, "cm"),
       panel.spacing = unit(0.8, "lines"),
       strip.text = element_text(face = "bold", size = 13),
       axis.text = element_text(size = 8),
